@@ -25,7 +25,6 @@ final ThemeData myTheme = ThemeData(
   primaryColor: primaryColorMedium,
   primaryColorLight: primaryColorLight,
   scaffoldBackgroundColor: primaryColorSignalWhite,
-  hoverColor: primaryColorLight,
 
 
   fontFamily: GoogleFonts.roboto().fontFamily,

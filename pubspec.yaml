@@ -234,7 +234,6 @@ flutter:
      - assets/images/default.svg
      - assets/SVGPicture/login_left_picture.svg
      - assets/images/tableOptionSelected.svg
-     - assets/SVGPicture/oro_logo.svg
      - assets/images/login_top_corner.png
      - assets/images/oro_logo_white.png
      - assets/SVGPicture/irrigation_line_icon.svg
@@ -423,6 +422,7 @@ flutter:
      - assets/weatherIcons2/WindSpeed.png
      - assets/weatherIcons2/WindSpeedColor.png
      - assets/images/login_left_picture.png
+     - assets/images/lk_logo.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
