@@ -47,7 +47,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
     getMySalesData("All");
     getMyStock();
     getMyDealer();
-    print('object');
   }
 
   void callbackFunction(String message)
