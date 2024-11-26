@@ -422,6 +422,7 @@ flutter:
      - assets/weatherIcons2/WindDirection.png
      - assets/weatherIcons2/WindSpeed.png
      - assets/weatherIcons2/WindSpeedColor.png
+     - assets/images/login_left_picture.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../Models/Customer/Dashboard/DashboardNode.dart';
 import '../../../constants/MyFunction.dart';
+import '../../../constants/theme.dart';
 import '../../../state_management/MqttPayloadProvider.dart';
 
 class NextSchedule extends StatefulWidget {
@@ -39,11 +40,11 @@ class _NextScheduleState extends State<NextSchedule> {
                   width: 220,
                   padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 2),
                   decoration: BoxDecoration(
-                      color: Colors.orange.shade200,
+                      color: primaryColorSolarGray,
                       borderRadius: const BorderRadius.all(Radius.circular(2)),
-                      border: Border.all(width: 0.5, color: Colors.grey)
+                      border: Border.all(width: 0.5, color: primaryColorSolarGray)
                   ),
-                  child: const Text('NEXT SCHEDULE IN QUEUE',  style: TextStyle(color: Colors.black)),
+                  child: const Text('NEXT SCHEDULE IN QUEUE',  style: TextStyle(color: Colors.white)),
                 ),
               ),
             ],
@@ -120,7 +121,7 @@ class _NextScheduleState extends State<NextSchedule> {
           minWidth: 1000,
           dataRowHeight: 45.0,
           headingRowHeight: 40.0,
-          headingRowColor: MaterialStateProperty.all<Color>(Colors.orange.shade50),
+          headingRowColor: WidgetStateProperty.all<Color>(primaryColorLightGray),
           columns: const [
             DataColumn2(
                 label: Text('Name', style: TextStyle(fontSize: 13),),

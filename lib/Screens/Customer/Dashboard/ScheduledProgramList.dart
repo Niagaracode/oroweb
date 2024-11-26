@@ -1,7 +1,5 @@
-import 'dart:async';
 import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:calendar_view/calendar_view.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -12,6 +10,7 @@ import '../../../constants/MQTTManager.dart';
 import '../../../constants/MyFunction.dart';
 import '../../../constants/http_service.dart';
 import '../../../constants/snack_bar.dart';
+import '../../../constants/theme.dart';
 import '../../../state_management/MqttPayloadProvider.dart';
 import '../ScheduleView.dart';
 
@@ -63,11 +62,11 @@ class ScheduledProgramList extends StatelessWidget {
                   width: 200,
                   padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 2),
                   decoration: BoxDecoration(
-                      color: Colors.yellow.shade200,
+                      color: primaryColorSolarGray,
                       borderRadius: const BorderRadius.all(Radius.circular(2)),
-                      border: Border.all(width: 0.5, color: Colors.grey)
+                      border: Border.all(width: 0.5, color: primaryColorSolarGray)
                   ),
-                  child: const Text('SCHEDULED PROGRAM',  style: TextStyle(color: Colors.black)),
+                  child: const Text('SCHEDULED PROGRAM',  style: TextStyle(color: Colors.white)),
                 ),
               ),
             ],
@@ -223,7 +222,7 @@ class ScheduledProgramList extends StatelessWidget {
           minWidth: 1000,
           dataRowHeight: 45.0,
           headingRowHeight: 40.0,
-          headingRowColor: WidgetStateProperty.all<Color>(Colors.yellow.shade50),
+          headingRowColor: WidgetStateProperty.all<Color>(primaryColorLightGray),
           columns:  [
             const DataColumn2(
               label: Text('Line Id', style: TextStyle(fontSize: 13),),

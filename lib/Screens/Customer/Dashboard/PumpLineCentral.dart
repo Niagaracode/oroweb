@@ -1892,7 +1892,7 @@ class _DisplayFilterState extends State<DisplayFilter> {
                   ),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.green.shade50,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(3),
                     ),
                     width: filteredCentralFilter[i]['PrsIn']!='-'? filteredCentralFilter[i]['FilterStatus'].length * 70+70:
@@ -2058,7 +2058,7 @@ class _DisplayFilterState extends State<DisplayFilter> {
               ),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.green.shade50,
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(3),
                 ),
                 width: filteredCentralFilter[i]['PrsIn']!='-'? filteredCentralFilter[i]['FilterStatus'].length * 70+70:
@@ -2465,7 +2465,7 @@ class _DisplayCentralFertilizerState extends State<DisplayCentralFertilizer> {
                           const SizedBox(),
                           Container(
                             decoration: BoxDecoration(
-                              color: Colors.green.shade50,
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(3),
                             ),
                             width: (fertilizerCentral[fIndex]['Fertilizer'].length * 67) - (fertilizerCentral[fIndex]['Ec'].length * 70),
@@ -2895,7 +2895,7 @@ class _LocalFilterState extends State<LocalFilter> {
                   ),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.green.shade50,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(3),
                     ),
                     width: filteredLocalFilter[i]['FilterStatus'].length * 60,
@@ -3057,7 +3057,7 @@ class _LocalFilterState extends State<LocalFilter> {
               ),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.green.shade50,
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(3),
                 ),
                 width: filteredLocalFilter[i]['FilterStatus'].length * 60,
@@ -3455,7 +3455,7 @@ class _DisplayLocalFertilizerState extends State<DisplayLocalFertilizer> {
                           const SizedBox(),
                           Container(
                             decoration: BoxDecoration(
-                              color: Colors.green.shade50,
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(3),
                             ),
                             width: (fertilizerLocal[fIndex]['Fertilizer'].length * 67) - (fertilizerLocal[fIndex]['Ec'].length * 70),

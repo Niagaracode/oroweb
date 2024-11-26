@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-const primaryColorDark = Color(0xFF036673);
-const primaryColorMedium = Color(0xFF1D808E);
-const primaryColorLight = Color(0x6438D3E8);
-const backgroundColor = Color(0xFFE0F2F1);
+const primaryColorDark = Color(0xFF004265);
+const primaryColorMedium = Color(0xff005B8A);
+const primaryColorLight = Color(0xff008cd7);
+
+const primaryColorTrafficBlue = Color(0xff005c8e);
+const primaryColorSolarGray = Color(0xff3c4553);
+const primaryColorLightGray = Color(0xffc0cac7);
+const primaryColorSignalWhite = Color(0xfff4f4f4);
+const primaryColorSignalBlack = Color(0xff2a2a2c);
+const primaryColorPureGreen = Color(0xff309040);
+const primaryColorPureRed = Color(0xffd7292e);
+const primaryColorPureYellow = Color(0xfffbca2f);
 
 const textColorWhite = Colors.white;
 const textColorBlack = Colors.black;
@@ -16,15 +24,27 @@ final ThemeData myTheme = ThemeData(
   primaryColorDark: primaryColorDark,
   primaryColor: primaryColorMedium,
   primaryColorLight: primaryColorLight,
-  scaffoldBackgroundColor: backgroundColor,
+  scaffoldBackgroundColor: primaryColorSignalWhite,
+  hoverColor: primaryColorLight,
 
-  fontFamily: GoogleFonts.poppins().fontFamily,
 
+  fontFamily: GoogleFonts.roboto().fontFamily,
+  /*navigationRailTheme: const NavigationRailThemeData(
+    backgroundColor: primaryColorDark,
+    elevation: 5,
+    labelType: NavigationRailLabelType.all,
+    indicatorColor: primaryColorLight,
+    unselectedLabelTextStyle: TextStyle(color: Colors.white),
+    selectedLabelTextStyle: TextStyle(color: Colors.white),
+    unselectedIconTheme: IconThemeData(color: Colors.white),
+  ),*/
   navigationRailTheme: const NavigationRailThemeData(
     backgroundColor: primaryColorDark,
     elevation: 0,
     labelType: NavigationRailLabelType.all,
     indicatorColor: primaryColorLight,
+    selectedLabelTextStyle: TextStyle(color: Colors.white),
+    unselectedLabelTextStyle: TextStyle(color: Colors.white),
     unselectedIconTheme: IconThemeData(color: Colors.white),
   ),
 
@@ -45,9 +65,14 @@ final ThemeData myTheme = ThemeData(
     bodySmall : TextStyle(fontSize: 12, color: textColorBlack, fontWeight: FontWeight.bold),
   ),
 
-  textButtonTheme: TextButtonThemeData(
-    style: TextButton.styleFrom(
-        foregroundColor: textColorWhite, backgroundColor: primaryColorDark
-    ),
+  colorScheme: ColorScheme.fromSeed(
+    primary: primaryColorMedium,
+    secondary: primaryColorPureYellow,
+    seedColor: primaryColorMedium,
   ),
+  // textButtonTheme: TextButtonThemeData(
+  //   style: TextButton.styleFrom(
+  //       foregroundColor: textColorWhite, backgroundColor: primaryColorDark
+  //   ),
+  // ),
 );
