@@ -412,7 +412,6 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
     });
   }
 
-
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -468,7 +467,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
       appBar: AppBar(
         title:  Row(
           children: [
-            const Image(image: AssetImage("assets/images/company_logo.png"), width: 100,),
+            const Image(image: AssetImage("assets/images/company_logo.png"), width: 105,),
             const SizedBox(width: 10,),
             Container(width: 1, height: 20, color: Colors.white54,),
             const SizedBox(width: 5,),
@@ -1650,14 +1649,14 @@ class _SideSheetClassState extends State<SideSheetClass> {
                       builder: (context) => NodeHrsLog(userId: widget.customerId, controllerId: widget.controllerId,),
                     ),
                   );
-                }, icon: const Icon(Icons.ssid_chart, color: primaryColorDark,)),
+                }, icon: const Icon(Icons.ssid_chart, color: primaryColorMedium,)),
                 IconButton(tooltip:'Sensor Hourly logs',onPressed: (){
                   Navigator.push(context,
                     MaterialPageRoute(
                       builder: (context) => SensorHourlyLogs(userId: widget.customerId, controllerId: widget.controllerId,),
                     ),
                   );
-                }, icon: const Icon(Icons.sensors, color: primaryColorDark,)),
+                }, icon: const Icon(Icons.sensors, color: primaryColorMedium,)),
               ],
             ),
           ),
@@ -1793,7 +1792,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                     horizontalMargin: 12,
                     minWidth: 400,
                     headingRowHeight: 35.0,
-                    headingRowColor: WidgetStateProperty.all<Color>(myTheme.primaryColorDark.withOpacity(0.3)),
+                    headingRowColor: WidgetStateProperty.all<Color>(primaryColorSolarGray.withOpacity(0.3)),
                     columns: const [
                       DataColumn2(
                           label: Center(child: Text('S.No', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),)),
@@ -1841,7 +1840,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                             ),
                           ],
                         ),
-                        backgroundColor: Colors.teal.shade50,
+                        backgroundColor: primaryColorSolarGray.withOpacity(0.1),
                         title: Row(
                           children: [
                             SizedBox(width: 30, child: Text('${widget.nodeList[index].serialNumber}', style: const TextStyle(fontSize: 13),)),

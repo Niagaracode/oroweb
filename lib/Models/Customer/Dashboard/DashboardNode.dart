@@ -1605,7 +1605,7 @@ class Level {
         name: json['Name'],
         value: json['Value'],
         levelPercent: json['LevelPercent'],
-        swName: json['SW_Name'] ?? ''
+        swName: json['SW_Name'] ?? json['Name']
     );
   }
 

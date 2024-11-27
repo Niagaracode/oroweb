@@ -65,6 +65,7 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: widget.provider.payloadIrrLine[0].level.map((levelItem) {
                                       return ListTile(
+                                        leading: Image.asset('assets/images/level_sensor.png'),
                                         title: Text(levelItem.swName),
                                         trailing: Column(
                                           children: [
