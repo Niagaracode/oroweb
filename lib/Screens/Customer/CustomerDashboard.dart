@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:oro_irrigation_new/constants/theme.dart';
 import 'package:oro_irrigation_new/screens/Customer/Dashboard/NextSchedule.dart';
 import 'package:oro_irrigation_new/screens/Customer/Dashboard/ScheduledProgramList.dart';
 import 'package:popover/popover.dart';
@@ -450,8 +451,8 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(
-            color: Colors.black26,
-            width: 0.5,
+            color: primaryColorLightGray,
+            width: 0.7,
           ),
           borderRadius: const BorderRadius.all(Radius.circular(5)),
         ),
@@ -1254,7 +1255,7 @@ Row buildLineChart(BuildContext context, Map<String, List<Map<String, dynamic>>>
           return value ?? 0.0;
         }
       },
-      color: Colors.teal,
+      color: primaryColorLightGray,
       dataLabelSettings: const DataLabelSettings(isVisible: true),
       dataLabelMapper: (SensorHourlyData data, _) {
 

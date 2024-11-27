@@ -242,7 +242,7 @@ class _CurrentScheduleState extends State<CurrentSchedule> {
                           Text(getContentByCode(widget.currentSchedule[index].reasonCode), style: const TextStyle(fontSize: 12, color: Colors.black),),
                           widget.currentSchedule[index].programName=='StandAlone - Manual'?
                           MaterialButton(
-                            color: Colors.redAccent,
+                            color: primaryColorPureRed,
                             textColor: Colors.white,
                             onPressed: widget.currentSchedule[index].message=='Running.'? (){
                               String payload = '0,0,0,0';
@@ -258,7 +258,7 @@ class _CurrentScheduleState extends State<CurrentSchedule> {
                           ):
                           widget.currentSchedule[index].programName.contains('StandAlone') ?
                           MaterialButton(
-                            color: Colors.redAccent,
+                            color: primaryColorPureRed,
                             textColor: Colors.white,
                             onPressed: () async {
                               String payLoadFinal = jsonEncode({
@@ -308,8 +308,8 @@ class _CurrentScheduleState extends State<CurrentSchedule> {
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(
-          color: Colors.grey,
-          width: 0.5,
+          color: primaryColorLightGray,
+          width: 0.7,
         ),
         borderRadius: const BorderRadius.all(Radius.circular(5)),
       ),
@@ -397,7 +397,7 @@ class _CurrentScheduleState extends State<CurrentSchedule> {
             DataCell(Center(
               child: widget.currentSchedule[index].programName=='StandAlone - Manual'?
               MaterialButton(
-                color: Colors.redAccent,
+                color: primaryColorPureRed,
                 textColor: Colors.white,
                 onPressed: widget.currentSchedule[index].message=='Running.'? (){
                   String payload = '0,0,0,0';
@@ -413,7 +413,7 @@ class _CurrentScheduleState extends State<CurrentSchedule> {
               ):
               widget.currentSchedule[index].programName.contains('StandAlone')?
               MaterialButton(
-                color: Colors.redAccent,
+                color: primaryColorPureRed,
                 textColor: Colors.white,
                 onPressed: () async {
 

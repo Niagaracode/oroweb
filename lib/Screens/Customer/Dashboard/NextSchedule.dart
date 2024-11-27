@@ -107,8 +107,8 @@ class _NextScheduleState extends State<NextSchedule> {
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(
-          color: Colors.grey,
-          width: 0.5,
+          color: primaryColorLightGray,
+          width: 0.7,
         ),
         borderRadius: const BorderRadius.all(Radius.circular(5)),
       ),

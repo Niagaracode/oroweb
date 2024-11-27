@@ -466,12 +466,9 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
 
     return Scaffold(
       appBar: AppBar(
-        leading: const Padding(
-          padding: EdgeInsets.only(left: 10),
-          child: Image(image: AssetImage("assets/images/oro_logo_white.png")),
-        ),
         title:  Row(
           children: [
+            const Image(image: AssetImage("assets/images/company_logo.png"), width: 100,),
             const SizedBox(width: 10,),
             Container(width: 1, height: 20, color: Colors.white54,),
             const SizedBox(width: 5,),
@@ -480,7 +477,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
               items: (mySiteList ?? []).map((site) {
                 return DropdownMenuItem(
                   value: site.groupName,
-                  child: Text(site.groupName, style: const TextStyle(color: Colors.white, fontSize: 17),),
+                  child: Text(site.groupName, style: const TextStyle(color: Colors.white, fontSize: 16),),
                 );
               }).toList(),
               onChanged: (newSiteName) {
@@ -502,12 +499,12 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                 });
               },
               value: _myCurrentSite,
-              dropdownColor: Colors.teal,
+              dropdownColor: primaryColorMedium,
               iconEnabledColor: Colors.white,
               iconDisabledColor: Colors.white,
               focusColor: Colors.transparent,
             ):
-            Text(mySiteList[siteIndex].groupName, style: const TextStyle(fontSize: 17),),
+            Text(mySiteList[siteIndex].groupName, style: const TextStyle(fontSize: 16),),
 
             const SizedBox(width: 15,),
             Container(width: 1,height: 20, color: Colors.white54,),
@@ -517,7 +514,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
               items: (mySiteList[siteIndex].master ?? []).map((master) {
                 return DropdownMenuItem(
                   value: master.categoryName,
-                  child: Text(master.deviceName, style: const TextStyle(color: Colors.white, fontSize: 17),),
+                  child: Text(master.deviceName, style: const TextStyle(color: Colors.white, fontSize: 16),),
                 );
               }).toList(),
               onChanged: (newCategoryName) {
@@ -538,12 +535,12 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                 });
               },
               value: _myCurrentMaster,
-              dropdownColor: Colors.teal,
+              dropdownColor: primaryColorMedium,
               iconEnabledColor: Colors.white,
               iconDisabledColor: Colors.white,
               focusColor: Colors.transparent,
             ) :
-            Text(mySiteList[siteIndex].master[masterIndex].categoryName, style: const TextStyle(fontSize: 17),),
+            Text(mySiteList[siteIndex].master[masterIndex].categoryName, style: const TextStyle(fontSize: 16),),
 
             mySiteList[siteIndex].master[masterIndex].categoryId == 1 ||
                 mySiteList[siteIndex].master[masterIndex].categoryId == 2? const SizedBox(width: 15,): const SizedBox(),
@@ -561,7 +558,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
               items: (mySiteList[siteIndex].master[masterIndex].irrigationLine ?? []).map((line) {
                 return DropdownMenuItem(
                   value: line.name,
-                  child: Text(line.name, style: const TextStyle(color: Colors.white, fontSize: 17),),
+                  child: Text(line.name, style: const TextStyle(color: Colors.white, fontSize: 16),),
                 );
               }).toList(),
               onChanged: (newLineName) {
@@ -574,20 +571,20 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                 }
               },
               value: _myCurrentIrrLine,
-              dropdownColor: Colors.teal,
+              dropdownColor: primaryColorMedium,
               iconEnabledColor: Colors.white,
               iconDisabledColor: Colors.white,
               focusColor: Colors.transparent,
             ) :
             (mySiteList[siteIndex].master[masterIndex].categoryId == 1 ||
                 mySiteList[siteIndex].master[masterIndex].categoryId == 2)?
-            Text(mySiteList[siteIndex].master[masterIndex].irrigationLine.isNotEmpty?mySiteList[siteIndex].master[masterIndex].irrigationLine[0].name:'Line empty', style: const TextStyle(fontSize: 17),):
+            Text(mySiteList[siteIndex].master[masterIndex].irrigationLine.isNotEmpty?mySiteList[siteIndex].master[masterIndex].irrigationLine[0].name:'Line empty', style: const TextStyle(fontSize: 16),):
             const SizedBox(),
 
             const SizedBox(width: 15,),
             Container(width: 1, height: 20, color: Colors.white54,),
             const SizedBox(width: 5,),
-            Text('Last sync : ${payload.syncDateTime}', style: const TextStyle(fontSize: 15, color: Colors.white70),),
+            Text('Last sync : ${payload.syncDateTime}', style: const TextStyle(fontSize: 12, color: Colors.white70),),
 
           ],
         ),
@@ -606,6 +603,8 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              SizedBox(width:120, child: Image.asset('assets/images/scom_logo_white.png')),
+              const SizedBox(width: 10,),
               mySiteList[siteIndex].master[masterIndex].irrigationLine.length>1 && payload.currentSchedule.isNotEmpty?
               CircleAvatar(
                 radius: 15,
@@ -636,7 +635,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                   }
                 },
                 style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all<Color>(payload.payloadIrrLine.every((record) => record.irrigationPauseFlag == 1)?Colors.green: Colors.orange),
+                  backgroundColor: WidgetStateProperty.all<Color>(payload.payloadIrrLine.every((record) => record.irrigationPauseFlag == 1)?primaryColorPureGreen: Colors.orange),
                   shape: WidgetStateProperty.all<OutlinedBorder>(
                     RoundedRectangleBorder(borderRadius: BorderRadius.circular(5),),
                   ),
@@ -791,7 +790,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                             children: [
                               IconButton(
                                 tooltip:'Logout',
-                                icon: const Icon(Icons.exit_to_app, color: Colors.red),
+                                icon: const Icon(Icons.exit_to_app, color: primaryColorPureRed),
                                 onPressed: () async {
                                   final prefs = await SharedPreferences.getInstance();
                                   await prefs.remove('userId');
@@ -906,25 +905,6 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                   label: Text(''),
                 ),
               ],
-              trailing: Expanded(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Tooltip(
-                      message: 'ⓒ Powered by Niagara Automation',
-                      child: CircleAvatar(
-                        radius: 17,
-                        backgroundColor: Colors.white,
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 7, right: 4, left: 4),
-                          child: Image.asset('assets/images/company_logo.png'),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
             ),
             Container(
               width: mySiteList[siteIndex].master[masterIndex].categoryId==1 ||
@@ -1145,9 +1125,9 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
 
         lastCommunication.inMinutes >= 10 && payload.powerSupply == 0?Container(
           height: 20.0,
-          decoration: BoxDecoration(
-            color: Colors.red.shade300,
-            borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
+          decoration: const BoxDecoration(
+            color: primaryColorPureRed,
+            borderRadius: BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
           ),
           child: Center(
             child: Text('No communication and power Supply to Controller'.toUpperCase(),
@@ -1160,9 +1140,9 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
         ):
         payload.powerSupply == 0?Container(
           height: 20.0,
-          decoration: BoxDecoration(
-            color: Colors.red.shade300,
-            borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
+          decoration: const BoxDecoration(
+            color: primaryColorPureRed,
+            borderRadius: BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
           ),
           child: Center(
             child: Text('No power Supply to Controller'.toUpperCase(),
@@ -1178,7 +1158,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
         payload.nodeAndControllerConnection==false?Container(
           height: 20.0,
           decoration: const BoxDecoration(
-            color: Colors.redAccent,
+            color: primaryColorPureRed,
             borderRadius: BorderRadius.only(topLeft: Radius.circular(0),topRight: Radius.circular(0)),
           ),
           child: Center(
@@ -1419,7 +1399,7 @@ class BadgeButton extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: Colors.red,
+                color: primaryColorPureRed,
                 borderRadius: BorderRadius.circular(8),
               ),
               constraints: const BoxConstraints(
@@ -1479,15 +1459,15 @@ class AlarmListItems extends StatelessWidget {
         ),
       ],
       rows: List<DataRow>.generate(payload.alarmList.length, (index) => DataRow(cells: [
-        DataCell(Icon(Icons.warning_amber, color: payload.alarmList[index].status==1 ? Colors.orangeAccent : Colors.redAccent,)),
+        DataCell(Icon(Icons.warning_amber, color: payload.alarmList[index].status==1 ? Colors.orangeAccent : primaryColorPureRed,)),
         DataCell(Text(getAlarmMessage(payload.alarmList[index].alarmType))),
         DataCell(Text(payload.alarmList[index].location)),
         DataCell(Text('${payload.alarmList[index].date} - ${payload.alarmList[index].time}')),
         DataCell(Center(child: MaterialButton(
-          color: Colors.redAccent,
+          color: primaryColorPureRed,
           textColor: Colors.white,
           onPressed: getPermissionStatusBySNo(context, 6) ?(){
-            String finalPayload =  '${payload.alarmList[index].sNo}';
+            String finalPayload =  payload.alarmList[index].sNo;
             String payLoadFinal = jsonEncode({
               "4100": [{"4101": finalPayload}]
             });
@@ -1651,7 +1631,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
             children: [
               IconButton(
                 tooltip: 'Close',
-                icon: const Icon(Icons.close, color: Colors.redAccent),
+                icon: const Icon(Icons.close, color: primaryColorPureRed),
                 onPressed: () async {
                   Navigator.of(context).pop();
                 },
@@ -1696,7 +1676,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                         Row(
                           children: [
                             SizedBox(width: 5),
-                            CircleAvatar(radius: 5, backgroundColor: Colors.green,),
+                            CircleAvatar(radius: 5, backgroundColor: primaryColorPureGreen,),
                             SizedBox(width: 5),
                             Text('Connected', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 12, color: Colors.black))
                           ],
@@ -1719,7 +1699,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                         Row(
                           children: [
                             SizedBox(width: 10),
-                            CircleAvatar(radius: 5, backgroundColor: Colors.redAccent,),
+                            CircleAvatar(radius: 5, backgroundColor: primaryColorPureRed,),
                             SizedBox(width: 5),
                             Text('Set Serial Error', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 12, color: Colors.black))
                           ],
@@ -1749,7 +1729,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                                 content: const Text('Are you sure! you want to proceed to reset all node ids?'),
                                 actions: <Widget>[
                                   MaterialButton(
-                                    color: Colors.redAccent,
+                                    color: primaryColorPureRed,
                                     textColor: Colors.white,
                                     onPressed: () {
                                       Navigator.of(context).pop();
@@ -1868,9 +1848,9 @@ class _SideSheetClassState extends State<SideSheetClass> {
                             SizedBox(
                               width:50,
                               child: Center(child: CircleAvatar(radius: 7, backgroundColor:
-                              widget.nodeList[index].status == 1? Colors.green.shade400:
+                              widget.nodeList[index].status == 1? primaryColorPureGreen:
                               widget.nodeList[index].status == 2? Colors.grey:
-                              widget.nodeList[index].status == 3? Colors.redAccent:
+                              widget.nodeList[index].status == 3? primaryColorPureRed:
                               widget.nodeList[index].status == 4? Colors.yellow:
                               Colors.grey,
                               )),
@@ -1934,7 +1914,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                                           sentToServer('Serial set for the ${widget.nodeList[index].deviceName} all Relay', payLoadFinal);
                                           GlobalSnackBar.show(context, 'Your comment sent successfully', 200);
                                         }:null,
-                                        icon: Icon(Icons.fact_check_outlined, color: getPermissionStatusBySNo(context, 7) ? Colors.teal:Colors.black26),
+                                        icon: Icon(Icons.fact_check_outlined, color: getPermissionStatusBySNo(context, 7) ? primaryColorDark:Colors.black26),
                                       )
                                     ],
                                   ),
@@ -1951,7 +1931,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                                             SizedBox(width: 10),
                                             CircleAvatar(
                                               radius: 5,
-                                              backgroundColor: Colors.green,
+                                              backgroundColor: primaryColorPureGreen,
                                             ),
                                             SizedBox(width: 5),
                                             Text('ON', style: TextStyle(fontSize: 12)),
@@ -1972,7 +1952,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                                             SizedBox(width: 20),
                                             CircleAvatar(
                                               radius: 5,
-                                              backgroundColor: Colors.redAccent,
+                                              backgroundColor: primaryColorPureRed,
                                             ),
                                             SizedBox(width: 5),
                                             Text('OFF in ON', style: TextStyle(fontSize: 12)),
@@ -2002,7 +1982,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                                                     ? Colors.grey
                                                     : widget.nodeList[index].rlyStatus[indexGv].Status ==
                                                     1
-                                                    ? Colors.green
+                                                    ? primaryColorPureGreen
                                                     : widget.nodeList[index].rlyStatus[indexGv]
                                                     .Status ==
                                                     2
@@ -2010,7 +1990,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                                                     : widget.nodeList[index].rlyStatus[indexGv]
                                                     .Status ==
                                                     3
-                                                    ? Colors.redAccent
+                                                    ? primaryColorPureRed
                                                     : Colors.black12, // Avatar background color
                                                 child: Text(
                                                   (widget.nodeList[index].rlyStatus[indexGv].rlyNo)
@@ -2108,7 +2088,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
               children: [
                 IconButton(
                   tooltip: 'Close',
-                  icon: const Icon(Icons.close, color: Colors.redAccent),
+                  icon: const Icon(Icons.close, color: primaryColorPureRed),
                   onPressed: () async {
                     Navigator.of(context).pop();
                   },
@@ -2132,7 +2112,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                             content: const Text('Are you sure! you want to proceed to reset all node ids?'),
                             actions: <Widget>[
                               MaterialButton(
-                                color: Colors.redAccent,
+                                color: primaryColorPureRed,
                                 textColor: Colors.white,
                                 onPressed: () {
                                   Navigator.of(context).pop();
@@ -2195,7 +2175,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                           Row(
                             children: [
                               SizedBox(width: 5),
-                              CircleAvatar(radius: 5, backgroundColor: Colors.green,),
+                              CircleAvatar(radius: 5, backgroundColor: primaryColorPureGreen,),
                               SizedBox(width: 5),
                               Text('Connected', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 12, color: Colors.black))
                             ],
@@ -2218,7 +2198,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                           Row(
                             children: [
                               SizedBox(width: 10),
-                              CircleAvatar(radius: 5, backgroundColor: Colors.redAccent,),
+                              CircleAvatar(radius: 5, backgroundColor: primaryColorPureRed,),
                               SizedBox(width: 5),
                               Text('Set Serial Error', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 12, color: Colors.black))
                             ],
@@ -2274,9 +2254,9 @@ class _SideSheetClassState extends State<SideSheetClass> {
                 rows: List<DataRow>.generate(widget.nodeList.length, (index) => DataRow(cells: [
                   DataCell(Center(child: Text('${widget.nodeList[index].serialNumber}', style: const TextStyle(fontWeight: FontWeight.normal, color: Colors.black),))),
                   DataCell(Center(child: CircleAvatar(radius: 7, backgroundColor:
-                  widget.nodeList[index].status == 1? Colors.green.shade400:
+                  widget.nodeList[index].status == 1? primaryColorPureGreen:
                   widget.nodeList[index].status == 2? Colors.grey:
-                  widget.nodeList[index].status == 3? Colors.redAccent:
+                  widget.nodeList[index].status == 3? primaryColorPureRed:
                   widget.nodeList[index].status == 4? Colors.yellow:
                   Colors.grey,
                   ))),
@@ -2342,7 +2322,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                                           child: Row(
                                             children: [
                                               SizedBox(width: 10),
-                                              CircleAvatar(radius: 5,backgroundColor: Colors.green,),
+                                              CircleAvatar(radius: 5,backgroundColor: primaryColorPureGreen,),
                                               SizedBox(width: 5),
                                               Text('ON'),
                                               SizedBox(width: 20),
@@ -2354,7 +2334,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                                               SizedBox(width: 5),
                                               Text('ON IN OFF'),
                                               SizedBox(width: 20),
-                                              CircleAvatar(radius: 5,backgroundColor: Colors.redAccent),
+                                              CircleAvatar(radius: 5,backgroundColor: primaryColorPureRed),
                                               SizedBox(width: 5),
                                               Text('OFF IN ON'),
                                             ],
@@ -2376,9 +2356,9 @@ class _SideSheetClassState extends State<SideSheetClass> {
                                                 children: [
                                                   CircleAvatar(
                                                     backgroundColor: widget.nodeList[index].rlyStatus[indexGv].Status==0 ? Colors.grey :
-                                                    widget.nodeList[index].rlyStatus[indexGv].Status==1 ? Colors.green :
+                                                    widget.nodeList[index].rlyStatus[indexGv].Status==1 ? primaryColorPureGreen :
                                                     widget.nodeList[index].rlyStatus[indexGv].Status==2 ? Colors.orange :
-                                                    widget.nodeList[index].rlyStatus[indexGv].Status==3 ? Colors.redAccent : Colors.black12, // Avatar background color
+                                                    widget.nodeList[index].rlyStatus[indexGv].Status==3 ? primaryColorPureRed : Colors.black12, // Avatar background color
                                                     child: Text((widget.nodeList[index].rlyStatus[indexGv].rlyNo).toString(), style: const TextStyle(color: Colors.white)),
                                                   ),
                                                   Text((widget.nodeList[index].rlyStatus[indexGv].name).toString(), style: const TextStyle(color: Colors.black, fontSize: 10)),

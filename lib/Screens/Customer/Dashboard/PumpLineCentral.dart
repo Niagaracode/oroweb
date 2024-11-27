@@ -244,7 +244,7 @@ class _PumpLineCentralState extends State<PumpLineCentral> {
               }
             },
             style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.all<Color>(irrigationPauseFlag == 1 ? Colors.green : Colors.orange),
+              backgroundColor: WidgetStateProperty.all<Color>(irrigationPauseFlag == 1 ? primaryColorPureGreen : Colors.orange),
               shape: WidgetStateProperty.all<OutlinedBorder>(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(5),
@@ -427,7 +427,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                               Container(
                                 width: 412,
                                 height: 35,
-                                color: Colors.teal.shade50,
+                                color: primaryColorLightGray,
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -478,11 +478,11 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                               children: [
                                                 const SizedBox(width:100, child: Text('Phase', style: TextStyle(color: Colors.black54),),),
                                                 const Spacer(),
-                                                CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>0? Colors.green: null,),
+                                                CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>0? primaryColorPureGreen: primaryColorLightGray,),
                                                 const VerticalDivider(color: Colors.transparent,),
-                                                CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>1? Colors.green: null,),
+                                                CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>1? primaryColorPureGreen: primaryColorLightGray,),
                                                 const VerticalDivider(color: Colors.transparent,),
-                                                CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>2? Colors.green: null,),
+                                                CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>2? primaryColorPureGreen: primaryColorLightGray,),
                                               ],
                                             ),
                                           ),
@@ -499,7 +499,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                                 const SizedBox(width:80, child: Text('Voltage', style: TextStyle(color: Colors.black54),),),
                                                 const Padding(
                                                   padding: EdgeInsets.only(bottom: 2,top: 2),
-                                                  child: VerticalDivider(color: Colors.red, thickness: 1.5,),
+                                                  child: VerticalDivider(color: primaryColorPureRed, thickness: 1.5,),
                                                 ),
                                                 SizedBox(width: 70, child: Text('RY : ${voltages[0]}'),),
                                                 const Padding(
@@ -553,7 +553,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                             crossAxisAlignment: CrossAxisAlignment.center,
                                             children: [
                                               MaterialButton(
-                                                color: Colors.green,
+                                                color: primaryColorPureGreen,
                                                 textColor: Colors.white,
                                                 onPressed: () {
                                                   if(getPermissionStatusBySNo(context, 4)){
@@ -576,7 +576,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                               ),
                                               const SizedBox(width: 16,),
                                               MaterialButton(
-                                                color: Colors.redAccent,
+                                                color: primaryColorPureRed,
                                                 textColor: Colors.white,
                                                 onPressed: () {
                                                   if(getPermissionStatusBySNo(context, 4)){
@@ -721,7 +721,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                               Container(
                                 width: voltKeyExists && pumpLevel.isNotEmpty?392:352,
                                 height: 35,
-                                color: Colors.teal.shade50,
+                                color: primaryColorLightGray,
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -764,11 +764,11 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                   children: [
                                     const SizedBox(width:100, child: Text('Phase', style: TextStyle(color: Colors.black54),),),
                                     const Spacer(),
-                                    CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>0? Colors.green: null,),
+                                    CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>0? primaryColorPureGreen: primaryColorLightGray,),
                                     const VerticalDivider(color: Colors.transparent,),
-                                    CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>1? Colors.green: null,),
+                                    CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>1? primaryColorPureGreen: primaryColorLightGray,),
                                     const VerticalDivider(color: Colors.transparent,),
-                                    CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>2? Colors.green: null,),
+                                    CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>2? primaryColorPureGreen: primaryColorLightGray,),
                                   ],
                                 ),
                               ),
@@ -785,7 +785,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                     const SizedBox(width:80, child: Text('Voltage', style: TextStyle(color: Colors.black54),),),
                                     const Padding(
                                       padding: EdgeInsets.only(bottom: 2,top: 2),
-                                      child: VerticalDivider(color: Colors.red, thickness: 1.5,),
+                                      child: VerticalDivider(color: primaryColorPureRed, thickness: 1.5,),
                                     ),
                                     SizedBox(width: 70, child: Text('RY : ${voltages[0]}'),),
                                     const Padding(
@@ -838,7 +838,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   MaterialButton(
-                                    color: Colors.green,
+                                    color: primaryColorPureGreen,
                                     textColor: Colors.white,
                                     onPressed: () {
                                       if(getPermissionStatusBySNo(context, 4)){
@@ -861,7 +861,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                   ),
                                   const SizedBox(width: 16,),
                                   MaterialButton(
-                                    color: Colors.redAccent,
+                                    color: primaryColorPureRed,
                                     textColor: Colors.white,
                                     onPressed: () {
                                       if(getPermissionStatusBySNo(context, 4)){
@@ -944,7 +944,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   MaterialButton(
-                                    color: Colors.green,
+                                    color: primaryColorPureGreen,
                                     textColor: Colors.white,
                                     onPressed: () {
                                       if(getPermissionStatusBySNo(context, 4)){
@@ -967,7 +967,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                   ),
                                   const SizedBox(height: 8,),
                                   MaterialButton(
-                                    color: Colors.redAccent,
+                                    color: primaryColorPureRed,
                                     textColor: Colors.white,
                                     onPressed: () {
                                       if(getPermissionStatusBySNo(context, 4)){
@@ -1027,9 +1027,9 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                     left: 7.5,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.greenAccent,
+                        color: primaryColorPureGreen,
                         borderRadius: const BorderRadius.all(Radius.circular(2)),
-                        border: Border.all(color: Colors.green, width: .50),
+                        border: Border.all(color: primaryColorPureGreen, width: .50),
                       ),
                       width: 55,
                       child: Center(
@@ -1316,7 +1316,7 @@ class _DisplayIrrigationPumpState extends State<DisplayIrrigationPump> {
                                     Text('$batteryVolt%'),
                                   ],
                                 ),
-                                tileColor: Colors.teal.shade50,
+                                tileColor: primaryColorLightGray,
                               ),
                               const SizedBox(height: 5,),
                               Container(
@@ -1349,7 +1349,7 @@ class _DisplayIrrigationPumpState extends State<DisplayIrrigationPump> {
                                     const SizedBox(width:80, child: Text('Voltage', style: TextStyle(color: Colors.black54)),),
                                     const Padding(
                                       padding: EdgeInsets.only(bottom: 2,top: 2),
-                                      child: VerticalDivider(color: Colors.red, thickness: 1.5,),
+                                      child: VerticalDivider(color: primaryColorPureRed, thickness: 1.5,),
                                     ),
                                     SizedBox(width: 70, child: Text('RY : ${voltages[0]}'),),
                                     const Padding(
@@ -1481,9 +1481,9 @@ class _DisplayIrrigationPumpState extends State<DisplayIrrigationPump> {
                     left: 7.5,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.greenAccent,
+                        color: primaryColorPureGreen,
                         borderRadius: const BorderRadius.all(Radius.circular(2)),
-                        border: Border.all(color: Colors.green, width: .50),
+                        border: Border.all(color: primaryColorPureGreen, width: .50),
                       ),
                       width: 55,
                       child: Center(
@@ -1803,7 +1803,7 @@ class _DisplayFilterState extends State<DisplayFilter> {
                                       child: filteredCentralFilter[i]['DurationLeft']!='00:00:00'? filteredCentralFilter[i]['Status'] == (flIndex+1) ?
                                       Container(
                                         decoration: BoxDecoration(
-                                          color:Colors.greenAccent,
+                                          color:primaryColorPureGreen,
                                           borderRadius: const BorderRadius.all(Radius.circular(2)),
                                           border: Border.all(color: Colors.grey, width: .50,),
                                         ),
@@ -1972,7 +1972,7 @@ class _DisplayFilterState extends State<DisplayFilter> {
                                   top: 45,
                                   left: 7.5,
                                   child: filteredCentralFilter[i]['DurationLeft']!='00:00:00'? filteredCentralFilter[i]['Status'] == (flIndex+1) ? Container(
-                                    color: Colors.greenAccent,
+                                    color: primaryColorPureGreen,
                                     width: 55,
                                     child: Center(
                                       child: Text(filteredCentralFilter[i]['DurationLeft'],
@@ -2219,8 +2219,8 @@ class _DisplayCentralFertilizerState extends State<DisplayCentralFertilizer> {
                                 child: fertilizerCentral[fIndex]['FertilizerTankSelector'].isNotEmpty ? Container(
                                   decoration: BoxDecoration(
                                     color: fertilizerCentral[fIndex]['FertilizerTankSelector'][0]['Status']==0? Colors.grey.shade300:
-                                    fertilizerCentral[fIndex]['FertilizerTankSelector'][0]['Status']==1? Colors.greenAccent:
-                                    fertilizerCentral[fIndex]['FertilizerTankSelector'][0]['Status']==2? Colors.orangeAccent:Colors.redAccent,
+                                    fertilizerCentral[fIndex]['FertilizerTankSelector'][0]['Status']==1? primaryColorPureGreen:
+                                    fertilizerCentral[fIndex]['FertilizerTankSelector'][0]['Status']==2? Colors.orangeAccent:primaryColorPureRed,
                                     borderRadius: BorderRadius.circular(3),
                                   ),
                                   width: 45,
@@ -2341,7 +2341,7 @@ class _DisplayCentralFertilizerState extends State<DisplayCentralFertilizer> {
                                         ?
                                     Container(
                                       decoration: BoxDecoration(
-                                        color: Colors.greenAccent,
+                                        color: primaryColorPureGreen,
                                         borderRadius: BorderRadius.circular(3),
                                       ),
                                       width: 50,
@@ -2806,7 +2806,7 @@ class _LocalFilterState extends State<LocalFilter> {
                                       left: 7.5,
                                       child: filteredLocalFilter[i]['DurationLeft']!='00:00:00'? filteredLocalFilter[i]['Status'] == (flIndex+1) ? Container(
                                         decoration: BoxDecoration(
-                                          color:Colors.greenAccent,
+                                          color:primaryColorPureGreen,
                                           borderRadius: const BorderRadius.all(Radius.circular(2)),
                                           border: Border.all(color: Colors.grey, width: .50,),
                                         ),
@@ -2972,7 +2972,7 @@ class _LocalFilterState extends State<LocalFilter> {
                                   top: 40,
                                   left: 7.5,
                                   child: filteredLocalFilter[i]['DurationLeft']!='00:00:00'? filteredLocalFilter[i]['Status'] == (flIndex+1) ? Container(
-                                    color: Colors.greenAccent,
+                                    color: primaryColorPureGreen,
                                     width: 55,
                                     child: Center(
                                       child: Text(filteredLocalFilter[i]['DurationLeft'], style: const TextStyle(
@@ -3222,8 +3222,8 @@ class _DisplayLocalFertilizerState extends State<DisplayLocalFertilizer> {
                                 child: fertilizerLocal[fIndex]['FertilizerTankSelector'].isNotEmpty ? Container(
                                   decoration: BoxDecoration(
                                     color: fertilizerLocal[fIndex]['FertilizerTankSelector'][0]['Status']==0? Colors.grey.shade300:
-                                    fertilizerLocal[fIndex]['FertilizerTankSelector'][0]['Status']==1? Colors.greenAccent:
-                                    fertilizerLocal[fIndex]['FertilizerTankSelector'][0]['Status']==2? Colors.orangeAccent:Colors.redAccent,
+                                    fertilizerLocal[fIndex]['FertilizerTankSelector'][0]['Status']==1? primaryColorPureGreen:
+                                    fertilizerLocal[fIndex]['FertilizerTankSelector'][0]['Status']==2? Colors.orangeAccent:primaryColorPureRed,
                                     borderRadius: BorderRadius.circular(3),
                                   ),
                                   width: 45,
@@ -3344,7 +3344,7 @@ class _DisplayLocalFertilizerState extends State<DisplayLocalFertilizer> {
                                         ?
                                     Container(
                                       decoration: BoxDecoration(
-                                        color: Colors.greenAccent,
+                                        color: primaryColorPureGreen,
                                         borderRadius: BorderRadius.circular(3),
                                       ),
                                       width: 50,

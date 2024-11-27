@@ -251,9 +251,6 @@ flutter:
      - assets/GifFile/dp_filter_2_r.gif
      - assets/GifFile/dp_filter_3_r.gif
      - assets/images/dp_filter.png
-     - assets/images/dp_filter_1.png
-     - assets/images/dp_filter_2.png
-     - assets/images/dp_filter_3.png
      - assets/GifFile/dp_irr_pump_y.gif
      - assets/GifFile/dp_irr_pump_1_y.gif
      - assets/GifFile/dp_irr_pump_2_y.gif
@@ -267,11 +264,6 @@ flutter:
      - assets/GifFile/dp_irr_pump_3_g.gif
      - assets/GifFile/dp_agitator_right_g.gif
      - assets/images/dp_irr_pump.png
-     - assets/images/dp_irr_pump_1.png
-     - assets/images/dp_irr_pump_2.png
-     - assets/images/dp_irr_pump_3.png
-     - assets/images/dp_fert_first_tank.png
-     - assets/images/dp_fert_center_tank.png
      - assets/images/dp_fert_channel_center.png
      - assets/images/dp_fert_channel_center_g.png
      - assets/images/dp_fert_channel_center_y.png
@@ -281,12 +273,10 @@ flutter:
      - assets/images/dp_fert_channel_last_y.png
      - assets/images/dp_fert_channel_last_r.png
      - assets/images/dp_agitator_right.png
-     - assets/images/dp_fert_last_tank.png
      - assets/images/dp_fert_channel_last.png
      - assets/images/dp_fert_channel_last_g.png
      - assets/images/dp_fert_channel_last_y.png
      - assets/images/dp_fert_channel_last_r.png
-     - assets/images/dp_fert_nrv.png
      - assets/images/dp_fert_booster_pump.png
      - assets/images/dp_fert_booster_pump_y.png
      - assets/images/dp_fert_booster_pump_r.png
@@ -301,8 +291,6 @@ flutter:
      - assets/images/dp_main_valve_not_open.png
      - assets/images/dp_main_valve_open.png
      - assets/images/dp_main_valve_wait.png
-     - assets/images/dp_fert_last_tank1.png
-     - assets/images/dp_fert_first_tank1.png
      - assets/SVGPicture/default.svg
      - assets/GifFile/dp_irr_pump_g.gif
      - assets/images/dp_irr_pump_y.png
@@ -423,6 +411,7 @@ flutter:
      - assets/weatherIcons2/WindSpeedColor.png
      - assets/images/login_left_picture.png
      - assets/images/lk_logo.png
+     - assets/images/scom_logo_white.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

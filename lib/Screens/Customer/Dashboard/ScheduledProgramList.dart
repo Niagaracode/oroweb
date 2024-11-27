@@ -140,7 +140,7 @@ class ScheduledProgramList extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           scheduledPrograms[index].progOnOff == 0 ? MaterialButton(
-                            color: Colors.green,
+                            color: primaryColorPureGreen,
                             textColor: Colors.white,
                             onPressed:() {
                               String localFilePath = 'assets/audios/button_click_sound.mp3';
@@ -192,7 +192,7 @@ class ScheduledProgramList extends StatelessWidget {
                 if(index != scheduledPrograms.length - 1)
                   const Padding(
                     padding: EdgeInsets.only(right: 5,left: 5),
-                    child: Divider(color: Colors.teal, thickness: 0.3,),
+                    child: Divider(color: primaryColorPureGreen, thickness: 0.3,),
                   ),
                 const SizedBox(height: 5,),
               ],
@@ -208,8 +208,8 @@ class ScheduledProgramList extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(
-          color: Colors.grey,
-          width: 0.5,
+          color: primaryColorLightGray,
+          width: 0.7,
         ),
         borderRadius: const BorderRadius.all(Radius.circular(5)),
       ),
@@ -321,7 +321,7 @@ class ScheduledProgramList extends StatelessWidget {
                               const TextSpan(
                                 text: 'Start Stop: ',
                                 style: TextStyle(
-                                  color: Colors.teal,
+                                  color: primaryColorPureGreen,
                                   fontSize: 12,
                                 ),
                               ),
@@ -341,7 +341,7 @@ class ScheduledProgramList extends StatelessWidget {
                               const TextSpan(
                                 text: 'Pause Resume: ',
                                 style: TextStyle(
-                                  color: Colors.teal,
+                                  color: primaryColorPureGreen,
                                   fontSize: 12,
                                 ),
                               ),
@@ -368,7 +368,7 @@ class ScheduledProgramList extends StatelessWidget {
                         scheduledPrograms[index].sNo,
                       );
                     },
-                    icon: const Icon(Icons.visibility_outlined, color: Colors.teal,),
+                    icon: const Icon(Icons.visibility_outlined, color: primaryColorPureGreen,),
                   ):
                   const SizedBox(),
                 ],
@@ -381,7 +381,7 @@ class ScheduledProgramList extends StatelessWidget {
                   Tooltip(
                     message: getDescription(int.parse(scheduledPrograms[index].progOnOff)),
                     child: MaterialButton(
-                      color: int.parse(scheduledPrograms[index].progOnOff) >= 0? isStop?Colors.red: isBypass?Colors.orange :Colors.green : Colors.grey.shade300,
+                      color: int.parse(scheduledPrograms[index].progOnOff) >= 0? isStop?primaryColorPureRed: isBypass?Colors.orange :primaryColorPureGreen : Colors.grey.shade300,
                       textColor: Colors.white,
                       onPressed: () {
 
@@ -624,7 +624,7 @@ class _ConditionDialogState extends State<ConditionDialog> {
                   headerBuilder: (BuildContext context, bool isExpanded) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 8, left: 8),
-                      child: Text('START CONDITION', style: TextStyle(fontSize: 17, color: startCondition.status==1?Colors.green:Colors.red),),
+                      child: Text('START CONDITION', style: TextStyle(fontSize: 17, color: startCondition.status==1?primaryColorPureGreen:Colors.red),),
                     );
                   },
                   body: _buildConditionPanel(startCondition),
@@ -635,7 +635,7 @@ class _ConditionDialogState extends State<ConditionDialog> {
                   headerBuilder: (BuildContext context, bool isExpanded) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 8, left: 8),
-                      child: Text('STOP CONDITION', style: TextStyle(fontSize: 17, color: stopCondition.status==1?Colors.green:Colors.red),),
+                      child: Text('STOP CONDITION', style: TextStyle(fontSize: 17, color: stopCondition.status==1?primaryColorPureGreen:Colors.red),),
                     );
                   },
                   body: _buildConditionPanel(stopCondition),
