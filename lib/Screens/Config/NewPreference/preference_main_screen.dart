@@ -151,6 +151,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                             : getFailedPayload(sendAll: false, isToGem: [1, 2].contains(preferenceProvider.generalData!.categoryId)).split(';');
                         // print(failedPayload);
                         List temp = List.from(selectedOroPumpList);
+                        preferenceProvider.temp.clear();
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
@@ -266,6 +267,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                           shouldSendFailedPayloads = false;
                         });
                       });
+                      preferenceProvider.temp.clear();
                       if(preferenceProvider.commonPumpSettings!.isEmpty || preferenceProvider.commonPumpSettings!.length <= 1) {
                         sendFunction();
                       } else {
@@ -948,6 +950,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
         await Future.delayed(const Duration(seconds: 1));
         elapsedTime++;
         if (mqttPayloadProvider.preferencePayload.isNotEmpty && mqttPayloadProvider.preferencePayload['cM'].contains(key) && (isToGem ? mqttPayloadProvider.preferencePayload['cC'] == payload.split('+')[2] : true)) {
+          preferenceProvider.updateControllerReadStatus(key: key, oroPumpIndex: oroPumpIndex, failed: shouldSendFailedPayloads);
           isAcknowledged = true;
           break;
         }
@@ -956,7 +959,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
       Navigator.of(dialogContext).pop();
 
       if (isAcknowledged) {
-        preferenceProvider.updateControllerReaStatus(key: key, oroPumpIndex: oroPumpIndex);
+        // preferenceProvider.updateControllerReadStatus(key: key, oroPumpIndex: oroPumpIndex, failed: null);
         // setState(() {
         //   if(key.contains("100")) preferenceProvider.commonPumpSettings![oroPumpIndex].settingList[1].controllerReadStatus = "1";
         //   if(key.contains("200")) preferenceProvider.commonPumpSettings![oroPumpIndex].settingList[0].controllerReadStatus = "1";

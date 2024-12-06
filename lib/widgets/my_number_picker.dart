@@ -93,7 +93,7 @@ class _MyTimePickerState extends State<MyTimePicker> {
                     onChanged: (value){
                       overAllPvd.editTime('hrs', value);
                     },
-                    forWhat: widget.hourString == null ? 'hrs' : widget.hourString!,
+                    // forWhat: widget.hourString == null ? 'hrs' : widget.hourString!,
                   ),
                 ),
               ),
@@ -115,7 +115,7 @@ class _MyTimePickerState extends State<MyTimePicker> {
                     onChanged: (value){
                       overAllPvd.editTime('min', value);
                     },
-                    forWhat: widget.minString == null ? 'min' : widget.minString!,
+                    // forWhat: widget.minString == null ? 'min' : widget.minString!,
                   ),
                 ),
               ),
@@ -137,7 +137,7 @@ class _MyTimePickerState extends State<MyTimePicker> {
                     onChanged: (value){
                       overAllPvd.editTime('sec', value);
                     },
-                    forWhat: widget.secString == null ? 'sec' : widget.secString!,
+                    // forWhat: widget.secString == null ? 'sec' : widget.secString!,
                   ),
                 ),
               ),
@@ -157,7 +157,7 @@ class _MyTimePickerState extends State<MyTimePicker> {
                   onChanged: (value){
                     overAllPvd.editTime('other', value);
                   },
-                  forWhat: '${widget.CustomString}',
+                  // forWhat: '${widget.CustomString}',
                 ),
               ),
             ],

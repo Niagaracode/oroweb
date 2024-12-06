@@ -494,58 +494,61 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                                     ),
                                   )
                                 else if(settingList[categoryIndex].setting[settingIndex].title == "2 PHASE" || settingList[categoryIndex].setting[settingIndex].title == "AUTO RESTART 2 PHASE")
-                                  Column(
-                                    children: [
-                                      ListTile(
-                                        leading: Container(
-                                            decoration: const BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: Colors.white
-                                              // gradient: linearGradientLeading,
-                                            ),
-                                            child: CircleAvatar(
-                                                backgroundColor: cardColor,
-                                                child: Icon(otherSettingsIcons[settingIndex], color: Theme.of(context).primaryColor)
-                                            )
-                                        ),
-                                        title: Text(settingList[categoryIndex].setting[settingIndex].title),
-                                      ),
-                                      Column(
-                                        children: [
-                                          for (int index = 0; index < preferenceProvider.individualPumpSetting!
-                                              .where((e) => e.deviceId == preferenceProvider.commonPumpSettings![pumpIndex].deviceId).length; index++)
-                                            Container(
-                                              margin: EdgeInsets.symmetric(horizontal: 15),
-                                              child: Column(
-                                                children: [
-                                                  Row(
-                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                    children: [
-                                                      Text(preferenceProvider.individualPumpSetting!
-                                                          .where((e) => e.deviceId == preferenceProvider.commonPumpSettings![pumpIndex].deviceId)
-                                                          .elementAt(index)
-                                                          .name),
-                                                      Switch(
-                                                          value: settingList[categoryIndex].setting[settingIndex].value[index],
-                                                          onChanged: (newValue) {
-                                                            setState(() {
-                                                              settingList[categoryIndex].setting[settingIndex].value[index] = newValue;
-                                                              if(settingList[categoryIndex].setting[settingIndex].value.toString().contains('true')) {
-                                                                conditions['phaseValue'] = true;
-                                                              } else {
-                                                                conditions['phaseValue'] = false;
-                                                              }
-                                                            });
-                                                          }
-                                                      )
-                                                    ],
-                                                  )
-                                                ],
+                                  Card(
+                                    color: cardColor,
+                                    child: Column(
+                                      children: [
+                                        ListTile(
+                                          leading: Container(
+                                              decoration: const BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: Colors.white
+                                                // gradient: linearGradientLeading,
                                               ),
-                                            )
-                                        ],
-                                      )
-                                    ],
+                                              child: CircleAvatar(
+                                                  backgroundColor: cardColor,
+                                                  child: Icon(otherSettingsIcons[settingIndex], color: Theme.of(context).primaryColor)
+                                              )
+                                          ),
+                                          title: Text(settingList[categoryIndex].setting[settingIndex].title),
+                                        ),
+                                        Column(
+                                          children: [
+                                            for (int index = 0; index < preferenceProvider.individualPumpSetting!
+                                                .where((e) => e.deviceId == preferenceProvider.commonPumpSettings![pumpIndex].deviceId).length; index++)
+                                              Container(
+                                                margin: EdgeInsets.symmetric(horizontal: 15),
+                                                child: Column(
+                                                  children: [
+                                                    Row(
+                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                      children: [
+                                                        Text(preferenceProvider.individualPumpSetting!
+                                                            .where((e) => e.deviceId == preferenceProvider.commonPumpSettings![pumpIndex].deviceId)
+                                                            .elementAt(index)
+                                                            .name),
+                                                        Switch(
+                                                            value: settingList[categoryIndex].setting[settingIndex].value[index],
+                                                            onChanged: (newValue) {
+                                                              setState(() {
+                                                                settingList[categoryIndex].setting[settingIndex].value[index] = newValue;
+                                                                if(settingList[categoryIndex].setting[settingIndex].value.toString().contains('true')) {
+                                                                  conditions['phaseValue'] = true;
+                                                                } else {
+                                                                  conditions['phaseValue'] = false;
+                                                                }
+                                                              });
+                                                            }
+                                                        )
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
+                                              )
+                                          ],
+                                        )
+                                      ],
+                                    ),
                                   )
                                 else
                                   buildCustomListTileWidget(

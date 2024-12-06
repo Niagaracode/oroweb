@@ -160,30 +160,63 @@ class PreferenceProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateControllerReaStatus({required String key, required int oroPumpIndex}) {
-    if(key.contains("100")) commonPumpSettings![oroPumpIndex].settingList[0].controllerReadStatus = "1";
-    if(key.contains("200")) commonPumpSettings![oroPumpIndex].settingList[1].controllerReadStatus = "1";
+  var temp = [];
+
+  void updateControllerReadStatus({required String key, required int oroPumpIndex, required bool failed}) {
+    // print("key ==> $key");
+    // print("oroPumpIndex ==> $oroPumpIndex");
+    if(key.contains("100")) {
+      commonPumpSettings![oroPumpIndex].settingList[0].controllerReadStatus = "1";
+      individualPumpSetting![oroPumpIndex].settingList[0].changed = false;
+      // print("$key acknowledged");
+    }
+    if(key.contains("200")) {
+      commonPumpSettings![oroPumpIndex].settingList[1].controllerReadStatus = "1";
+      individualPumpSetting![oroPumpIndex].settingList[1].changed = false;
+      // print("$key acknowledged");
+    }
     int pumpIndex = 0;
     for (var individualPump in individualPumpSetting ?? []) {
       if (commonPumpSettings![oroPumpIndex].deviceId == individualPump.deviceId) {
-        pumpIndex++;
+        if(individualPump.output != null) {
+          pumpIndex = int.parse(RegExp(r'\d+').firstMatch(individualPump.output)!.group(0)!);
+        } else {
+          pumpIndex++;
+        }
         for (var individualPumpSetting in individualPump.settingList) {
           switch (individualPumpSetting.type) {
             case 23:
-              if(key.contains("400-$pumpIndex")) individualPumpSetting.controllerReadStatus= "1";
+              if(key.contains("400-$pumpIndex")) {
+                individualPumpSetting.controllerReadStatus= "1";
+                individualPumpSetting.changed = false;
+                // print("$key acknowledged");
+              }
               break;
             case 22:
-              if(key.contains("300-$pumpIndex") || key.contains("500-$pumpIndex")) individualPumpSetting.controllerReadStatus = "1";
+              temp.add(key);
+              // print("temp variable ==> ${temp.toSet()}");
+              if(temp.toSet().contains("300-$pumpIndex") && temp.toSet().contains("500-$pumpIndex")) {
+                individualPumpSetting.controllerReadStatus = "1";
+                individualPumpSetting.changed = false;
+                // print("$key acknowledged");
+              }
               break;
             case 25:
-              if(key.contains("600-$pumpIndex")) individualPumpSetting.controllerReadStatus = "1";
+              if(key.contains("600-$pumpIndex")) {
+                individualPumpSetting.controllerReadStatus = "1";
+                individualPumpSetting.changed = false;
+                // print("$key acknowledged");
+              };
               break;
           }
         }
       }
     }
     if(passwordValidationCode == 200 && calibrationSetting!.isNotEmpty) {
-      if(key.contains("900")) calibrationSetting![oroPumpIndex].settingList[1].controllerReadStatus = "1";
+      if(key.contains("900")) {
+        calibrationSetting![oroPumpIndex].settingList[1].controllerReadStatus = "1";
+        calibrationSetting![oroPumpIndex].settingList[0].changed = false;
+      };
     }
     notifyListeners();
   }
