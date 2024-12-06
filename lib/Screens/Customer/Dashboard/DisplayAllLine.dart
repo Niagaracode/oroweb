@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../Models/Customer/Dashboard/DashboardNode.dart';
+import '../../../constants/MyFunction.dart';
 import '../../../state_management/MqttPayloadProvider.dart';
 import '../CustomerDashboard.dart';
 import 'PumpLineCentral.dart';
@@ -21,7 +22,6 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
   @override
   Widget build(BuildContext context) {
 
-
     return Padding(
       padding: const EdgeInsets.all(3.0),
       child: Container(
@@ -36,6 +36,82 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
+            /*if((widget.provider.centralFertilizer.isEmpty && widget.provider.localFertilizer.isEmpty) &&
+                (widget.provider.sourcePump.length + widget.provider.irrigationPump.length + widget.provider.centralFilter.length + widget.provider.localFilter.length)<7)
+              Row(
+                children: [
+                  widget.provider.sourcePump.isNotEmpty? Padding(
+                    padding: EdgeInsets.only(top:  widget.provider.centralFertilizer.isNotEmpty ||  widget.provider.localFertilizer.isNotEmpty? 38.4:0),
+                    child: DisplaySourcePump(deviceId: widget.currentMaster.deviceId, currentLineId: 'all', spList: widget.provider.sourcePump, userId: widget.userId, controllerId: widget.currentMaster.controllerId, customerId: widget.customerId,),
+                  ):
+                  const SizedBox(),
+
+                  widget.provider.irrigationPump.isNotEmpty? Padding(
+                    padding: EdgeInsets.only(top: widget.provider.centralFertilizer.isNotEmpty || widget.provider.localFertilizer.isNotEmpty? 38.4:0),
+                    child: InkWell(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Level List'),
+                              content: widget.provider.payloadIrrLine[0].level.isNotEmpty?Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: widget.provider.payloadIrrLine[0].level.map((levelItem) {
+                                  return ListTile(
+                                    title: Text(levelItem.swName),
+                                    trailing: Column(
+                                      children: [
+                                        Text('Percent: ${levelItem.levelPercent}%'),
+                                        Text('Value: ${levelItem.value}',)
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                              ):
+                              const Text('No level available'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop(); // Close the dialog
+                                  },
+                                  child: const Text('Close'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: SizedBox(
+                        width: 52.50,
+                        height: 70,
+                        child: Stack(
+                          children: [
+                            widget.provider.sourcePump.isNotEmpty
+                                ? Image.asset('assets/images/dp_sump_src.png')
+                                : Image.asset('assets/images/dp_sump.png'),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ):
+                  const SizedBox(),
+
+                  widget.provider.irrigationPump.isNotEmpty? Padding(
+                    padding: EdgeInsets.only(top: widget.provider.centralFertilizer.isNotEmpty || widget.provider.localFertilizer.isNotEmpty? 38.4:0),
+                    child: DisplayIrrigationPump(currentLineId: 'all', deviceId: widget.currentMaster.deviceId, ipList: widget.provider.irrigationPump, userId: widget.customerId, controllerId: widget.currentMaster.controllerId,),
+                  ):
+                  const SizedBox(),
+
+                  widget.provider.centralFilter.isNotEmpty? Padding(
+                    padding: EdgeInsets.only(top: widget.provider.centralFertilizer.isNotEmpty || widget.provider.localFertilizer.isNotEmpty? 38.4:0),
+                    child: DisplayFilter(currentLineId: 'all', filtersSites: widget.provider.centralFilter,),
+                  ):
+                  const SizedBox(),
+                ],
+              ),*/
+
             ScrollConfiguration(
               behavior: const ScrollBehavior(),
               child: SingleChildScrollView(
@@ -61,22 +137,63 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
                               builder: (BuildContext context) {
                                 return AlertDialog(
                                   title: const Text('Level List'),
-                                  content: widget.provider.payloadIrrLine[0].level.isNotEmpty?Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: widget.provider.payloadIrrLine[0].level.map((levelItem) {
-                                      return ListTile(
-                                        leading: Image.asset('assets/images/level_sensor.png'),
-                                        title: Text(levelItem.swName),
-                                        trailing: Column(
-                                          children: [
-                                            Text('Percent: ${levelItem.levelPercent}%'),
-                                            Text('Value: ${levelItem.value}',)
-                                          ],
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ):
-                                  const Text('No level available'),
+                                  content: widget.provider.payloadIrrLine.any((line) => line.level.isNotEmpty)
+                                      ? SingleChildScrollView(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: widget.provider.payloadIrrLine
+                                          .expand((line) => line.level) // Combine all levels from all lines
+                                          .map((levelItem) {
+                                        return ListTile(
+                                          leading: Image.asset(
+                                            'assets/images/level_sensor.png',
+                                            height: 30,
+                                            width: 30,
+                                          ),
+                                          title: Text(
+                                            (levelItem.swName.isNotEmpty == true
+                                                ? levelItem.swName
+                                                : levelItem.name) ??
+                                                'No Name',
+                                          ),
+                                          trailing: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text.rich(
+                                                TextSpan(
+                                                  text: 'Percent: ', // Regular text
+                                                  style: const TextStyle(fontSize: 12),
+                                                  children: <TextSpan>[
+                                                    TextSpan(
+                                                      text: '${levelItem.levelPercent}%',
+                                                      style: const TextStyle(fontWeight: FontWeight.bold),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Text.rich(
+                                                TextSpan(
+                                                  text: 'Level: ', // Regular text
+                                                  style: const TextStyle(fontSize: 12),
+                                                  children: <TextSpan>[
+                                                    TextSpan(
+                                                      text: getUnitByParameter(
+                                                          context,
+                                                          'Level Sensor',
+                                                          levelItem.value.toString()) ??
+                                                          '',
+                                                      style: const TextStyle(fontWeight: FontWeight.bold),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  )
+                                      : const Text('No level available'),
                                   actions: [
                                     TextButton(
                                       onPressed: () {
@@ -155,12 +272,6 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
                         ),
                       ):
                       const SizedBox(),
-
-                      /*for(int i=0; i<widget.provider.payload2408.length; i++)
-                        widget.provider.payload2408.isNotEmpty?  Padding(
-                          padding: EdgeInsets.only(top: widget.provider.centralFertilizer.isNotEmpty || widget.provider.localFertilizer.isNotEmpty? 38.4:0),
-                          child: DisplaySensor(payload2408: widget.provider.payload2408, index: i,),
-                        ) : const SizedBox(),*/
 
                       widget.provider.centralFertilizer.isNotEmpty? const DisplayCentralFertilizer(currentLineId: 'all',):
                       const SizedBox(),

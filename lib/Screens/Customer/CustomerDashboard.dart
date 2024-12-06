@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:oro_irrigation_new/constants/theme.dart';
 import 'package:oro_irrigation_new/screens/Customer/Dashboard/NextSchedule.dart';
 import 'package:oro_irrigation_new/screens/Customer/Dashboard/ScheduledProgramList.dart';
 import 'package:popover/popover.dart';
@@ -117,13 +116,10 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                         ls.value = sensorStatusMap[ls.sNo] ?? '0';
                       }
                     }
-
                     updateSensorValues(line.pressureSensor, sensorStatusMap);
                     updateSensorValues(line.moistureSensor, sensorStatusMap);
-
                   }
                 }
-
                 Provider.of<MqttPayloadProvider>(context).nodeConnection(true);
               }else{
                 if(items['SNo']!=0){
@@ -181,16 +177,12 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
           children: [
             irrigationFlag !=0? Padding(
               padding: const EdgeInsets.only(left: 3, right: 3),
-              child: Container(
+              child: SizedBox(
                 width: MediaQuery.sizeOf(context).width,
-                decoration: BoxDecoration(
-                  color: Colors.orange.shade200,
-                  borderRadius: BorderRadius.circular(03),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Center(child: Text(getContentByCode(irrigationFlag!).toUpperCase(),
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.normal, color: Colors.black54),)),
+                height: 20,
+                child: Center(
+                  child: Text(getContentByCode(irrigationFlag!).toUpperCase(),
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.red),),
                 ),
               ),
             ):
@@ -306,26 +298,69 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                   padding: EdgeInsets.only(top: provider.localFertilizer.isNotEmpty || provider.localFertilizer.isNotEmpty? 38.4:0),
                   child: InkWell(
                     onTap: () {
+
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
+                          final line = provider.payloadIrrLine.firstWhere(
+                                (line) => line.line == crrIrrLine.id,
+                            orElse: () => IrrigationLinePLD(level: [], sNo: 0, line: '', swName: '', prsIn: '', prsOut: '', dpValue: '', waterMeter: '', irrigationPauseFlag: 0, dosingPauseFlag: 0), // Provide a valid fallback instance
+                          );
                           return AlertDialog(
                             title: const Text('Level List'),
-                            content: provider.payloadIrrLine[0].level.isNotEmpty? Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: provider.payloadIrrLine[0].level.map((levelItem) {
-                                return ListTile(
-                                  title: Text(levelItem.swName, style: const TextStyle(fontSize: 14),),
-                                  trailing: Column(
-                                    children: [
-                                      Text('Percent: ${levelItem.levelPercent}%'),
-                                      Text('${getUnitByParameter(context, 'Level Sensor', levelItem.value)}',),
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                            ):
-                            const Text('No level available'),
+                            content: line.level.isNotEmpty
+                                ? SingleChildScrollView(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: line.level.map((levelItem) {
+                                  return ListTile(
+                                    leading: Image.asset(
+                                      'assets/images/level_sensor.png',
+                                      height: 30,
+                                      width: 30,
+                                    ),
+                                    title: Text(
+                                      levelItem.swName.isNotEmpty == true
+                                          ? levelItem.swName
+                                          : levelItem.name ?? 'No Name', // Fallback to 'No Name'
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                    trailing: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text.rich(
+                                          TextSpan(
+                                            text: 'Percent: ', // Regular text
+                                            style: const TextStyle(fontSize: 12),
+                                            children: [
+                                              TextSpan(
+                                                text: '${levelItem.levelPercent}%',
+                                                style: const TextStyle(
+                                                    fontWeight: FontWeight.bold),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Text.rich(
+                                          TextSpan(
+                                            text: 'Level: ', // Regular text
+                                            style: const TextStyle(fontSize: 12),
+                                            children: [
+                                              TextSpan(
+                                                text: getUnitByParameter(context, 'Level Sensor', levelItem.value) ?? '',
+                                                style: const TextStyle(
+                                                    fontWeight: FontWeight.bold),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            )
+                                : const Text('No level available'), // Display if levels are empty or no line found
                             actions: [
                               TextButton(
                                 onPressed: () {
@@ -451,8 +486,8 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(
-            color: primaryColorLightGray,
-            width: 0.7,
+            color: Colors.black26,
+            width: 0.5,
           ),
           borderRadius: const BorderRadius.all(Radius.circular(5)),
         ),
@@ -510,7 +545,6 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
     Map<String, Object> body = {"userId": widget.siteData.customerId, "controllerId": widget.siteData.master[widget.masterInx].deviceId, "messageStatus": msg, "hardware": jsonDecode(payLoad), "createUser": widget.userId};
     final response = await HttpService().postRequest("createUserSentAndReceivedMessageManually", body);
     if (response.statusCode == 200) {
-      print(response.body);
     } else {
       throw Exception('Failed to load data');
     }
@@ -535,7 +569,6 @@ class _DisplayIrrigationLineState extends State<DisplayIrrigationLine> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getSensorHourlyLogs(widget.customerId, widget.currentMaster.controllerId, selectedDate);
   }
@@ -581,9 +614,20 @@ class _DisplayIrrigationLineState extends State<DisplayIrrigationLine> {
     final screenWidth = MediaQuery.of(context).size.width-widget.rWidth;
     final List<Widget> valveWidgets;
 
+    MqttPayloadProvider provider = Provider.of<MqttPayloadProvider>(context, listen: false);
+
     if(widget.currentLineId=='all'){
       valveWidgets = [
+
         for (var line in widget.currentMaster.irrigationLine) ...[
+          ...line.pressureSwitch.map((psw) => SensorWidget(sensor: psw,
+            sensorType: 'Pressure Switch',
+            imagePath: 'assets/images/pressure_switch.png',
+            sensorData: sensors.isNotEmpty? sensors.firstWhere(
+                  (sensor) => sensor.name == 'Pressure Switch',
+              orElse: () => AllMySensor(name: '', data: {}),
+            ).data : {},
+          )).toList(),
           ...line.pressureSensor.map((ps) => SensorWidget(
             sensor: ps,
             sensorType: 'Pressure Sensor',
@@ -615,15 +659,7 @@ class _DisplayIrrigationLineState extends State<DisplayIrrigationLine> {
             ).data : {},
           )).toList(),
           ...line.agitator.map((ag) => AgitatorWidget(ag: ag, status: ag.status)).toList(),
-          ...line.pressureSwitch.map((psw) => SensorWidget(sensor: psw,
-            sensorType: 'Pressure Switch',
-            imagePath: 'assets/images/pressure_switch.png',
-            sensorData: sensors.isNotEmpty? sensors.firstWhere(
-                  (sensor) => sensor.name == 'Pressure Switch',
-              orElse: () => AllMySensor(name: '', data: {}),
-            ).data : {},
-          )).toList(),
-          ...line.levelSensor.map((ls) => SensorWidget(
+          /*...line.levelSensor.map((ls) => SensorWidget(
             sensor: ls,
             sensorType: 'Level Sensor',
             imagePath: 'assets/images/level_sensor.png',
@@ -631,11 +667,18 @@ class _DisplayIrrigationLineState extends State<DisplayIrrigationLine> {
                   (sensor) => sensor.name == 'Level Sensor',
               orElse: () => AllMySensor(name: '', data: {}),
             ).data : {},
-          )).toList(),
+          )).toList(),*/
         ]
       ];
-    }else{
+    }
+    else{
       valveWidgets = [
+        ...widget.irrigationLine.pressureSwitch.map((psw) => SensorWidget(sensor: psw, sensorType: 'Pressure Switch', imagePath: 'assets/images/pressure_switch.png',
+          sensorData: sensors.isNotEmpty? sensors.firstWhere(
+                (sensor) => sensor.name == 'Pressure Switch',
+            orElse: () => AllMySensor(name: '', data: {}),
+          ).data : {},
+        )).toList(),
         ...widget.irrigationLine.pressureSensor.map((ps) => SensorWidget(sensor: ps, sensorType: 'Pressure Sensor', imagePath: 'assets/images/pressure_sensor.png',
           sensorData: sensors.isNotEmpty? sensors.firstWhere(
                 (sensor) => sensor.name == 'Pressure Sensor',
@@ -659,18 +702,12 @@ class _DisplayIrrigationLineState extends State<DisplayIrrigationLine> {
           ).data : {},
         )).toList(),
         ...widget.irrigationLine.agitator.map((ag) => AgitatorWidget(ag: ag, status: ag.status)).toList(),
-        ...widget.irrigationLine.pressureSwitch.map((psw) => SensorWidget(sensor: psw, sensorType: 'Pressure Switch', imagePath: 'assets/images/pressure_switch.png',
-          sensorData: sensors.isNotEmpty? sensors.firstWhere(
-                (sensor) => sensor.name == 'Pressure Switch',
-            orElse: () => AllMySensor(name: '', data: {}),
-          ).data : {},
-        )).toList(),
-        ...widget.irrigationLine.levelSensor.map((ls) => SensorWidget(sensor: ls, sensorType: 'Level Sensor', imagePath: 'assets/images/level_sensor.png',
+        /*...widget.irrigationLine.levelSensor.map((ls) => SensorWidget(sensor: ls, sensorType: 'Level Sensor', imagePath: 'assets/images/level_sensor.png',
           sensorData: sensors.isNotEmpty? sensors.firstWhere(
                 (sensor) => sensor.name == 'Level Sensor',
             orElse: () => AllMySensor(name: '', data: {}),
           ).data : {},
-        )).toList(),
+        )).toList(),*/
       ];
     }
 
@@ -856,7 +893,7 @@ class ValveWidget extends StatelessWidget {
 
                         jsonData.forEach((key, value) {
                           var filteredList = (value as List)
-                              .where((item) => item['Name'].contains(ms.name))
+                              .where((item) => item['sNo']==ms.sNo)
                               .toList();
                           if (filteredList.isNotEmpty) {
                             filteredData[key] = List<Map<String, dynamic>>.from(filteredList);
@@ -868,7 +905,7 @@ class ValveWidget extends StatelessWidget {
                             SizedBox(
                               width: 450,
                               height: 175,
-                              child: buildLineChart(context, filteredData, 'Moisture Sensor', ms.name,),
+                              child: buildLineChart(context, filteredData, 'Moisture Sensor', ms.name, ms.moistureType!),
                             ),
                             SizedBox(
                               width: 100,
@@ -878,10 +915,11 @@ class ValveWidget extends StatelessWidget {
                                   RadialAxis(
                                     minimum: 0,
                                     maximum: 200,
-                                    pointers: const <GaugePointer>[
+                                    pointers: <GaugePointer>[
                                       NeedlePointer(
+                                          value: double.parse(ms.value),
                                           needleEndWidth: 3, needleColor: Colors.black54),
-                                      RangePointer(
+                                      const RangePointer(
                                         value: 200.0,
                                         width: 0.30,
                                         sizeUnit: GaugeSizeUnit.factor,
@@ -974,7 +1012,6 @@ class ValveWidget extends StatelessWidget {
   }
 }
 
-
 class AgitatorWidget extends StatelessWidget {
   final LineAgitator ag;
   final int status;
@@ -1054,7 +1091,7 @@ class SensorWidget extends StatelessWidget {
               ],
             ),
           ),
-          Padding(
+          sensorType != 'Pressure Switch'?Padding(
             padding: const EdgeInsets.only(left: 10, right: 10),
             child: Container(
               width: 150,
@@ -1069,9 +1106,7 @@ class SensorWidget extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  sensorType == 'Pressure Switch'
-                      ? (sensor.value == '0' ? 'High' : '--')
-                      : getUnitByParameter(context, sensorType, sensor.value.toString()) ?? '',
+                  getUnitByParameter(context, sensorType, sensor.value.toString()) ?? '',
                   style: const TextStyle(
                     color: Colors.black,
                     fontSize: 10,
@@ -1080,9 +1115,14 @@ class SensorWidget extends StatelessWidget {
                 ),
               ),
             ),
+          ):
+          CircleAvatar(
+            radius: 9,
+            backgroundColor: Colors.black45,
+            child: CircleAvatar(radius: 6, backgroundColor:sensor.value == '1'? Colors.redAccent:Colors.greenAccent,),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: sensorType != 'Pressure Switch'? () {
               showPopover(
                 context: context,
                 bodyBuilder: (context) {
@@ -1091,7 +1131,7 @@ class SensorWidget extends StatelessWidget {
 
                   jsonData.forEach((key, value) {
                     var filteredList = (value as List)
-                        .where((item) => item['Id'].contains(sensor.hid))
+                        .where((item) => item['sNo']==sensor.sNo)
                         .toList();
                     if (filteredList.isNotEmpty) {
                       filteredData[key] = List<Map<String, dynamic>>.from(filteredList);
@@ -1106,7 +1146,7 @@ class SensorWidget extends StatelessWidget {
                       SizedBox(
                         width: 450,
                         height: 175,
-                        child: buildLineChart(context, filteredData, sensorType, sensor.name),
+                        child: buildLineChart(context, filteredData, sensorType, sensor.name, sensor.moistureType!),
                       ),
                       SizedBox(
                         width: 100,
@@ -1115,7 +1155,7 @@ class SensorWidget extends StatelessWidget {
                           axes: <RadialAxis>[
                             RadialAxis(
                               minimum: 0,
-                              maximum: sensorType=='Moisture Sensor'?200:100,
+                              maximum: sensorType=='Moisture Sensor'?200:sensorType=='Pressure Sensor'?12:100,
                               pointers: <GaugePointer>[
                                 NeedlePointer(
                                     value: double.parse(numericValue),
@@ -1173,7 +1213,7 @@ class SensorWidget extends StatelessWidget {
                 barrierColor: Colors.black54,
                 arrowDyOffset: -20,
               );
-            },
+            } : null,
             style: ButtonStyle(
               padding: WidgetStateProperty.all(EdgeInsets.zero),
               minimumSize: WidgetStateProperty.all(Size.zero),
@@ -1203,13 +1243,15 @@ class SensorWidget extends StatelessWidget {
   }
 }
 
-Row buildLineChart(BuildContext context, Map<String, List<Map<String, dynamic>>> sensorData, String sensorType, String sensorName) {
+Row buildLineChart(BuildContext context, Map<String, List<Map<String, dynamic>>> sensorData, String sensorCategory, String sensorName, String sensorType,)
+{
 
   // Collect all hours
   final Set<String> allHours = {};
   sensorData.values.expand((hourlyData) => hourlyData).forEach((data) {
     allHours.add(data['hour']);
   });
+
   // Sort hours
   final List<String> sortedHours = allHours.toList()..sort();
   // Group data by sensor name
@@ -1219,10 +1261,9 @@ Row buildLineChart(BuildContext context, Map<String, List<Map<String, dynamic>>>
       id: data['Id'],
       value: data['Value'].toDouble(),
       hour: data['hour'],
-      name: sensorName,
+      name: sensorName, sNo: data['sNo'],
     ));
   });
-
 
   // Build series
   final List<LineSeries<SensorHourlyData, String>> series = [];
@@ -1234,7 +1275,7 @@ Row buildLineChart(BuildContext context, Map<String, List<Map<String, dynamic>>>
           id: '',
           value: 0.0,
           hour: hour,
-          name: sensorName,
+          name: sensorName, sNo: 0,
         ),
       );
       return data;
@@ -1246,23 +1287,30 @@ Row buildLineChart(BuildContext context, Map<String, List<Map<String, dynamic>>>
       dataSource: dataPoints,
       xValueMapper: (SensorHourlyData data, _) => data.hour,
       yValueMapper: (SensorHourlyData data, _) {
-        if(sensorType=='EC Sensor' || sensorType=='PH Sensor'){
+        if(sensorCategory=='EC Sensor' || sensorCategory=='PH Sensor'){
           return data.value;
         }else{
-          String? result = getUnitByParameter(context, sensorType, data.value.toString());
+          String? result = getUnitByParameter(context, sensorCategory, data.value.toString());
           String? numericString = result?.replaceAll(RegExp(r'[^\d.]+'), '');
           double? value = double.tryParse(numericString!);
           return value ?? 0.0;
         }
       },
-      color: primaryColorLightGray,
-      dataLabelSettings: const DataLabelSettings(isVisible: true),
+      dataLabelSettings: const DataLabelSettings(
+        isVisible: true,
+        textStyle: TextStyle(
+          fontSize: 10,  // Set the desired font size here
+          color: Colors.black,  // Optional: You can also set the text color
+        ),
+      ),
+
+      color: Colors.teal,
       dataLabelMapper: (SensorHourlyData data, _) {
 
-        if(sensorType=='EC Sensor' || sensorType=='PH Sensor'){
+        if(sensorCategory=='EC Sensor' || sensorCategory=='PH Sensor'){
           return data.value.toString();
         }else{
-          String? result = getUnitByParameter(context, sensorType, data.value.toString());
+          String? result = getUnitByParameter(context, sensorCategory, data.value.toString());
           String? numericString = result?.replaceAll(RegExp(r'[^\d.]+'), '');
           return '$numericString';
         }
@@ -1285,12 +1333,19 @@ Row buildLineChart(BuildContext context, Map<String, List<Map<String, dynamic>>>
       Expanded(
         child: SfCartesianChart(
           primaryXAxis: CategoryAxis(
-            title: AxisTitle(text: '$sensorName - Hours', textStyle: const TextStyle(fontSize: 13)),
+            title: AxisTitle(text: sensorCategory=='Moisture Sensor'?'$sensorName($sensorType) - Hours':'$sensorName - Hours', textStyle: const TextStyle(fontSize: 12)),
             majorGridLines: const MajorGridLines(width: 0),
             axisLine: const AxisLine(width: 0),
+            labelStyle: const TextStyle(
+              fontSize: 11,
+              color: Colors.black54,
+            ),
           ),
           primaryYAxis: NumericAxis(
-            title: AxisTitle(text: getSensorUnit(sensorType, context),  textStyle: const TextStyle(fontSize: 12)),
+            labelStyle: const TextStyle(
+              fontSize: 11,
+              color: Colors.black54,
+            ),
           ),
 
           tooltipBehavior: TooltipBehavior(enable: true),

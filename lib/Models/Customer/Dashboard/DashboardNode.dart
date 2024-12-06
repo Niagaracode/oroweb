@@ -377,7 +377,7 @@ class PumpData {
       sNo: json['S_No'] ?? 0,
       type: type,
       name: json['Name'] ?? 'Unknown',
-      swName: json['SW_Name'] ?? '',
+      swName: json['SW_Name'] ?? json['Name'] ?? 'Unknown',
       location: location,
       status: json['Status'] ?? 0,
       reason: reason,
@@ -1014,6 +1014,7 @@ class SensorModel {
   String value;
   int? percentage;
   String? valve;
+  String? moistureType;
 
   SensorModel({
     required this.sNo,
@@ -1026,6 +1027,7 @@ class SensorModel {
     required this.value,
     this.percentage,
     this.valve,
+    this.moistureType,
   });
 
   factory SensorModel.fromJson(Map<String, dynamic> json) {
@@ -1040,6 +1042,7 @@ class SensorModel {
       value: json['value'].toString(),
       percentage: json['percentage'],
       valve: json['valve'] ?? '',
+      moistureType: json['high/low'] ?? '',
     );
   }
 
@@ -1055,6 +1058,7 @@ class SensorModel {
       'value': value,
       if (percentage != null) 'percentage': percentage,
       'valve': valve,
+      'high/low': moistureType,
     };
   }
 }
@@ -1078,7 +1082,7 @@ class RelayStatus {
     return RelayStatus(
       S_No: json['S_No'],
       name: json['Name'],
-      swName: json['SW_Name'] ?? '',
+      swName: json['SW_Name'] ?? json['Name'],
       rlyNo: json['RlyNo'],
       Status: json['Status'],
     );
@@ -1109,7 +1113,7 @@ class SensorStatus {
     return SensorStatus(
       sNo: json['S_No'],
       name: json['Name'],
-      swName: json['SW_Name'] ?? '',
+      swName: json['SW_Name'] ?? json['Name'],
       angIpNo: json['AngIpNo'],
       pulseIpNo: json['DigIpNo'],
       value: json['Value'],
@@ -1558,7 +1562,7 @@ class IrrigationLinePLD {
     return IrrigationLinePLD(
       sNo: json['S_No'],
       line: json['Line'],
-      swName: json['SW_Name'] ?? '',
+      swName: json['SW_Name'] ?? json['Line'],
       prsIn: json['PrsIn'],
       prsOut: json['PrsOut'],
       dpValue: json['DpValue'] != null

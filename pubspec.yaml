@@ -316,9 +316,6 @@ flutter:
      - assets/images/dp_fert_channel_last_aj_y.png
      - assets/images/dp_fert_channel_last_aj_r.png
      - assets/images/dp_sump_src.png
-     - assets/images/dp_agitator_gray.png
-     - assets/images/dp_agitator_green.png
-     - assets/images/dp_agitator_yellow.png
      - assets/images/dp_agitator_red.png
      - assets/GifFile/motor_off_new.gif
      - assets/GifFile/motor_on_new.gif
@@ -410,7 +407,7 @@ flutter:
      - assets/weatherIcons2/WindSpeed.png
      - assets/weatherIcons2/WindSpeedColor.png
      - assets/images/login_left_picture.png
-     - assets/images/lk_logo.png
+     - assets/SVGPicture/oro_logo.svg
      - assets/images/scom_logo_white.png
 
 

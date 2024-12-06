@@ -159,7 +159,7 @@ class _CreateAccountState extends State<CreateAccount> {
     return Padding(
       padding: const EdgeInsets.only(left: 2,right: 2, top: 2),
       child: ListTile(
-        title: Text(widget.from=='Admin'? "Dealer Account Form" : widget.from=='Dealer'? "Customer Account Form": "Sub User Account Form", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        title: Text(widget.from=='Admin'? "Dealer Account Form" : widget.from=='Dealer'? "Customer Account Form": "Sub User Account Form", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: primaryColorDark)),
         subtitle: const Text("Please fill out all the details correctly.", style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal)),
       ),
     );
@@ -183,7 +183,13 @@ class _CreateAccountState extends State<CreateAccount> {
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return widget.from=='Admin'? "Please enter your dealer name" : widget.from=='Dealer'? "Please enter your customer name": "Please enter your sub user name";
+                  return widget.from=='Admin'? "Please enter your dealer name" :
+                  widget.from=='Dealer'? "Please enter your customer name":
+                  "Please enter your sub user name";
+                }
+                final regex = RegExp(r'^[a-zA-Z ]+$');
+                if (!regex.hasMatch(value)) {
+                  return 'Name must not contain numbers or special characters';
                 }
                 return null;
               },

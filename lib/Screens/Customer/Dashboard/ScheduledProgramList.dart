@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:calendar_view/calendar_view.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -10,7 +12,6 @@ import '../../../constants/MQTTManager.dart';
 import '../../../constants/MyFunction.dart';
 import '../../../constants/http_service.dart';
 import '../../../constants/snack_bar.dart';
-import '../../../constants/theme.dart';
 import '../../../state_management/MqttPayloadProvider.dart';
 import '../ScheduleView.dart';
 
@@ -62,11 +63,11 @@ class ScheduledProgramList extends StatelessWidget {
                   width: 200,
                   padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 2),
                   decoration: BoxDecoration(
-                      color: primaryColorSolarGray,
+                      color: Colors.yellow.shade200,
                       borderRadius: const BorderRadius.all(Radius.circular(2)),
-                      border: Border.all(width: 0.5, color: primaryColorSolarGray)
+                      border: Border.all(width: 0.5, color: Colors.grey)
                   ),
-                  child: const Text('SCHEDULED PROGRAM',  style: TextStyle(color: Colors.white)),
+                  child: const Text('SCHEDULED PROGRAM',  style: TextStyle(color: Colors.black)),
                 ),
               ),
             ],
@@ -140,7 +141,7 @@ class ScheduledProgramList extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           scheduledPrograms[index].progOnOff == 0 ? MaterialButton(
-                            color: primaryColorPureGreen,
+                            color: Colors.green,
                             textColor: Colors.white,
                             onPressed:() {
                               String localFilePath = 'assets/audios/button_click_sound.mp3';
@@ -192,7 +193,7 @@ class ScheduledProgramList extends StatelessWidget {
                 if(index != scheduledPrograms.length - 1)
                   const Padding(
                     padding: EdgeInsets.only(right: 5,left: 5),
-                    child: Divider(color: primaryColorPureGreen, thickness: 0.3,),
+                    child: Divider(color: Colors.teal, thickness: 0.3,),
                   ),
                 const SizedBox(height: 5,),
               ],
@@ -208,8 +209,8 @@ class ScheduledProgramList extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(
-          color: primaryColorLightGray,
-          width: 0.7,
+          color: Colors.grey,
+          width: 0.5,
         ),
         borderRadius: const BorderRadius.all(Radius.circular(5)),
       ),
@@ -222,7 +223,7 @@ class ScheduledProgramList extends StatelessWidget {
           minWidth: 1000,
           dataRowHeight: 45.0,
           headingRowHeight: 40.0,
-          headingRowColor: WidgetStateProperty.all<Color>(primaryColorLightGray),
+          headingRowColor: WidgetStateProperty.all<Color>(Colors.yellow.shade50),
           columns:  [
             const DataColumn2(
               label: Text('Line Id', style: TextStyle(fontSize: 13),),
@@ -321,7 +322,7 @@ class ScheduledProgramList extends StatelessWidget {
                               const TextSpan(
                                 text: 'Start Stop: ',
                                 style: TextStyle(
-                                  color: primaryColorPureGreen,
+                                  color: Colors.teal,
                                   fontSize: 12,
                                 ),
                               ),
@@ -341,7 +342,7 @@ class ScheduledProgramList extends StatelessWidget {
                               const TextSpan(
                                 text: 'Pause Resume: ',
                                 style: TextStyle(
-                                  color: primaryColorPureGreen,
+                                  color: Colors.teal,
                                   fontSize: 12,
                                 ),
                               ),
@@ -368,7 +369,7 @@ class ScheduledProgramList extends StatelessWidget {
                         scheduledPrograms[index].sNo,
                       );
                     },
-                    icon: const Icon(Icons.visibility_outlined, color: primaryColorPureGreen,),
+                    icon: const Icon(Icons.visibility_outlined, color: Colors.teal,),
                   ):
                   const SizedBox(),
                 ],
@@ -381,7 +382,7 @@ class ScheduledProgramList extends StatelessWidget {
                   Tooltip(
                     message: getDescription(int.parse(scheduledPrograms[index].progOnOff)),
                     child: MaterialButton(
-                      color: int.parse(scheduledPrograms[index].progOnOff) >= 0? isStop?primaryColorPureRed: isBypass?Colors.orange :primaryColorPureGreen : Colors.grey.shade300,
+                      color: int.parse(scheduledPrograms[index].progOnOff) >= 0? isStop?Colors.red: isBypass?Colors.orange :Colors.green : Colors.grey.shade300,
                       textColor: Colors.white,
                       onPressed: () {
 
@@ -624,7 +625,7 @@ class _ConditionDialogState extends State<ConditionDialog> {
                   headerBuilder: (BuildContext context, bool isExpanded) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 8, left: 8),
-                      child: Text('START CONDITION', style: TextStyle(fontSize: 17, color: startCondition.status==1?primaryColorPureGreen:Colors.red),),
+                      child: Text('START CONDITION', style: TextStyle(fontSize: 17, color: startCondition.status==1?Colors.green:Colors.red),),
                     );
                   },
                   body: _buildConditionPanel(startCondition),
@@ -635,7 +636,7 @@ class _ConditionDialogState extends State<ConditionDialog> {
                   headerBuilder: (BuildContext context, bool isExpanded) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 8, left: 8),
-                      child: Text('STOP CONDITION', style: TextStyle(fontSize: 17, color: stopCondition.status==1?primaryColorPureGreen:Colors.red),),
+                      child: Text('STOP CONDITION', style: TextStyle(fontSize: 17, color: stopCondition.status==1?Colors.green:Colors.red),),
                     );
                   },
                   body: _buildConditionPanel(stopCondition),

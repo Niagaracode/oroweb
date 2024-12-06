@@ -149,20 +149,22 @@ class ProductInventoryState extends State<ProductInventory> {
 
     if (response.statusCode == 200)
     {
+      print(response.body);
       if(jsonDecode(response.body)["code"]==200){
+
+        totalProduct = jsonDecode(response.body)["data"]["totalProduct"];
+        if(widget.userType != 3){
+          List<dynamic> productList = jsonDecode(response.body)["data"]["product"];
+          for (int i = 0; i < productList.length; i++) {
+            productInventoryList.add(ProductListModel.fromJson(productList[i]));
+          }
+        }
+        else{
+          productInventoryListCus = (jsonDecode(response.body)["data"]["product"] as List).map((data) => CustomerProductModel.fromJson(data)).toList();
+        }
+        isLoading = false;
+        indicatorViewHide();
         setState((){
-          totalProduct = jsonDecode(response.body)["data"]["totalProduct"];
-          if(widget.userType != 3){
-            List<dynamic> productList = jsonDecode(response.body)["data"]["product"];
-            for (int i = 0; i < productList.length; i++) {
-              productInventoryList.add(ProductListModel.fromJson(productList[i]));
-            }
-          }
-          else{
-            productInventoryListCus = (jsonDecode(response.body)["data"]["product"] as List).map((data) => CustomerProductModel.fromJson(data)).toList();
-          }
-          isLoading = false;
-          indicatorViewHide();
         });
       }else{
         isLoading = false;
@@ -1162,6 +1164,7 @@ class ProductInventoryState extends State<ProductInventory> {
                 child: const Text('Replace'),
                 onPressed: () async {
                   final body = {"userId": customerId, "oldDeviceId": imeiNo, "newDeviceId": rplImeiNo, 'modifyUser': widget.userId};
+                  print(body);
                   final response = await HttpService().postRequest("replaceProduct", body);
                   if (response.statusCode == 200)
                   {

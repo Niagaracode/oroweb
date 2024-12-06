@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-const primaryColorDark = Color(0xFF004265);
-const primaryColorMedium = Color(0xff005B8A);
-const primaryColorLight = Color(0xff008cd7);
+const primaryColorDark = Color(0xFF036673);
+const primaryColorMedium = Color(0xFF1D808E);
+const primaryColorLight = Color(0x6438D3E8);
+const backgroundColor = Color(0xFFE0F2F1);
+
+const textColorWhite = Colors.white;
+const textColorBlack = Colors.black;
+const textColorGray = Colors.grey;
 
 const primaryColorTrafficBlue = Color(0xff005c8e);
 const primaryColorSolarGray = Color(0xff3c4553);
@@ -14,9 +19,6 @@ const primaryColorPureGreen = Color(0xff309040);
 const primaryColorPureRed = Color(0xffd7292e);
 const primaryColorPureYellow = Color(0xfffbca2f);
 
-const textColorWhite = Colors.white;
-const textColorBlack = Colors.black;
-const textColorGray = Colors.grey;
 
 final ThemeData myTheme = ThemeData(
   useMaterial3: true,

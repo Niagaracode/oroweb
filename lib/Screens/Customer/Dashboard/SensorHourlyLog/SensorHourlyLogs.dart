@@ -185,7 +185,7 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
 
       final dataPoints = sortedHours.map((hour) {
         final data = sensorValues.firstWhere((d) => d.hour == hour,
-          orElse: () => SensorHourlyData(id: '', value: 0.0, hour: hour, name: sensorName,),
+          orElse: () => SensorHourlyData(id: '', value: 0.0, hour: hour, name: sensorName, sNo: 0),
         );
         return data;
       }).toList();

@@ -516,10 +516,20 @@ class _DealerDashboardState extends State<DealerDashboard> {
                           {
                             showModalBottomSheet(
                               context: context,
-                              elevation: 10,
-                              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5))),
-                              builder: (BuildContext context) {
-                                return CreateAccount(callback: callbackFunction, subUsrAccount: false, customerId: widget.userId, from: 'Dealer',);
+                              isScrollControlled: true,
+                              builder: (context) {
+                                return FractionallySizedBox(
+                                  heightFactor: 0.84,
+                                  widthFactor: 0.75,
+                                  child: Container(
+                                    // padding: EdgeInsets.all(16.0),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
+                                    ),
+                                    child: CreateAccount(callback: callbackFunction, subUsrAccount: false, customerId: widget.userId, from: 'Dealer',),
+                                  ),
+                                );
                               },
                             );
                           }),
@@ -587,29 +597,37 @@ class _DealerDashboardState extends State<DealerDashboard> {
                                 ):
                                 const SizedBox(),
                                 IconButton(
-                                  tooltip: 'View dashboard',
+                                  tooltip: 'View and Add new product',
                                   onPressed: (){
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => CustomerScreenController(
-                                          customerId: customer.userId,
-                                          customerName: customer.userName,
-                                          mobileNo: '+${customer.countryCode}-${customer.mobileNumber}',
-                                          comingFrom: 'AdminORDealer',
-                                          emailId: customer.emailId,
-                                          userId: widget.userId,),
-                                      ),
+                                    showModalBottomSheet(
+                                      context: context,
+                                      elevation: 10,
+                                      isScrollControlled: true,
+                                      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5))),
+                                      builder: (BuildContext context) {
+                                        return DeviceList(customerID: customer.userId, userName: customer.userName, userID: widget.userId, userType: widget.fromLogin?2:1, productStockList: myStockList, callback: callbackFunction, customerType: 'Customer',);
+                                      },
                                     );
                                   },
-                                  icon: const Icon(Icons.view_quilt_rounded),
+                                  icon: const Icon(Icons.playlist_add),
                                 ),
                               ],
                             ),
                             title: Text(customer.userName, style: const TextStyle(fontSize: 13,fontWeight: FontWeight.bold)),
                             subtitle: Text('+${customer.countryCode} ${customer.mobileNumber}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.normal)),
                             onTap:() {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) =>  DeviceList(customerID: customer.userId, userName: customer.userName, userID: widget.userId, userType: widget.fromLogin?2:1, productStockList: myStockList, callback: callbackFunction, customerType: 'Customer',)),);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CustomerScreenController(
+                                    customerId: customer.userId,
+                                    customerName: customer.userName,
+                                    mobileNo: '+${customer.countryCode}-${customer.mobileNumber}',
+                                    comingFrom: 'AdminORDealer',
+                                    emailId: customer.emailId,
+                                    userId: widget.userId,),
+                                ),
+                              );
                             },
                           );
                         },

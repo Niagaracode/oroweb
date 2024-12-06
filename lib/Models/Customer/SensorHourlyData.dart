@@ -20,13 +20,13 @@ class AllMySensor {
 
 
 class SensorHourlyData {
+  final int sNo;
   final String? name;
   final String id;
   final double value;
   final String hour;
 
-
-  SensorHourlyData({required this.id, required this.value, required this.hour, required this.name,});
+  SensorHourlyData({required this.id, required this.value, required this.hour, required this.name, required this.sNo,});
 
   factory SensorHourlyData.fromJson(Map<String, dynamic> json) {
 
@@ -38,6 +38,7 @@ class SensorHourlyData {
     }
 
     return SensorHourlyData(
+      sNo: json['S_No'],
       name: snrName,
       id: json['Id'],
       value: double.tryParse(json['Value']) ?? 0.0,
@@ -51,6 +52,7 @@ class SensorHourlyData {
       'Id': id,
       'Value': value,
       'hour': hour,
+      'sNo': sNo,
     };
   }
 }

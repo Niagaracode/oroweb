@@ -361,10 +361,20 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     {
                                       showModalBottomSheet(
                                         context: context,
-                                        elevation: 10,
-                                        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5))),
-                                        builder: (BuildContext context) {
-                                          return CreateAccount(callback: callbackFunction, subUsrAccount: false, customerId: widget.userId, from: 'Admin',);
+                                        isScrollControlled: true,
+                                        builder: (context) {
+                                          return FractionallySizedBox(
+                                            heightFactor: 0.84,
+                                            widthFactor: 0.75,
+                                            child: Container(
+                                              // padding: EdgeInsets.all(16.0),
+                                              decoration: const BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
+                                              ),
+                                              child: CreateAccount(callback: callbackFunction, subUsrAccount: false, customerId: widget.userId, from: 'Admin',),
+                                            ),
+                                          );
                                         },
                                       );
                                     }),
@@ -394,49 +404,45 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                       onTap: () {
                                         Navigator.push(context,
                                           MaterialPageRoute(
-                                              builder: (context) =>
-                                                  DeviceList(
-                                                    customerID: myDealerList[index]
-                                                        .userId,
-                                                    userName: myDealerList[index]
-                                                        .userName,
-                                                    userID: widget.userId,
-                                                    userType: 1,
-                                                    productStockList: myStockList,
-                                                    callback: callbackFunction,
-                                                    customerType: 'Dealer',)),);
-                                        /* Navigator.push(context,
-                                          MaterialPageRoute(builder: (context) =>
-                                              DealerPurchasedProducts(userId: widget.userId, dealerId: myDealerList[index].userId, dealerName: myDealerList[index].userName,),
-                                          ),
-                                        );*/
+                                              builder: (context) =>  BaseScreenController(
+                                                userName: myDealerList[index]
+                                                    .userName,
+                                                countryCode: myDealerList[index]
+                                                    .countryCode,
+                                                mobileNo: myDealerList[index]
+                                                    .mobileNumber,
+                                                fromLogin: false,
+                                                userId: myDealerList[index]
+                                                    .userId,
+                                                emailId: myDealerList[index]
+                                                    .emailId,
+                                                userType: 2,
+                                              )),
+                                        );
                                       },
                                       trailing: IconButton(
-                                        tooltip: 'View Dashboard',
+                                        tooltip: 'View and Add new product',
                                         onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  BaseScreenController(
-                                                    userName: myDealerList[index]
-                                                        .userName,
-                                                    countryCode: myDealerList[index]
-                                                        .countryCode,
-                                                    mobileNo: myDealerList[index]
-                                                        .mobileNumber,
-                                                    fromLogin: false,
-                                                    userId: myDealerList[index]
-                                                        .userId,
-                                                    emailId: myDealerList[index]
-                                                        .emailId,
-                                                    userType: 2,
-                                                  ),
-                                            ),
+                                          showModalBottomSheet(
+                                            context: context,
+                                            elevation: 10,
+                                            isScrollControlled: true,
+                                            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5))),
+                                            builder: (BuildContext context) {
+                                              return DeviceList(
+                                                customerID: myDealerList[index]
+                                                    .userId,
+                                                userName: myDealerList[index]
+                                                    .userName,
+                                                userID: widget.userId,
+                                                userType: 1,
+                                                productStockList: myStockList,
+                                                callback: callbackFunction,
+                                                customerType: 'Dealer',);
+                                            },
                                           );
                                         },
-                                        icon: const Icon(
-                                            Icons.space_dashboard_outlined),),
+                                        icon: const Icon(Icons.playlist_add),),
                                     );
                                   },
                                 ) :
@@ -495,7 +501,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 onPressed: () {
                                   {
                                     AlertDialog alert = AlertDialog(
-                                      title: const Text("Add new stock"),
+                                      title: const Text("Stock Entry Form"),
+                                      elevation: 10,
                                       content: SizedBox(
                                           width: 640,
                                           height: 300,
