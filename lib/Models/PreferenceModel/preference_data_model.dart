@@ -3,6 +3,7 @@ class GeneralData {
   String categoryName;
   String controllerName;
   String deviceId;
+  String controllerReadStatus;
   int controllerId;
   int categoryId;
   int modelId;
@@ -11,6 +12,7 @@ class GeneralData {
     required this.userName,
     required this.categoryName,
     required this.controllerName,
+    required this.controllerReadStatus,
     required this.deviceId,
     required this.controllerId,
     required this.categoryId,
@@ -22,6 +24,7 @@ class GeneralData {
         userName: json['userName'] ?? '',
         categoryName: json['categoryName'] ?? '',
         controllerName: json['controllerName'] ?? '',
+        controllerReadStatus: json['controllerReadStatus'] ?? '0',
         deviceId: json['deviceId'] ?? "0",
         controllerId: json['controllerId'] ?? 0,
         categoryId: json['categoryId'] ?? 0,
@@ -33,6 +36,7 @@ class GeneralData {
       'userName': userName,
       'categoryName': categoryName,
       'controllerName': controllerName,
+      'controllerReadStatus': controllerReadStatus,
       'deviceId': deviceId,
       'controllerId': controllerId,
       "categoryId": categoryId,
@@ -146,7 +150,7 @@ class WidgetSetting {
       widgetTypeId: json['widgetTypeId'],
       iconCodePoint: json['iconCodePoint'],
       iconFontFamily: json['iconFontFamily'],
-      value: json['value'],
+      value: json['widgetTypeId'] != 3 ? json['value'] : json['value'] == '' ? "00:00:00" : json['value'],
       rtcSettings: rtcSettings,
       hidden: json['hidden'],
     );
@@ -250,6 +254,7 @@ class IndividualPumpSetting {
   String type;
   dynamic deviceId;
   bool controlGem;
+  String? output;
   List<SettingList> settingList;
 
   IndividualPumpSetting({
@@ -261,7 +266,8 @@ class IndividualPumpSetting {
     required this.type,
     required this.deviceId,
     required this.controlGem,
-    required this.settingList
+    required this.settingList,
+    required this.output,
   });
 
   factory IndividualPumpSetting.fromJson(Map<String, dynamic> json) {
@@ -276,7 +282,8 @@ class IndividualPumpSetting {
         type: json["type"],
         deviceId: json["deviceId"],
         controlGem: json["controlGem"] ?? false,
-        settingList: settingsList
+        settingList: settingsList,
+        output: json['output']
     );
   }
 
@@ -291,6 +298,7 @@ class IndividualPumpSetting {
       "deviceId": deviceId,
       "controlGem": controlGem,
       "settingList": settingList.map((e) => e.toJson()).toList(),
+      "output": output
     };
   }
 
