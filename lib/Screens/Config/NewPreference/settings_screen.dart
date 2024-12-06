@@ -285,7 +285,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                                   labelPadding: const EdgeInsets.symmetric(horizontal: 10.0),
                                   indicatorColor: Colors.white,
                                   tabAlignment: TabAlignment.start,
-                                  labelStyle: const TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                                  labelStyle: TextStyle(fontWeight: FontWeight.bold,color: Theme.of(context).primaryColor),
                                   unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal,color: Colors.grey.shade400),
                                   dividerColor: Colors.transparent,
                                   isScrollable: true,
@@ -308,9 +308,9 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                                       ...preferenceProvider.commonPumpSettings!.asMap().entries.map((entry) {
                                         final index = entry.key;
                                         final element = entry.value;
-                                        // return preferenceProvider.commonPumpSettings!.length > 1 ? Tab(
-                                        //   text: "${element.deviceName}\n${element.deviceId}",
-                                        // ) : Container();
+                                        return preferenceProvider.commonPumpSettings!.length > 1 ? Tab(
+                                          text: "${element.deviceName}\n${element.deviceId}",
+                                        ) : Container();
                                         return preferenceProvider.commonPumpSettings!.length > 1
                                             ? buildTabItem(index: index, itemName: "${element.deviceName}\n${element.deviceId}", selectedIndex: tabController1.index)
                                             : Container();
@@ -319,9 +319,9 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                                       ...preferenceProvider.individualPumpSetting!.asMap().entries.map((entry) {
                                         final index = entry.key;
                                         final element = entry.value;
-                                        // return Tab(
-                                        //   text: (preferenceProvider.commonPumpSettings!.length > 1 && element.deviceId != null) ? "${element.name}\n${element.deviceId}" : "${element.name}",
-                                        // );
+                                        return Tab(
+                                          text: (preferenceProvider.commonPumpSettings!.length > 1 && element.deviceId != null) ? "${element.name}\n${element.deviceId}" : "${element.name}",
+                                        );
                                         return buildTabItem(index: index, itemName: (preferenceProvider.commonPumpSettings!.length > 1 && element.deviceId != null) ? "${element.name}\n${element.deviceId}" : element.name, selectedIndex: tabController2.index);
                                       })
                                   ],
