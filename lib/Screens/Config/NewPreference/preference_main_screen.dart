@@ -861,11 +861,11 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                       children: [
                         Expanded(
                           child: LinearProgressIndicator(
-                            value: (index + 1) / total,
+                            value: (index) / total,
                           ),
                         ),
                         SizedBox(width: 10),
-                        Text('${index+1}/$total'),
+                        Text('$index/$total'),
                         // Text('${((index + 1) / total * 100).toStringAsFixed(0)}%'),
                       ],
                     ),
@@ -1021,7 +1021,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
           mqttPayloadProvider: mqttPayloadProvider,
           payload: payload[i],
           index: i,
-          deviceId: "${preferenceProvider.generalData!.deviceId}",
+          deviceId: preferenceProvider.generalData!.deviceId,
           key: key,
           isToGem: isToGem,
           total: payload.length
