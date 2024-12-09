@@ -34,8 +34,26 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
     ctrlValue.addListener(() {setState(() {});});
     ctrlValue.repeat();
     irrigationProgramProvider = Provider.of<IrrigationProgramProvider>(context, listen: false);
+    // print("headunit ==> ${irrigationProgramProvider.selectionModel!.data.headUnits!.length == 1}");
     if(irrigationProgramProvider.selectionModel!.data.headUnits!.length == 1) {
       irrigationProgramProvider.selectionModel!.data.headUnits![0].selected = true;
+    }
+    if(!irrigationProgramProvider.isPumpStationMode) {
+      if(irrigationProgramProvider.selectionModel!.data.headUnits!.where((e) => e.selected == true).length > 1) {
+        for(var i = 0; i < irrigationProgramProvider.selectionModel!.data.headUnits!.length; i++) {
+          if(i != 0) {
+            irrigationProgramProvider.selectionModel!.data.headUnits![i].selected = false;
+          } else {
+            irrigationProgramProvider.selectionModel!.data.headUnits!.where((headUnit) {
+              return irrigationProgramProvider.irrigationLine!.sequence.any((sequenceItem) {
+                return sequenceItem['valve'].any((valve) {
+                  return valve['location'] == headUnit.id.toString();
+                });
+              });
+            }).toList()[0].selected = true;
+          }
+        }
+      }
     }
     irrigationProgramProvider.calculateTotalFlowRate();
   }
@@ -52,10 +70,11 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
     irrigationProgramProvider = Provider.of<IrrigationProgramProvider>(context);
     final selectionData = irrigationProgramProvider.selectionModel!.data;
     final primaryColorDark = Theme.of(context).primaryColor.withOpacity(0.35);
-    final centralFilterCondition = irrigationProgramProvider.selectionModel!.data.centralFilter!.isNotEmpty ?
-    irrigationProgramProvider.selectionModel!.data.centralFilter!
+    final centralFilterCondition = irrigationProgramProvider.selectionModel!.data.centralFilter!.isNotEmpty
+        ? irrigationProgramProvider.selectionModel!.data.centralFilter!
         .where((ecSensor) => irrigationProgramProvider.selectionModel!.data.centralFilterSite!
-        .any((site) => site.id == ecSensor.location && site.selected == true)).isNotEmpty : false;
+        .any((site) => site.id == ecSensor.location && site.selected == true)).isNotEmpty
+        : false;
     final localFilterCondition = irrigationProgramProvider.selectionModel!.data.localFilter!.isNotEmpty ?
     irrigationProgramProvider.selectionModel!.data.localFilter!
         .where((ecSensor) => irrigationProgramProvider.selectionModel!.data.localFilterSite!
@@ -108,18 +127,23 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                   const SizedBox(height: 30,),
                 CustomAnimatedSwitcher(
                     condition: !irrigationProgramProvider.isPumpStationMode,
-                    child: buildSection(title: "Irrigation Pumps", dataList: selectionData.irrigationPump, lightColor: redLight, darkColor: redDark)),
+                    child: buildSection(title: "Irrigation Pumps", dataList: selectionData.irrigationPump, lightColor: redLight, darkColor: redDark)
+                ),
                 buildSection(
                   title: "Head Units",
-                  dataList: irrigationProgramProvider.selectionModel!.data.irrigationPump!.any((pump) => pump.selected == true) ? selectionData.headUnits!.where((element) {
+                  dataList: !irrigationProgramProvider.isPumpStationMode
+                      ? irrigationProgramProvider.selectionModel!.data.irrigationPump!.any((pump) => pump.selected == true)
+                      ? selectionData.headUnits!.where((element) {
                     return selectionData.irrigationPump!.where((pump) => pump.selected == true).any((pump) => pump.location!.contains(element.id.toString()));
-                  }).toList() : selectionData.headUnits!.where((headUnit) {
+                  }).toList()
+                      : selectionData.headUnits!.where((headUnit) {
                     return irrigationProgramProvider.irrigationLine!.sequence.any((sequenceItem) {
                       return sequenceItem['valve'].any((valve) {
                         return valve['location'] == headUnit.id.toString();
                       });
                     });
-                  }).toList(),
+                  }).toList()
+                      : selectionData.headUnits!,
                   lightColor: greenLight,
                   darkColor: greenDark,
                 ),

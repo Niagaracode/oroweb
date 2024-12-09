@@ -140,30 +140,6 @@ class IrrigationProgramProvider extends ChangeNotifier {
         _irrigationLine!.sequence[i]['name'] = 'Sequence ${serialNumber == 0 ? serialNumberCreation : serialNumber}.${i+1}';
       }
     }
-    // // // print("else condition");
-    // for(var i = 0; i < _irrigationLine!.sequence.length; i++) {
-    // //   print(i);
-    // //   print(indexToShow);
-    //   if(i == indexToShow) {
-    //     _irrigationLine!.sequence[i]['name'] = "Sequence ${serialNumber == 0 ? serialNumberCreation : serialNumber}.${i+1}";
-    //   }
-    //   // _irrigationLine!.sequence[i]['sNo'] = "${serialNumber == 0 ? serialNumberCreation : serialNumber}.${i+1}";
-    //   // _irrigationLine!.sequence[i]['id'] = "SEQ${serialNumber == 0 ? serialNumberCreation : serialNumber}.${i+1}";
-    //   // _irrigationLine!.sequence[i]['name'] = "Sequence ${serialNumber == 0 ? serialNumberCreation : serialNumber}.${i+1}";
-    //   // _irrigationLine!.sequence[i]['selected'] = false;
-    //   // _irrigationLine!.sequence[i]['location'] = '';
-    // //   // // print(_irrigationLine!.sequence[i]);
-    // }
-    // // print(_irrigationLine!.sequence);
-    // if(addNew) {
-    //   addNewSequence(serialNumber: serialNumber, zoneSno: irrigationLine!.sequence.length+1);
-    //   assigningCurrentIndex(irrigationLine!.sequence.length-1);
-    // // //   print("if condition");
-    // } else{
-    //   addNextSequence(serialNumber: serialNumber, zoneSno: irrigationLine!.sequence.length+1, indexToInsert: indexToShow);
-    //   assigningCurrentIndex(indexToShow);
-    // // //   print("else condition");
-    // }
     notifyListeners();
   }
 
@@ -190,12 +166,23 @@ class IrrigationProgramProvider extends ChangeNotifier {
   }
 
   void addNextSequence({int? serialNumber, zoneSno, indexToInsert}) {
+    print("indexToInsert ==> $indexToInsert");
+    dynamic missingNum = null;
+    for(var i = 0; i < _irrigationLine!.sequence.length; i++) {
+      if(!_irrigationLine!.sequence.map((e)=> e['sNo']).toList().contains("${serialNumber == 0 ? serialNumberCreation : serialNumber}.${i+1}")) {
+        missingNum = "${i+1}";
+      }
+    }
+    print(missingNum);
+    if(missingNum == null) {
+      missingNum = "${_irrigationLine!.sequence.length + 1}";
+    }
     _irrigationLine!.sequence.insert(
         indexToInsert+1,
         {
-          "sNo": "${serialNumber == 0 ? serialNumberCreation : serialNumber}.${indexToInsert+2}",
-          "id": 'SEQ${serialNumber == 0 ? serialNumberCreation : serialNumber}.${indexToInsert+2}',
-          "name": 'Sequence ${serialNumber == 0 ? serialNumberCreation : serialNumber}.${indexToInsert+2}',
+          "sNo": "${serialNumber == 0 ? serialNumberCreation : serialNumber}.${missingNum}",
+          "id": 'SEQ${serialNumber == 0 ? serialNumberCreation : serialNumber}.${missingNum}',
+          "name": 'Sequence ${serialNumber == 0 ? serialNumberCreation : serialNumber}.${missingNum}',
           "selected": false,
           "selectedGroup": [],
           "modified": false,
@@ -204,20 +191,26 @@ class IrrigationProgramProvider extends ChangeNotifier {
           "mainValve": [],
         });
 
-    for(var i = 0; i < _irrigationLine!.sequence.length; i++) {
-      // print(_irrigationLine!.sequence[i]['sNo']);
-      dynamic temp;
-      if(!_irrigationLine!.sequence[i]['sNo'].contains("${i+1}")) {
-        temp = "${i+1}";
-      }
-      _irrigationLine!.sequence[indexToInsert+1]['sNo'] = "${serialNumber == 0 ? serialNumberCreation : serialNumber}.${temp != null ? temp : i+1}";
-      _irrigationLine!.sequence[indexToInsert+1]['id'] = "SEQ${serialNumber == 0 ? serialNumberCreation : serialNumber}.${temp != null ? temp : i+1}";
-    }
+    // for(var i = 0; i < _irrigationLine!.sequence.length; i++) {
+    //   var temp = null;
+    //   if(!(_irrigationLine!.sequence[i]['sNo'].contains("${i+1}"))) {
+    //     temp = "${i+1}";
+    //   }
+    //   print("temp ==> $temp");
+    //   _irrigationLine!.sequence[indexToInsert+1]['sNo'] = "${serialNumber == 0 ? serialNumberCreation : serialNumber}.${temp != null ? temp : i+1}";
+    //   _irrigationLine!.sequence[indexToInsert+1]['id'] = "SEQ${serialNumber == 0 ? serialNumberCreation : serialNumber}.${temp != null ? temp : i+1}";
+    //   print("second sno > ${_irrigationLine!.sequence[i]['sNo']}");
+    // }
+    //
+    // for(var i = 0; i < _irrigationLine!.sequence.length; i++) {
+    //   print("sno in the loop ==> ${_irrigationLine!.sequence[i]['sNo']}");
+    //   print("sno in the loop ==> ${_irrigationLine!.sequence[i]['name']}");
+    // }
     for(var i = 0; i < _irrigationLine!.sequence.length; i++) {
       if(_irrigationLine!.sequence[i]['name'].contains('Sequence')) {
         _irrigationLine!.sequence[i]['name'] = 'Sequence ${serialNumber == 0 ? serialNumberCreation : serialNumber}.${i+1}';
       }
-      // print(_irrigationLine!.sequence[i]);
+      print(_irrigationLine!.sequence[i]);
       // print("\n");
     }
     notifyListeners();
