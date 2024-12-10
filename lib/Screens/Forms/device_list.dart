@@ -60,6 +60,13 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
   int currentMstInx = 0;
   bool visibleLoading = false;
 
+  int totalProduct = 0;
+  int batchSize = 100;
+  int currentSet = 1;
+
+  final ScrollController _scrollController = ScrollController();
+  bool isLoading = false;
+
   static TextStyle commonTextStyle = const TextStyle(fontSize: 11);
 
 
@@ -68,6 +75,17 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
     super.initState();
     print(widget.userType);
     print(widget.customerType);
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 100) {
+        if (totalProduct > customerProductList.length && !isLoading) {
+          setState(() {
+            isLoading = true;
+          });
+          loadMoreData();
+        }
+      }
+    });
 
     List<Object> configList = [];
     if(widget.userType == 1 && widget.customerType=='Customer'){
@@ -99,6 +117,7 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
   @override
   void dispose() {
     _tabCont.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -112,32 +131,56 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
 
   Future<void> getCustomerType() async
   {
-    getMyAllProduct();
+    getMyAllProduct(currentSet);
     getMasterProduct();
-    //getNodeStockList();
     getCustomerSite();
     getNodeInterfaceTypes();
   }
 
-  Future<void> getMyAllProduct() async
+  void loadMoreData() async {
+    try {
+      await Future.delayed(const Duration(seconds: 3), () {
+        getMyAllProduct(getSetNumber(customerProductList.length));
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  int getSetNumber(int length) {
+    int itemsPerSet = 100;
+    return (length ~/ itemsPerSet) + 1;
+  }
+
+  Future<void> getMyAllProduct(currentSet) async
   {
-    indicatorViewShow();
-    final body = widget.userType == 1 ? {"fromUserId": widget.userID, "toUserId": widget.customerID ,"set":1, "limit":100} : {"fromUserId": widget.userID, "toUserId": widget.customerID, "set":1, "limit":100};
+    if(currentSet==1){
+      indicatorViewShow();
+      customerProductList.clear();
+    }
+
+    final body = widget.userType == 1 ? {"fromUserId": widget.userID, "toUserId": widget.customerID ,"set":currentSet, "limit":batchSize} : {"fromUserId": widget.userID, "toUserId": widget.customerID, "set":currentSet, "limit":batchSize};
     final response = await HttpService().postRequest("getCustomerProduct", body);
     if (response.statusCode == 200)
     {
-      customerProductList.clear();
+      totalProduct = jsonDecode(response.body)["data"]["totalProduct"];
       var data = jsonDecode(response.body);
-      print(response.body);
       if(data["code"]==200) {
         final cntList = data["data"]['product'] as List;
         for (int i=0; i < cntList.length; i++) {
           customerProductList.add(CustomerProductModel.fromJson(cntList[i]));
         }
         indicatorViewHide();
+        isLoading = false;
+      }else{
+        indicatorViewHide();
+        isLoading = false;
       }
     }
     else{
+      isLoading = false;
       indicatorViewHide();
     }
   }
@@ -151,7 +194,7 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
       customerProductList.clear();
       var data = jsonDecode(response.body);
       if(data["code"]==200){
-        getMyAllProduct();
+        getMyAllProduct(currentSet);
       }
     }
   }
@@ -171,10 +214,6 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
           myMasterControllerList.add(StockModel.fromJson(cntList[i]));
         }
       }
-      indicatorViewHide();
-    }
-    else{
-      indicatorViewHide();
     }
   }
 
@@ -205,11 +244,6 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
           getNodeStockList(customerSiteList[0].master[0].categoryId);
         }
       }
-
-      indicatorViewHide();
-    }
-    else{
-      indicatorViewHide();
     }
   }
 
@@ -231,12 +265,7 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
             nodeStockSelection.add(0);
           }
         });
-
       }
-      indicatorViewHide();
-    }
-    else{
-      indicatorViewHide();
     }
   }
 
@@ -255,12 +284,8 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
           interfaceType.add(InterfaceModel.fromJson(cntList[i]));
         }
       }
-      indicatorViewHide();
+    }
 
-    }
-    else{
-      indicatorViewHide();
-    }
   }
 
   void indicatorViewShow() {
@@ -297,7 +322,7 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
         ),
         actions: [
           PopupMenuButton(
-            tooltip: _tabCont.index==0 ?'Add new product' : 'Create new site',
+            tooltip: _tabCont.index==0 ?'Add new product to ${widget.userName}' : 'Create new site to ${widget.userName}',
             child: MaterialButton(
               onPressed:null,
               textColor: Colors.white,
@@ -377,7 +402,7 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
                                     widget.callback('reloadStock');
                                   });
 
-                                  getMyAllProduct();
+                                  getMyAllProduct(currentSet);
                                   getMasterProduct();
                                 }
                                 else{
@@ -476,37 +501,42 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
             },
           ),
           const SizedBox(width: 20,),
+        ], bottom: TabBar(
+        controller: _tabCont,
+        isScrollable: true,
+        indicatorColor: Colors.white,
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.white.withOpacity(0.4),
+        tabs: [
+          ..._configTabs.map((label) => Tab(
+            child: Text(label.toString(),),
+          )),
         ],
-        bottom: TabBar(
-          controller: _tabCont,
-          isScrollable: true,
-          indicatorColor: Colors.white,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white.withOpacity(0.4),
-          tabs: [
-            ..._configTabs.map((label) => Tab(
-              child: Text(label.toString(),),
-            )),
-          ],
-        ),
+      ),
       ),
       body: visibleLoading? Visibility(
         visible: visibleLoading,
         child: Container(
-          height: double.infinity,
-          color: Colors.transparent,
-          padding: EdgeInsets.fromLTRB(MediaQuery.sizeOf(context).width/2 - 25, 0, MediaQuery.sizeOf(context).width/2 - 25, 0),
+          width: MediaQuery.sizeOf(context).width,
+          height: MediaQuery.sizeOf(context).height,
+          padding: const EdgeInsets.fromLTRB(300, 0, 300, 0),
           child: const LoadingIndicator(
             indicatorType: Indicator.ballPulse,
           ),
         ),
       ):
+      _tabCont.length>1?
       TabBarView(
         controller: _tabCont,
         children: [
           displayProductList(),
-          _tabCont.length>1?displaySiteConfigPage():
-          const SizedBox(),
+          displaySiteConfigPage(),
+        ],
+      ):
+      TabBarView(
+        controller: _tabCont,
+        children: [
+          displayProductList(),
         ],
       ),
 
@@ -605,140 +635,156 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
   }
 
   Widget displayProductList() {
-
-    return DataTable2(
-        columnSpacing: 12,
-        horizontalMargin: 12,
-        headingRowHeight: 30,
-        headingRowColor: WidgetStateProperty.all<Color>(primaryColorDark.withOpacity(0.1)),
-        dataRowHeight: 40,
-        minWidth: 580,
-        columns: [
-          const DataColumn2(
-              label: Text('S.No'),
-              fixedWidth: 40
-          ),
-          const DataColumn2(
-            label: Text('Category'),
-            size: ColumnSize.M,
-          ),
-          const DataColumn2(
-            label: Text('Model'),
-            size: ColumnSize.M,
-          ),
-          const DataColumn2(
-            label: Text('IMEI'),
-            size: ColumnSize.M,
-          ),
-          const DataColumn2(
-            label: Text('Status'),
-            fixedWidth: 90,
-          ),
-          const DataColumn2(
-            label: Text('Modify Date'),
-            fixedWidth: 90,
-          ),
-          DataColumn2(
-            label: const Text('Action'),
-            fixedWidth: widget.userType==2 ? 70 : 0,
-          ),
-        ],
-        rows: List<DataRow>.generate(customerProductList.length, (index) => DataRow(cells: [
-          DataCell(Center(child: Text('${index+1}', style: commonTextStyle,))),
-          DataCell(Row(children: [Text(customerProductList[index].categoryName,style: commonTextStyle,)],)),
-          DataCell(Text(customerProductList[index].model,style: commonTextStyle,)),
-          DataCell(Text(customerProductList[index].deviceId,style: commonTextStyle,)),
-          //DataCell(widget.userType==2 ? Text(widget.customerProductList[index].siteName) : widget.customerProductList[index].buyer == widget.userName? const Text('-') : Text(widget.customerProductList[index].buyer)),
-          DataCell(
-              Center(
-                child: widget.userType == 1? Row(
-                  children: [
-                    CircleAvatar(radius: 5,
-                      backgroundColor:
-                      customerProductList[index].productStatus==1? Colors.pink:
-                      customerProductList[index].productStatus==2? Colors.blue:
-                      customerProductList[index].productStatus==3? Colors.purple:
-                      //customerProductList[index].productStatus==4? Colors.yellow:
-                      //customerProductList[index].productStatus==5? Colors.deepOrangeAccent:
-                      Colors.green,
-                    ),
-                    const SizedBox(width: 5,),
-                    customerProductList[index].productStatus==1? Text('In-Stock',style: commonTextStyle,):
-                    customerProductList[index].productStatus==2? Text('Stock',style: commonTextStyle,):
-                    customerProductList[index].productStatus==3? Text('Free',style: commonTextStyle,):
-                    //customerProductList[index].productStatus==4? const Text('Pending'):
-                    //customerProductList[index].productStatus==5? const Text('Installed'):
-                    Text('Active',style: commonTextStyle,),
-                  ],
-                ) :
-                widget.userType == 2? Row(
-                  children: [
-                    CircleAvatar(radius: 5,
-                      backgroundColor:
-                      customerProductList[index].productStatus==2? Colors.pink:
-                      customerProductList[index].productStatus==3? Colors.blue:
-                      //customerProductList[index].productStatus==4? Colors.yellow:
-                      //customerProductList[index].productStatus==5? Colors.deepOrangeAccent:
-                      Colors.green,
-                    ),
-                    const SizedBox(width: 5,),
-                    customerProductList[index].productStatus==2? Text('In-Stock',style: commonTextStyle,):
-                    customerProductList[index].productStatus==3? Text('Free',style: commonTextStyle,):
-                    //customerProductList[index].productStatus==4? const Text('Pending'):
-                    //customerProductList[index].productStatus==5? const Text('Installed'):
-                    Text('Active',style: commonTextStyle,),
-                  ],
-                ) :
-                Row(
-                  children: [
-                    CircleAvatar(radius: 5,
-                      backgroundColor:
-                      customerProductList[index].productStatus==3? Colors.pink:
-                      //customerProductList[index].productStatus==4? Colors.yellow:
-                      //customerProductList[index].productStatus==5? Colors.deepOrangeAccent:
-                      Colors.green,
-                    ),
-                    const SizedBox(width: 5,),
-                    customerProductList[index].productStatus==3? Text('In-Stock',style: commonTextStyle,):
-                    //customerProductList[index].productStatus==4? const Text('Pending'):
-                    //customerProductList[index].productStatus==5? const Text('Installed'):
-                    Text('Active',style: commonTextStyle,),
-                  ],
+    return Column(
+      children: [
+        Expanded(
+          child: DataTable2(
+              scrollController: _scrollController,
+              columnSpacing: 12,
+              horizontalMargin: 12,
+              headingRowHeight: 30,
+              headingRowColor: WidgetStateProperty.all<Color>(primaryColorDark.withOpacity(0.1)),
+              dataRowHeight: 40,
+              minWidth: 580,
+              columns: [
+                const DataColumn2(
+                    label: Text('S.No'),
+                    fixedWidth: 40
                 ),
-              )
-          ),
-          DataCell(Text(DateFormat('dd-MM-yyyy').format(DateTime.parse(customerProductList[index].modifyDate)),style: commonTextStyle,)),
-          widget.userType==2 ? DataCell(Center(child:
-          customerProductList[index].productStatus==2||customerProductList[index].productStatus==3?
-          IconButton(tooltip:'Remove product',onPressed: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text('Remove Product'),
-                  content: Text('Are you sure you want to remove the ${customerProductList[index].categoryName}?'),
-                  actions: <Widget>[
-                    TextButton(
-                      child: const Text('Cancel'),
-                      onPressed: () {
-                        Navigator.of(context).pop(); // Close the dialog
-                      },
-                    ),
-                    TextButton(
-                      child: const Text('Remove'),
-                      onPressed: () {
-                        removeUnusedProduct(customerProductList[index].productId);
-                        Navigator.of(context).pop(); // Close the dialog
-                      },
-                    ),
-                  ],
-                );
-              },
-            );
+                const DataColumn2(
+                  label: Text('Category'),
+                  size: ColumnSize.M,
+                ),
+                const DataColumn2(
+                  label: Text('Model'),
+                  size: ColumnSize.M,
+                ),
+                const DataColumn2(
+                  label: Text('IMEI'),
+                  size: ColumnSize.M,
+                ),
+                const DataColumn2(
+                  label: Text('Status'),
+                  fixedWidth: 90,
+                ),
+                const DataColumn2(
+                  label: Text('Modify Date'),
+                  fixedWidth: 90,
+                ),
+                DataColumn2(
+                  label: const Text('Action'),
+                  fixedWidth: widget.userType==2 ? 70 : 0,
+                ),
+              ],
+              rows: List<DataRow>.generate(customerProductList.length, (index) => DataRow(cells: [
+                DataCell(Center(child: Text('${index+1}', style: commonTextStyle,))),
+                DataCell(Row(children: [Text(customerProductList[index].categoryName,style: commonTextStyle,)],)),
+                DataCell(Text(customerProductList[index].model,style: commonTextStyle,)),
+                DataCell(Text(customerProductList[index].deviceId,style: commonTextStyle,)),
+                //DataCell(widget.userType==2 ? Text(widget.customerProductList[index].siteName) : widget.customerProductList[index].buyer == widget.userName? const Text('-') : Text(widget.customerProductList[index].buyer)),
+                DataCell(
+                    Center(
+                      child: widget.userType == 1? Row(
+                        children: [
+                          CircleAvatar(radius: 5,
+                            backgroundColor:
+                            customerProductList[index].productStatus==1? Colors.pink:
+                            customerProductList[index].productStatus==2? Colors.blue:
+                            customerProductList[index].productStatus==3? Colors.purple:
+                            //customerProductList[index].productStatus==4? Colors.yellow:
+                            //customerProductList[index].productStatus==5? Colors.deepOrangeAccent:
+                            Colors.green,
+                          ),
+                          const SizedBox(width: 5,),
+                          customerProductList[index].productStatus==1? Text('In-Stock',style: commonTextStyle,):
+                          customerProductList[index].productStatus==2? Text('Stock',style: commonTextStyle,):
+                          customerProductList[index].productStatus==3? Text('Free',style: commonTextStyle,):
+                          //customerProductList[index].productStatus==4? const Text('Pending'):
+                          //customerProductList[index].productStatus==5? const Text('Installed'):
+                          Text('Active',style: commonTextStyle,),
+                        ],
+                      ) :
+                      widget.userType == 2? Row(
+                        children: [
+                          CircleAvatar(radius: 5,
+                            backgroundColor:
+                            customerProductList[index].productStatus==2? Colors.pink:
+                            customerProductList[index].productStatus==3? Colors.blue:
+                            //customerProductList[index].productStatus==4? Colors.yellow:
+                            //customerProductList[index].productStatus==5? Colors.deepOrangeAccent:
+                            Colors.green,
+                          ),
+                          const SizedBox(width: 5,),
+                          customerProductList[index].productStatus==2? Text('In-Stock',style: commonTextStyle,):
+                          customerProductList[index].productStatus==3? Text('Free',style: commonTextStyle,):
+                          //customerProductList[index].productStatus==4? const Text('Pending'):
+                          //customerProductList[index].productStatus==5? const Text('Installed'):
+                          Text('Active',style: commonTextStyle,),
+                        ],
+                      ) :
+                      Row(
+                        children: [
+                          CircleAvatar(radius: 5,
+                            backgroundColor:
+                            customerProductList[index].productStatus==3? Colors.pink:
+                            //customerProductList[index].productStatus==4? Colors.yellow:
+                            //customerProductList[index].productStatus==5? Colors.deepOrangeAccent:
+                            Colors.green,
+                          ),
+                          const SizedBox(width: 5,),
+                          customerProductList[index].productStatus==3? Text('In-Stock',style: commonTextStyle,):
+                          //customerProductList[index].productStatus==4? const Text('Pending'):
+                          //customerProductList[index].productStatus==5? const Text('Installed'):
+                          Text('Active',style: commonTextStyle,),
+                        ],
+                      ),
+                    )
+                ),
+                DataCell(Text(DateFormat('dd-MM-yyyy').format(DateTime.parse(customerProductList[index].modifyDate)),style: commonTextStyle,)),
+                widget.userType==2 ? DataCell(Center(child:
+                customerProductList[index].productStatus==2||customerProductList[index].productStatus==3?
+                IconButton(tooltip:'Remove product',onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Remove Product'),
+                        content: Text('Are you sure you want to remove the ${customerProductList[index].categoryName}?'),
+                        actions: <Widget>[
+                          TextButton(
+                            child: const Text('Cancel'),
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Close the dialog
+                            },
+                          ),
+                          TextButton(
+                            child: const Text('Remove'),
+                            onPressed: () {
+                              removeUnusedProduct(customerProductList[index].productId);
+                              Navigator.of(context).pop(); // Close the dialog
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
 
-          },
-            icon: const Icon(Icons.remove_circle_outline, color:  Colors.red,),):const Text('--'))) : DataCell.empty,
-        ])));
+                },
+                  icon: const Icon(Icons.remove_circle_outline, color:  Colors.red,),):const Text('--'))) : DataCell.empty,
+              ]))),
+        ),
+        isLoading ? Container(
+          width: double.infinity,
+          height: 30,
+          color: Colors.white,
+          padding: const EdgeInsets.fromLTRB(300, 0, 300, 0),
+          child: const LoadingIndicator(
+            indicatorType: Indicator.ballPulse,
+          ),
+        ):
+        Container(),
+      ],
+    );
   }
 
   DefaultTabController displaySiteConfigPage() {
@@ -830,7 +876,7 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
                                   textColor: Colors.white,
                                   child: const Text('ADD'),
                                   onPressed: () async {
-                                    Navigator.pop(context); // Close the menu
+                                    Navigator.pop(context);
                                     Map<String, dynamic> body = {
                                       "userId": widget.customerID,
                                       "dealerId": widget.userID,
@@ -886,7 +932,7 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
                                     children: [
                                       PopupMenuButton(
                                         elevation: 10,
-                                        tooltip: 'Add node',
+                                        tooltip: 'Add Nodes',
                                         child: const Center(
                                           child: MaterialButton(
                                             onPressed:null,
@@ -895,7 +941,7 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
                                               children: [
                                                 Icon(Icons.add, color: Colors.black),
                                                 SizedBox(width: 3),
-                                                Text('Node',style: TextStyle(color: Colors.black)),
+                                                Text('Nodes',style: TextStyle(color: Colors.black)),
                                                 Icon(Icons.arrow_drop_down_sharp, color: Colors.black),
                                               ],
                                             ),

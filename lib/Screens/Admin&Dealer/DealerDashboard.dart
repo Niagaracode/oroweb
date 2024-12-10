@@ -551,7 +551,7 @@ class _DealerDashboardState extends State<DealerDashboard> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
-                                  tooltip: 'chart',
+                                  tooltip: 'chat',
                                   onPressed: (){
                                     Navigator.push(
                                       context,

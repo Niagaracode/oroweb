@@ -8015,7 +8015,7 @@ class ConfigMakerProvider extends ChangeNotifier {
       {'key' : 'pressureOut','dataType' : 'Map','id' : 'PSOIL','name' : 'Press Sens Out Il','bucket' : 'PS','objectId' : 'LO','checkType' : true},
       {'key' : 'water_meter','dataType' : 'Map','id' : 'WMIL','name' : 'Water Meter Il','bucket' : 'WM','objectId' : 'LW','checkType' : true},
       {'key' : 'powerSupply','dataType' : 'Map','id' : 'PWS','name' : 'Power Supply','bucket' : 'PWS','objectId' : 'PSP','checkType' : true},
-      {'key' : 'pressureSwitch','dataType' : 'Map','id' : 'PSW','name' : 'Power Switch','bucket' : 'PSW','objectId' : 'PSW','checkType' : true},
+      {'key' : 'pressureSwitch','dataType' : 'Map','id' : 'PSW','name' : '  Pressure Switch','bucket' : 'PSW','objectId' : 'PSW','checkType' : true},
     ];
     dynamic localFilterData = [
       {'key' : 'filterConnection','dataType' : 'List','id' : 'LFI','objectId' : 'FL.2','name' : 'Local Filter','bucket' : 'LFI','checkType' : false},

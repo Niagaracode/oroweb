@@ -99,11 +99,7 @@ class CustomFlutterErrorWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center, // Center content
         children: [
-          Image(
-            image: AssetImage("assets/images/mqttError.png"), // Add your custom error image
-            height: 100.0,
-          ),
-          SizedBox(height: 20), // Space between image and text
+        // Space between image and text
           Text(
             "Something Went To Wrong", // Custom error message
             style: TextStyle(fontSize: 18, color: Colors.red),

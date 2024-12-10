@@ -92,7 +92,7 @@ class _PumpLineCentralState extends State<PumpLineCentral> {
                                         title: Text(
                                           levelItem.swName.isNotEmpty == true
                                               ? levelItem.swName
-                                              : levelItem.name ?? 'No Name', // Fallback to 'No Name'
+                                              : levelItem.name ?? 'No Name',
                                           style: const TextStyle(fontSize: 14),
                                         ),
                                         trailing: Column(

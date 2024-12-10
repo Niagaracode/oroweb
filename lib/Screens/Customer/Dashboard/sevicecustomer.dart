@@ -112,9 +112,8 @@ class _TicketHomePageState extends State<TicketHomePage> {
       // _categories =   _servicecustomerModel.data?.dataDefault!.requestType!.where(e) -> value
 
       return Scaffold(
-        backgroundColor: Colors.teal.shade50,
-
-        body: Padding(
+        backgroundColor: Colors.white,
+         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
@@ -168,9 +167,9 @@ class _TicketHomePageState extends State<TicketHomePage> {
                         controller: otherstextctrl,
                         maxLines: null,
                         decoration: InputDecoration(
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
                           labelText: _selectedCategory.requestType,
-                          hintText: 'Explain here',
+                          hintText: 'Type here...',
                         ),
                         autofocus: true,
                       ),
@@ -189,7 +188,7 @@ class _TicketHomePageState extends State<TicketHomePage> {
                                   timeformat.format(DateTime.now()),
                                   _servicecustomerModel.data!.dataDefault!.dealer![0].userId!,
                                   ExceptdateFormat.format(
-                                      DateTime.now().add(Duration(days: 2))));
+                                      DateTime.now().add(const Duration(days: 2))));
                             }
                           }
                         } catch(error, stackTrace) {
@@ -219,9 +218,10 @@ class _TicketHomePageState extends State<TicketHomePage> {
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
-                                    color: Colors.white,
+                                    color: '${_servicecustomerModel.data!.serviceRequest![index].status}' ==
+                                        'Closed' ?  Colors.grey.withOpacity(0.5) : Colors.teal.shade50,
                                     boxShadow: customBoxShadow),
-                                height: 250,
+                                height: 270,
                                 width: 250,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -230,7 +230,7 @@ class _TicketHomePageState extends State<TicketHomePage> {
                                         child: Center(
                                             child: Text(
                                               '${_servicecustomerModel.data!.serviceRequest![index].requestType}',
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   fontWeight: FontWeight.bold, fontSize: 21),
                                             ))),
                                     Container(
@@ -241,16 +241,16 @@ class _TicketHomePageState extends State<TicketHomePage> {
                                             child: Text(
                                                 '${_servicecustomerModel.data!.serviceRequest![index].requestDescription}',
                                                 textAlign: TextAlign.center,
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                     fontWeight: FontWeight.normal)))),
                                     Text(
                                       '${_servicecustomerModel.data!.serviceRequest![index].requestDate} ${_servicecustomerModel.data!.serviceRequest![index].requestTime}',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontWeight: FontWeight.w500,
                                       ),
-                                    ),
-                                    Text(
-                                      'Exceptation Date:',
+                                    ),  const SizedBox(height: 5,),
+                                    const Text(
+                                      'Estimated Closing Date:',
                                       style: TextStyle(
                                         fontWeight: FontWeight.normal,
                                         color: const Color(0xff15C0E6),
@@ -258,10 +258,11 @@ class _TicketHomePageState extends State<TicketHomePage> {
                                     ),
                                     Text(
                                       '${_servicecustomerModel.data!.serviceRequest![index].estimatedDate}',
-                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                      style: const TextStyle(fontWeight: FontWeight.bold),
                                     ),
-                                    Text(
-                                      'Responsiplity:',
+                                    const SizedBox(height: 5,),
+                                    const Text(
+                                      'Responsibility:',
                                       style: TextStyle(
                                         fontWeight: FontWeight.normal,
                                         color: const Color(0xff15C0E6),
@@ -269,20 +270,28 @@ class _TicketHomePageState extends State<TicketHomePage> {
                                     ),
                                     Text(
                                       '${_servicecustomerModel.data!.serviceRequest![index].responsibleUserName}',
-                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                      style: const TextStyle(fontWeight: FontWeight.bold),
+                                    ),
+                                    const SizedBox(height: 5,),
+                                    const Text(
+                                      'Status:',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.normal,
+                                        color: Color(0xff15C0E6),
+                                      ),
                                     ),
                                     Text(
                                         '${_servicecustomerModel.data!.serviceRequest![index].status}',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 21,
-                                            color: '${_servicecustomerModel.data!.serviceRequest![index].responsibleUserName}' ==
+                                            color: '${_servicecustomerModel.data!.serviceRequest![index].status}' ==
                                                 'Waiting'
-                                                ? Color(0xfff3bf21)
-                                                : '${_servicecustomerModel.data!.serviceRequest![index].responsibleUserName}' ==
-                                                'Completed'
-                                                ? Color(0xff21f33d)
-                                                : Color(0xff1c7b89))),
+                                                ? const Color(0xfff3bf21)
+                                                : '${_servicecustomerModel.data!.serviceRequest![index].status}' ==
+                                                'Closed'
+                                                ? const Color(0xff21f33d)
+                                                : const Color(0xff1c7b89))),
                                   ],
                                 ))
                         ],

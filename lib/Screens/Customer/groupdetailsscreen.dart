@@ -68,25 +68,25 @@ Widget build(BuildContext context) {
                       DataColumn(
                         label: Text(
                           'Sno',
-                          style: TextStyle(fontStyle: FontStyle.italic),
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
                       DataColumn(
                         label: Text(
                           'Group',
-                          style: TextStyle(fontStyle: FontStyle.italic),
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
                       DataColumn(
                         label: Text(
                           'Line',
-                          style: TextStyle(fontStyle: FontStyle.italic),
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
                       DataColumn(
                         label: Text(
                           'Valve',
-                          style: TextStyle(fontStyle: FontStyle.italic),
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],

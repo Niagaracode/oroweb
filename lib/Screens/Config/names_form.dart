@@ -299,7 +299,7 @@ class _MyContainerWithTabsState extends State<MyContainerWithTabs> {
                     TextFormField(
                       inputFormatters: [
                         LengthLimitingTextInputFormatter(
-                            12), // Limit input to 50 characters
+                            15), // Limit input to 50 characters
                       ],
                       initialValue: nameList[index].name,
                       onChanged: (val) {

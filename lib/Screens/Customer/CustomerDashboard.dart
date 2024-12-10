@@ -177,12 +177,16 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
           children: [
             irrigationFlag !=0? Padding(
               padding: const EdgeInsets.only(left: 3, right: 3),
-              child: SizedBox(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.red.shade300,
+                  borderRadius: const BorderRadius.only(topRight: Radius.circular(4),topLeft: Radius.circular(4)),
+                ),
                 width: MediaQuery.sizeOf(context).width,
                 height: 20,
                 child: Center(
                   child: Text(getContentByCode(irrigationFlag!).toUpperCase(),
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.red),),
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),),
                 ),
               ),
             ):

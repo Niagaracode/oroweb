@@ -427,7 +427,6 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                                               ...settingList[categoryIndex].setting[settingIndex].rtcSettings!.asMap().entries.map((entry) {
                                                 final int rtcIndex = entry.key;
                                                 final rtcSetting = entry.value;
-
                                                 List<String> value = [];
                                                 if(widget.viewSettings) {
                                                   String rtcSettingsValue = getValueForRtc(
@@ -532,11 +531,14 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                                                             onChanged: (newValue) {
                                                               setState(() {
                                                                 settingList[categoryIndex].setting[settingIndex].value[index] = newValue;
-                                                                if(settingList[categoryIndex].setting[settingIndex].value.toString().contains('true')) {
-                                                                  conditions['phaseValue'] = true;
-                                                                } else {
-                                                                  conditions['phaseValue'] = false;
-                                                                }
+                                                                settingList[categoryIndex].changed = true;
+                                                                // if(settingList[categoryIndex].setting[settingIndex].title == "2 PHASE") {
+                                                                //   if(settingList[categoryIndex].setting[settingIndex].value.toString().contains('true')) {
+                                                                //     conditions['phaseValue'] = true;
+                                                                //   } else {
+                                                                //     conditions['phaseValue'] = false;
+                                                                //   }
+                                                                // }
                                                               });
                                                             }
                                                         )
@@ -796,7 +798,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
   }
 
   Map<String, bool> conditions = {
-    'phaseValue': false,
+    'phaseValue': true,
     'lowVoltage': false,
     'highVoltage': false,
     'startingCapacitor': false,

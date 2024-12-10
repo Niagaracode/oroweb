@@ -43,7 +43,6 @@ class ProductInventoryState extends State<ProductInventory> {
   int batchSize = 30;
   int currentSet = 1;
 
-
   String jsonOptions = '', loggedUserType ='0', loggedUserId='0';
   late Map<String, dynamic> jsonDataMap;
 
@@ -94,7 +93,7 @@ class ProductInventoryState extends State<ProductInventory> {
   void loadMoreData() async {
     try {
       await Future.delayed(const Duration(seconds: 3), () {
-        loadData(getSetNumber(productInventoryList.length), batchSize);
+        loadData(getSetNumber(productInventoryList.length));
       });
     } finally {
       setState(() {
@@ -117,22 +116,22 @@ class ProductInventoryState extends State<ProductInventory> {
 
     indicatorViewShow();
     productInventoryList.clear();
-    loadData(currentSet, batchSize);
+    loadData(currentSet);
     fetchCatModAndImeiData();
   }
 
-  Future<void> loadData(int set, int limit) async {
+  Future<void> loadData(int set) async {
 
     Map<String, dynamic> body;
     Response response;
 
     if(loggedUserType=='3' || widget.userType==3){
-      body = {"fromUserId":null, "toUserId": widget.userId, "set":set, "limit":limit};
+      body = {"fromUserId":null, "toUserId": widget.userId, "set":set, "limit":batchSize};
     }else{
       if(loggedUserType==widget.userType.toString()){
-        body = {"fromUserId": widget.userId, "toUserId": null, "set":set, "limit":limit};
+        body = {"fromUserId": widget.userId, "toUserId": null, "set":set, "limit":batchSize};
       }else{
-        body = {"fromUserId": loggedUserId, "toUserId": widget.userId, "set":set, "limit":limit};
+        body = {"fromUserId": loggedUserId, "toUserId": widget.userId, "set":set, "limit":batchSize};
       }
     }
 
@@ -149,9 +148,7 @@ class ProductInventoryState extends State<ProductInventory> {
 
     if (response.statusCode == 200)
     {
-      print(response.body);
       if(jsonDecode(response.body)["code"]==200){
-
         totalProduct = jsonDecode(response.body)["data"]["totalProduct"];
         if(widget.userType != 3){
           List<dynamic> productList = jsonDecode(response.body)["data"]["product"];
@@ -649,7 +646,11 @@ class ProductInventoryState extends State<ProductInventory> {
               DataCell(Center(child: Text('${index + 1}'))),
               DataCell(Text(filterProductInventoryList[index].categoryName)),
               DataCell(Text(filterProductInventoryList[index].modelName)),
-              DataCell(Text(filterProductInventoryList[index].deviceId)),
+              DataCell(
+                SelectableText(
+                  filterProductInventoryList[index].deviceId,
+                ),
+              ),
               DataCell(Center(child: Text(filterProductInventoryList[index].dateOfManufacturing))),
               DataCell(Center(child: Text('${filterProductInventoryList[index].warrantyMonths}'))),
               DataCell(
@@ -832,7 +833,11 @@ class ProductInventoryState extends State<ProductInventory> {
               DataCell(Center(child: Text('${index + 1}'))),
               DataCell(Text(filterProductInventoryListCus[index].categoryName)),
               DataCell(Text(filterProductInventoryListCus[index].model)),
-              DataCell(Text(filterProductInventoryListCus[index].deviceId)),
+              DataCell(
+                SelectableText(
+                  filterProductInventoryList[index].deviceId,
+                ),
+              ),
               DataCell(Center(child: Text(filterProductInventoryListCus[index].siteName))),
               DataCell(Center(child: filterProductInventoryListCus[index].productStatus==3? const Row(children: [CircleAvatar(backgroundColor: Colors.orange, radius: 5,), SizedBox(width: 5,), Text('Free')],):
               const Row(children: [CircleAvatar(backgroundColor: Colors.green, radius: 5,), SizedBox(width: 5,), Text('Active')],))),
@@ -855,7 +860,7 @@ class ProductInventoryState extends State<ProductInventory> {
               return Row(
                 children: [
                   const Expanded(
-                      flex: 1, child: Padding(
+                    flex: 1, child: Padding(
                     padding: EdgeInsets.only(left: 16, top: 8, bottom: 8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -866,13 +871,12 @@ class ProductInventoryState extends State<ProductInventory> {
                         Text('Status', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 12)),
                         Text('Used In', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 12)),
                         Text('Modify date', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 12)),
-                      ],
-                    ),
-                  )
+                      ],),
+                  ),
                   ),
                   Expanded(
-                      flex: 1, child: Padding(
-                    padding: EdgeInsets.only(right: 16, top: 8, bottom: 8),
+                    flex: 1, child: Padding(
+                    padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
@@ -885,7 +889,7 @@ class ProductInventoryState extends State<ProductInventory> {
                         Text(getDateTime(productInventoryListCus[index].modifyDate), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                       ],
                     ),
-                  )
+                  ),
                   ),
                 ],
               );
@@ -1057,7 +1061,7 @@ class ProductInventoryState extends State<ProductInventory> {
                         if(searched){
                           fetchFilterData(catId, null, null);
                         }else{
-                          loadData(currentSet, batchSize);
+                          loadData(currentSet);
                           _showSnackBar(jsonDecode(response.body)["message"]);
                         }
                       }else{
@@ -1164,13 +1168,10 @@ class ProductInventoryState extends State<ProductInventory> {
                 child: const Text('Replace'),
                 onPressed: () async {
                   final body = {"userId": customerId, "oldDeviceId": imeiNo, "newDeviceId": rplImeiNo, 'modifyUser': widget.userId};
-                  print(body);
                   final response = await HttpService().postRequest("replaceProduct", body);
-                  if (response.statusCode == 200)
-                  {
-                    if(jsonDecode(response.body)["code"]==200)
-                    {
-                      loadData(currentSet, batchSize);
+                  if (response.statusCode == 200){
+                    if(jsonDecode(response.body)["code"]==200){
+                      loadData(currentSet);
                       _showSnackBar(jsonDecode(response.body)["message"]);
                     }else{
                       _showSnackBar(jsonDecode(response.body)["message"]);
