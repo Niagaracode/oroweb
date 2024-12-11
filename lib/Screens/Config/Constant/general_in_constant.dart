@@ -19,7 +19,7 @@ class _GeneralInConstState extends State<GeneralInConst> {
   dynamic generalHideShow = {
     'Reset Time' : false,
     'Fertilizer Leakage Limit' : false,
-    'Run List Limit' : false,
+    'Run List Limit' : true,
     'No Pressure Delay' : false,
     'Water pulse before dosing' : false,
     'Common dosing coefficient' : false,
@@ -132,7 +132,7 @@ Widget getYourWidgetGeneral({
             initialValue: constantPvd.generalUpdated[index]['value'],
             itemList: yesNoList,
             onItemSelected: (value){
-              constantPvd.generalUpdatedFunctionality(index, value);
+              constantPvd.generalUpdatedFunctionality(index, value!);
             },
           )
       ),

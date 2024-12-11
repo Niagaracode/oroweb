@@ -581,6 +581,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
               Navigator.of(context).pop();
             } else {
               Navigator.of(context).pop();
+              Navigator.of(context).pop();
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => ProgramSchedule(customerID: widget.userId, controllerID: widget.controllerId, siteName: "", imeiNumber: widget.deviceId, userId: widget.userId,))

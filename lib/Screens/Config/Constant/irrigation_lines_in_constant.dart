@@ -8,7 +8,6 @@ import '../../../widgets/drop_down_button.dart';
 import '../../../widgets/text_form_field_constant.dart';
 import 'general_in_constant.dart';
 
-
 class IrrigationLineInConst extends StatefulWidget {
   const IrrigationLineInConst({super.key});
 
@@ -33,6 +32,9 @@ class _IrrigationLineInConstState extends State<IrrigationLineInConst> {
     'lowFlowBehavior' : true,
     'highFlowBehavior' : true,
     'leakageLimit' : false,
+    'levelSensor' : true,
+    'pressureSensor' : true,
+    'waterMeter' : true
   };
 
   @override
@@ -45,6 +47,7 @@ class _IrrigationLineInConstState extends State<IrrigationLineInConst> {
     _horizontalScroll2 = _scrollable2.addAndGet();
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     var constantPvd = Provider.of<ConstantProvider>(context,listen: true);

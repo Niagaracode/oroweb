@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oro_irrigation_new/Screens/Customer/Dashboard/sevicecustomer.dart';
 import 'package:provider/provider.dart';
-
 import '../../../state_management/constant_provider.dart';
 
 class GlobalAlarmInConstant extends StatefulWidget {
@@ -27,7 +26,6 @@ class _GlobalAlarmInConstantState extends State<GlobalAlarmInConstant> {
                 child: Column(
                   children: [
                     const SizedBox(height: 20,),
-
                     SizedBox(
                       width: constraints.maxWidth,
                       child: Wrap(

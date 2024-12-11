@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:oro_irrigation_new/Screens/Config/Constant/pump_in_constant.dart';
+import 'package:oro_irrigation_new/constants/theme.dart';
 import 'package:provider/provider.dart';
 
 import '../../../state_management/constant_provider.dart';
@@ -74,7 +75,7 @@ class _CriticalAlarmInConstState extends State<CriticalAlarmInConst> {
                             padding: const EdgeInsets.symmetric(horizontal: 10),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(15),
-                                color: line == selectedLine ? const Color(0xff1A7886) : null
+                                color: line == selectedLine ? primaryColorDark : null
                             ),
                             child: Center(child: Text('${constantPvd.criticalAlarmUpdated[line]['name']}',style: TextStyle(color: line == selectedLine ? Colors.white : Colors.black87,fontSize: 13,fontWeight: FontWeight.w200),)),
                           ),
