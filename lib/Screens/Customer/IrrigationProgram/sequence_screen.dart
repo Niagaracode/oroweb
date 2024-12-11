@@ -7,6 +7,7 @@ import '../../../Widgets/SCustomWidgets/custom_animated_switcher.dart';
 import '../../../Widgets/SCustomWidgets/custom_snack_bar.dart';
 import '../../../state_management/irrigation_program_main_provider.dart';
 import '../Dashboard/sevicecustomer.dart';
+import '../groupscreen.dart';
 import 'conditions_screen.dart';
 import 'irrigation_program_main.dart';
 
@@ -470,6 +471,13 @@ class _SequenceScreenState extends State<SequenceScreen> {
                 dataList: dataList,
                 title: isGroup ? "Predefined Groups" : isMainValve ? "Main valves" : isAgitator ? "Agitators": dataList[lineIndex]?.name,
                 isGroup:isGroup,
+                trailing: isGroup
+                    ? TextButton(
+                    onPressed: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => MyGroupScreen(userId: widget.userId, controllerId: widget.controllerId, imeiNo: '',)));
+                    },
+                    child: Text("Create")
+                ) : null,
                 leading: isMainValve ? Container(
                   padding: const EdgeInsets.all(5),
                   decoration: const BoxDecoration(
@@ -731,6 +739,8 @@ Widget buildLineAndValveContainerUpdated({
             children: children,
           ),
         ),
+        if(trailing != null)
+          Align(alignment: Alignment.centerRight, child: trailing)
       ],
     )
         :Column(

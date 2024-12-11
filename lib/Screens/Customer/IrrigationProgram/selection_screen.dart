@@ -98,7 +98,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                       padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.width > 1200 ? 8 : 0),
                       context: context,
                       title: "Enable pump station mode",
-                      subTitle: "Automated pump selection based on flow",
+                      subTitle: "Automated pump selection based on valve flow rate",
                       icon: Icons.heat_pump,
                       textColor: Colors.black,
                       trailing: Switch(
@@ -114,7 +114,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                       padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.width > 1200 ? 8 : 0),
                       context: context,
                       title: "Change over",
-                      subTitle: "Automated pump selection",
+                      subTitle: "Automated pump changeover during trip conditions",
                       icon: Icons.change_circle,
                       textColor: Colors.black,
                       trailing: Switch(

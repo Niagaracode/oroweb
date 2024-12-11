@@ -295,7 +295,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     Widget buildOnTime() {
       return buildCustomListTile(
         context: context,
-        title: "On Time",
+        title: "Start Time",
         isTimePicker: true,
         initialValue: dayCountSchedule["onTime"],
         onTimeChanged: (newValue) => irrigationProgramProvider.updateDayCountSchedule(property: "onTime", newValue: newValue),
@@ -306,7 +306,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     Widget buildInterval() {
       return buildCustomListTile(
         context: context,
-        title: "Interval",
+        title: "Cycle Interval",
         isTimePicker: true,
         initialValue: dayCountSchedule["interval"],
         onTimeChanged: (newValue) => irrigationProgramProvider.updateDayCountSchedule(property: "interval", newValue: newValue),
@@ -341,11 +341,11 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         Row(
           children: [
             Expanded(
-              child: buildCheckBox(),
+              child: buildInterval(),
             ),
             const SizedBox(width: 20,),
             Expanded(
-              child: buildInterval(),
+              child: buildCheckBox(),
             ),
           ],
         ),
@@ -470,7 +470,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         boxShadow: customBoxShadow
                     ),
                     child: CustomTile(
-                      title: 'No. of days to cycle',
+                      title: 'Number of days',
                       content: Icons.format_list_numbered,
                       trailing: SizedBox(
                         width: 50,
@@ -537,7 +537,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     context: context,
                     isTextForm: true,
                     title: "Run days",
-                    icon: Icons.directions_run,
+                    icon: Icons.water_drop,
                     daysType: runDays,
                     onChanged: (newValue) => irrigationProgramProvider.updateNumberOfDays(newValue, 'runDays', irrigationProgramProvider.sampleScheduleModel!.scheduleByDays),
                   ),
@@ -571,19 +571,16 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 )
             ),
             const SizedBox(width: 15,),
-            if(scheduleType == irrigationProgramProvider.scheduleTypes[2])
+            if(scheduleType == irrigationProgramProvider.scheduleTypes[2] && (runDays != '0' && runDays != '') && (isForceToEndDate))
               Expanded(
-                  child: CustomAnimatedSwitcher(
-                      condition: (runDays != '0' && runDays != '') && (isForceToEndDate),
-                      child: buildCustomListTile(
-                        context: context,
-                        title: "End date",
-                        icon: Icons.calendar_month,
-                        isDatePicker: true,
-                        dateType: endDate,
-                        firstDate: firstDate,
-                        onDateChanged: (newDate) => irrigationProgramProvider.updateDate(newDate, "endDate"),
-                      )
+                  child: buildCustomListTile(
+                    context: context,
+                    title: "End date",
+                    icon: Icons.calendar_month,
+                    isDatePicker: true,
+                    dateType: endDate,
+                    firstDate: firstDate,
+                    onDateChanged: (newDate) => irrigationProgramProvider.updateDate(newDate, "endDate"),
                   )
               )
           ],
@@ -727,7 +724,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             iconColor: darkColor2,
                             backGroundColor: lightColor3,
                             icon: Icons.event_repeat,
-                            title: "Number of days cycle",
+                            title: "Number of days",
                             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                             child: Column(
                               children: [
@@ -746,7 +743,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                           title: "Run days",
                           iconColor: darkColor2,
-                          icon: Icons.run_circle_outlined,
+                          icon: Icons.water_drop,
                           additionalInfo: "",
                           child: SizedBox(
                             height: 20,
@@ -1004,20 +1001,20 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               boxShadow: customBoxShadow
           ),
           child: CustomDataTable(
-              headerText: "RTC Details",
+              headerText: "Real Time Clock Cycle Details",
               icon: Icons.schedule,
               columnSpacing: constraints.maxWidth * 0.049,
               columns: [
                 buildDataColumn(label: "RTC", widthRatio: !allowStopMethodCondition ? (defaultMaxTime || defaultOffTime) ? constraints.maxWidth * 0.1 : constraints.maxWidth * 0.175 : constraints.maxWidth * 0.05, isFixedSize: true),
                 if(allowStopMethodCondition)
                   buildDataColumn(label: "Stop method", widthRatio: constraints.maxWidth * 0.1, isFixedSize: true),
-                buildDataColumn(label: "On time", widthRatio: !allowStopMethodCondition ? (defaultMaxTime || defaultOffTime) ? constraints.maxWidth * 0.155 : constraints.maxWidth * 0.175 : constraints.maxWidth * 0.08, isFixedSize: true),
-                buildDataColumn(label: "Interval", widthRatio: !allowStopMethodCondition ? (defaultMaxTime || defaultOffTime) ? constraints.maxWidth * 0.155 : constraints.maxWidth * 0.175 : constraints.maxWidth * 0.08, isFixedSize: true),
+                buildDataColumn(label: "Start time", widthRatio: !allowStopMethodCondition ? (defaultMaxTime || defaultOffTime) ? constraints.maxWidth * 0.155 : constraints.maxWidth * 0.175 : constraints.maxWidth * 0.08, isFixedSize: true),
+                buildDataColumn(label: "Cycle Interval", widthRatio: !allowStopMethodCondition ? (defaultMaxTime || defaultOffTime) ? constraints.maxWidth * 0.155 : constraints.maxWidth * 0.175 : constraints.maxWidth * 0.08, isFixedSize: true),
                 buildDataColumn(label: "No. of cycles", widthRatio: !allowStopMethodCondition ? (defaultMaxTime || defaultOffTime) ? constraints.maxWidth * 0.155 : constraints.maxWidth * 0.175 : constraints.maxWidth * 0.08, isFixedSize: true),
                 if(allowStopMethodCondition || defaultOffTime)
-                  buildDataColumn(label: "Off time", widthRatio: constraints.maxWidth * 0.08, isFixedSize: true),
+                  buildDataColumn(label: "Stop time", widthRatio: constraints.maxWidth * 0.08, isFixedSize: true),
                 if(allowStopMethodCondition || defaultMaxTime)
-                  buildDataColumn(label: "Max Time", widthRatio: constraints.maxWidth * 0.08, isFixedSize: true),
+                  buildDataColumn(label: "Max run Time", widthRatio: constraints.maxWidth * 0.08, isFixedSize: true),
               ],
               dataList: rtcType.rtc.values.toList(),
               rowsPerPage: rtcType.rtc.keys.toList().length,
@@ -1257,14 +1254,14 @@ Widget buildRtcCard(int index, BuildContext context, rtcType, allowStopMethodCon
                       Icon(Icons.keyboard_arrow_down, color: Theme.of(context).primaryColor, size: 20),
                     ],
                   ),
-                ) : Text(defaultOffTime ? "Off time" : defaultMaxTime ? "Max time" : "Continuous"),
+                ) : Text(defaultOffTime ? "Stop time" : defaultMaxTime ? "Max run time" : "Continuous"),
               ),
               // const SizedBox(height: 5,),
               Row(
                 children: [
                   Expanded(
                       child: buildCardSection(
-                          title: "On time",
+                          title: "Start time",
                           context: context,
                           color: const Color(0xffF0FCF5),
                           // color: Color(0xffFF534D),
@@ -1279,7 +1276,7 @@ Widget buildRtcCard(int index, BuildContext context, rtcType, allowStopMethodCon
                   // const SizedBox(width: 5,),
                   Expanded(
                       child: buildCardSection(
-                          title: "Interval",
+                          title: "Cycle Interval",
                           context: context,
                           color: const Color(0xffFFEEF4),
                           // color: Color(0xffFF60A3),
@@ -1326,7 +1323,7 @@ Widget buildRtcCard(int index, BuildContext context, rtcType, allowStopMethodCon
                   if(defaultOffTime || rtcType.rtc.values.toList()[index]['stopMethod'] == irrigationProgramProvider.stopMethods[1])
                     Expanded(
                         child: buildCardSection(
-                            title: "Off time",
+                            title: "Stop time",
                             context: context,
                             color: const Color(0xffFFF3F3),
                             // color: Color(0xffFAC744),
@@ -1341,7 +1338,7 @@ Widget buildRtcCard(int index, BuildContext context, rtcType, allowStopMethodCon
                   if(defaultMaxTime || rtcType.rtc.values.toList()[index]['stopMethod'] == irrigationProgramProvider.stopMethods[2])
                     Expanded(
                         child: buildCardSection(
-                            title: "Max time",
+                            title: "Max run time",
                             context: context,
                             // provider: irrigationProgramProvider,
                             child: CustomNativeTimePicker(
