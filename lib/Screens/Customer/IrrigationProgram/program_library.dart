@@ -365,7 +365,7 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                           icon: Icons.delete,
                           iconColor: const Color(0xfffd847c),
                           containerColor: const Color(0xffFFDEDC),
-                          toolTip: "Reset program",
+                          toolTip: "Remove program",
                           onTap: () => showDeleteConfirmationDialog(programItem)
                       ),
                       const SizedBox(width: 10,),

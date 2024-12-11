@@ -143,6 +143,32 @@ class IrrigationProgramProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateGroup({required List<Line> valveGroup}) {
+    irrigationLine!.defaultData.group = valveGroup;
+    for (var i = 0; i < irrigationLine!.sequence.length; i++) {
+      if (irrigationLine!.sequence[i]['selectedGroup'].isNotEmpty) {
+        irrigationLine!.sequence[i]['selectedGroup'].forEach((group) {
+          for (var j = 0; j < valveGroup.length; j++) {
+            if (valveGroup[j].id == group) {
+              for (var l = 0; l < valveGroup[j].valve.length; l++) {
+                bool valveExistsInSequence = irrigationLine!.sequence[i]['valve'].any((e) => e['id'] == valveGroup[j].valve[l].id) ?? false;
+
+                if (!valveExistsInSequence) {
+                  irrigationLine!.sequence[i]['valve'].add(valveGroup[j].valve[l].toJson());
+                }
+              }
+
+              irrigationLine!.sequence[i]['valve'].removeWhere((e) {
+                return !valveGroup[j].valve.any((valve) => valve.id == e['id']);
+              });
+            }
+          }
+        });
+      }
+    }
+    notifyListeners();
+  }
+
   int currentIndex = 0;
   void assigningCurrentIndex(newIndex) {
     currentIndex = newIndex;
@@ -240,7 +266,6 @@ class IrrigationProgramProvider extends ChangeNotifier {
     required String groupId,
   }) {
     List<Map<String, dynamic>> valvesToAdd = [];
-
     for (var i = 0; i < valves.length; i++) {
       bool valveExists = checkValveContainment2(
         valves: valves,
@@ -271,7 +296,6 @@ class IrrigationProgramProvider extends ChangeNotifier {
         }
       }
     }
-
     if (isGroup) {
       if(!(irrigationLine!.sequence[sequenceIndex]['selectedGroup'].contains(groupId))) {
         irrigationLine!.sequence[sequenceIndex]['selectedGroup'].add(groupId);
@@ -289,9 +313,6 @@ class IrrigationProgramProvider extends ChangeNotifier {
         }
       }
     }
-
-    print(irrigationLine!.sequence[sequenceIndex]['selectedGroup']);
-    print(irrigationLine!.sequence[sequenceIndex]['valve']);
     notifyListeners();
   }
 
@@ -417,7 +438,7 @@ class IrrigationProgramProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<String> scheduleTypes = ['NO SCHEDULE', 'SCHEDULE BY DAYS', 'SCHEDULE AS RUN LIST', 'DAY COUNT SCHEDULE'];
+  List<String> scheduleTypes = ['NO SCHEDULE', 'SCHEDULE BY DAYS', 'SCHEDULE BY RUN LIST', 'SCHEDULE BY PROGRAM'];
 
   String get selectedScheduleType => sampleScheduleModel?.selected ?? scheduleTypes[0];
 
@@ -436,7 +457,7 @@ class IrrigationProgramProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<String> stopMethods = ["Continuous", "Off time", "Max time"];
+  List<String> stopMethods = ["Continuous", "Stop time", "Max run time"];
 
   List<String> scheduleOptions = ['DO NOTHING', 'DO ONE TIME', 'DO WATERING', 'DO FERTIGATION'];
 

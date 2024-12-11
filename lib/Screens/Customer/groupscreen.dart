@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:oro_irrigation_new/Screens/Customer/groupdetailsscreen.dart';
 import 'package:oro_irrigation_new/constants/snack_bar.dart';
+import 'package:oro_irrigation_new/state_management/irrigation_program_main_provider.dart';
 import 'package:provider/provider.dart';
 import '../../../Models/Customer/GroupsModel.dart';
 import '../../../constants/MQTTManager.dart';
 import '../../../constants/http_service.dart';
 import '../../../state_management/SelectedGroupProvider.dart';
 import '../../../state_management/group_provider.dart';
+import '../../Models/IrrigationModel/sequence_model.dart';
 import '../../constants/theme.dart';
 import '../../state_management/MqttPayloadProvider.dart';
 import 'IrrigationProgram/program_library.dart';
@@ -36,13 +38,11 @@ class MyGroupScreenState extends State<MyGroupScreen> with ChangeNotifier {
   List<Group>? groupNamesNew = [];
   final ScrollController _controller = ScrollController();
   final ScrollController _controller2 = ScrollController();
-  late MqttPayloadProvider mqttPayloadProvider;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
 
     if (mounted) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -158,8 +158,6 @@ class MyGroupScreenState extends State<MyGroupScreen> with ChangeNotifier {
 
   @override
   Widget build(BuildContext context) {
-    mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: true);
-
     var groupSelect = Provider.of<SelectedGroupProvider>(context, listen: true);
     if (_groupedName.data == null) {
       return const Center(
@@ -342,23 +340,25 @@ class MyGroupScreenState extends State<MyGroupScreen> with ChangeNotifier {
                     ]
                   });
                   var group = _groupedName.data!.toJson();
-                  Map<String, Object> body = {
+                  Map<String, dynamic> body = {
                     "userId": widget.userId,
                     "controllerId": widget.controllerId,
                     "group": group['group'],
                     "hardware":payLoadFinal,
                     "createUser": widget.userId
                   };
-
+                  final response = await HttpService().postRequest("createUserPlanningNamedGroup", body);
+                  final jsonDataResponse = json.decode(response.body);
+                  GlobalSnackBar.show(context, jsonDataResponse['message'], response.statusCode);
+                  List<Line> line = [];
                   setState(() async {
-                    final response = await HttpService()
-                        .postRequest("createUserPlanningNamedGroup", body);
-                    final jsonDataResponse = json.decode(response.body);
-                    GlobalSnackBar.show(context, jsonDataResponse['message'],
-                        response.statusCode);
-
-                    MQTTManager().publish(
-                        payLoadFinal, 'AppToFirmware/${widget.imeiNo}');
+                    for(var i = 0; i < body['group']!.length; i++) {
+                      if(body['group'][i]['valve'].isNotEmpty) {
+                        line.add(Line.fromJson(body['group'][i]));
+                      }
+                    }
+                    Provider.of<IrrigationProgramProvider>(context, listen: false).updateGroup(valveGroup: line);
+                    // MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.imeiNo}');
                   });
                 },
                 child: const Icon(Icons.delete),
@@ -373,7 +373,7 @@ class MyGroupScreenState extends State<MyGroupScreen> with ChangeNotifier {
                 foregroundColor: Colors.white,
                 onPressed: () async {
                   var group = _groupedName.data!.toJson();
-                  Map<String, Object> body = {
+                  Map<String, dynamic> body = {
                     "userId": widget.userId,
                     "controllerId": widget.controllerId,
                     "group": group['group'],
@@ -385,31 +385,38 @@ class MyGroupScreenState extends State<MyGroupScreen> with ChangeNotifier {
                   // GlobalSnackBar.show(context, jsonDataResponse['message'],
                   //     response.statusCode);
                   String mqttDendData = toMqttFormat(_groupedName.data!.group);
+                  List<Line> line = [];
+                  setState(() {
+                    for(var i = 0; i < body['group']!.length; i++) {
+                      if(body['group'][i]['valve'].isNotEmpty) {
+                        line.add(Line.fromJson(body['group'][i]));
+                      }
+                    }
+                    Provider.of<IrrigationProgramProvider>(context, listen: false).updateGroup(valveGroup: line);
+                  });
                   Map<String, dynamic> payLoadFinal = {
                     "1300": [
                       {"1301": mqttDendData},
                     ]
                   };
+                  final response = await HttpService().postRequest("createUserPlanningNamedGroup", body);
+                  final jsonDataResponse = json.decode(response.body);
+                  GlobalSnackBar.show(context, jsonDataResponse['message'], response.statusCode);
 
-                  if (MQTTManager().isConnected == true) {
-                    await validatePayloadSent(
-                        dialogContext: context,
-                        context: context,
-                        mqttPayloadProvider: mqttPayloadProvider,
-                        acknowledgedFunction: () async{
-                          final response = await HttpService()
-                              .postRequest("createUserPlanningNamedGroup", body);
-                          final jsonDataResponse = json.decode(response.body);
-                          GlobalSnackBar.show(
-                              context, jsonDataResponse['message'], response.statusCode);
-                        },
-                        payload: payLoadFinal,
-                        payloadCode: '1300',
-                        deviceId: widget.imeiNo
-                    );
-                  } else {
-                    GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
-                  }
+                  // if (MQTTManager().isConnected == true) {
+                  //   await validatePayloadSent(
+                  //       dialogContext: context,
+                  //       context: context,
+                  //       mqttPayloadProvider: mqttPayloadProvider,
+                  //       acknowledgedFunction: () async{
+                  //       },
+                  //       payload: payLoadFinal,
+                  //       payloadCode: '1300',
+                  //       deviceId: widget.imeiNo
+                  //   );
+                  // } else {
+                  //   GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
+                  // }
 
                 },
                 child: const Icon(Icons.send),

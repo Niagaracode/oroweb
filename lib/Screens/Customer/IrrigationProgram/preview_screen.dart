@@ -74,6 +74,39 @@ class _PreviewScreenState extends State<PreviewScreen> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                        color: Colors.yellow.shade100
+                    ),
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Note: ',
+                            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(
+                            text: ' Detailed scheduled program can be viewed in the dashboard by navigating',
+                            style: TextStyle(color: Colors.black, ),
+                          ),
+                          TextSpan(
+                            text: ' Dashboard -- > ',
+                            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                          ),
+                          WidgetSpan(
+                            child: Icon(Icons.view_list_outlined, size: 18, color: Colors.orange,),
+                            alignment: PlaceholderAlignment.middle,
+                          ),
+                          TextSpan(
+                            text: ' in the right side menu',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 10,),
                   MediaQuery.of(context).size.width > 1200 ?
                   SizedBox(
@@ -251,7 +284,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
                       ),
                       child: CustomDataTable(
                         rowsPerPage: irrigationProvider.sequenceData.length >= 4 ? 4 : irrigationProvider.sequenceData.length,
-                        headerText: 'Fertilizer Details',
+                        headerText: 'Fertigation Details',
                         icon: Icons.local_florist_outlined,
                         columnSpacing: MediaQuery.of(context).size.width > 800
                             ? constraints.maxWidth * ((applyLocalFert && applyCentralFert) ? 0.1 : 0.03)
@@ -359,6 +392,16 @@ class _PreviewScreenState extends State<PreviewScreen> {
   }
 
   Widget buildGraph() {
+    double getMaxFlowRate(List<ChartData> dataList) {
+      if(dataList.isNotEmpty) {
+        return dataList.map((data) => data.flowRate).reduce((a, b) => a > b ? a : b);
+      } else {
+        return 0.0;
+      }
+    }
+
+    bool isSingleMethod = chartDataList != null && chartDataList!.isNotEmpty && chartDataList!.every((e) => e.method == chartDataList!.first.method);
+    double maxFlowRate = getMaxFlowRate(chartDataList ?? []);
     return chartDataList != null ?
     Column(
       mainAxisSize: MainAxisSize.min,
@@ -394,7 +437,6 @@ class _PreviewScreenState extends State<PreviewScreen> {
             plotAreaBackgroundColor: Colors.transparent,
             borderColor: Colors.transparent,
             borderWidth: 0,
-            // isTransposed: chartDataList!.length <= 3,
             plotAreaBorderWidth: 0,
             enableSideBySideSeriesPlacement: false,
             onTooltipRender: (TooltipArgs args) {
@@ -416,17 +458,13 @@ class _PreviewScreenState extends State<PreviewScreen> {
               enable: true,
               animationDuration: 300,
               canShowMarker: true,
-              // format: 'point.x',
               textStyle: const TextStyle(color: Colors.white),
               tooltipPosition: TooltipPosition.pointer,
-              // borderColor: Colors.red,
               borderWidth: 2,
               color: Colors.black,
-              // You can customize more tooltip settings here
             ),
             primaryXAxis: CategoryAxis(
               isVisible: true,
-              // title: AxisTitle(text: "Sequence"),
               rangePadding: ChartRangePadding.round,
               labelPlacement: LabelPlacement.onTicks,
               minimum: -0.5,
@@ -436,60 +474,91 @@ class _PreviewScreenState extends State<PreviewScreen> {
             ),
             primaryYAxis: NumericAxis(
               isVisible: true,
-              // title: AxisTitle(text: "Dur/Qty"),
               minimum: 0,
+              labelFormat: '{value}',
+              axisLabelFormatter: (AxisLabelRenderDetails details) {
+                if (isSingleMethod && chartDataList!.first.method == 1) {
+                  num quantity = details.value;
+                  if (quantity == 0) {
+                    return ChartAxisLabel('0m', const TextStyle(color: Colors.black));
+                  }
+
+                  double timeInSeconds = quantity / maxFlowRate;
+                  double timeInMinutes = timeInSeconds / 60;
+                  return ChartAxisLabel('${timeInMinutes.toStringAsFixed(1)}m', const TextStyle(color: Colors.black));
+                } else if (isSingleMethod) {
+                  return ChartAxisLabel('${details.value}L', const TextStyle(color: Colors.black));
+                } else {
+                  return ChartAxisLabel('${details.value}L', const TextStyle(color: Colors.black));
+                }
+              },
             ),
+            axes: isSingleMethod
+                ? []
+                : [
+              NumericAxis(
+                name: 'timeAxis',
+                opposedPosition: true,
+                minimum: 0,
+                labelFormat: '{value}m',
+                axisLabelFormatter: (AxisLabelRenderDetails details) {
+                  num quantity = details.value;
+                  print("AxisLabelRenderDetails ==> value: ${details.value}, text: ${details.text}");
+                  if (quantity == 0) {
+                    return ChartAxisLabel('0m', const TextStyle(color: Colors.black));
+                  }
+
+                  double timeInSeconds = quantity / maxFlowRate;
+                  double timeInMinutes = timeInSeconds / 60;
+
+                  return ChartAxisLabel('${timeInMinutes.toStringAsFixed(1)}m', const TextStyle(color: Colors.black));
+                },
+              )
+            ],
             zoomPanBehavior: ZoomPanBehavior(
               enablePanning: true,
             ),
             series: <CartesianSeries>[
               RangeColumnSeries<ChartData, String>(
-                  borderRadius: BorderRadius.zero,
-                  dataSource: chartDataList ?? [],
-                  width: chartDataList!.length <= 3 ? 0.2 : 0.4,
-                  color: const Color(0xff15C0E6),
-                  pointColorMapper: (ChartData data, _) {
-                    if (data.postValueHigh == 0 || data.preValueHigh == 0) {
-                      return const Color(0xff10E196);
-                    } else {
-                      return const Color(0xff15C0E6);
-                    }
-                  },
-                  xValueMapper: (ChartData data, _) => "${data.sequenceName}",
-                  highValueMapper: (ChartData data, _) => data.preValueHigh,
-                  lowValueMapper: (ChartData data, _) => data.preValueLow
+                borderRadius: BorderRadius.zero,
+                dataSource: chartDataList ?? [],
+                width: chartDataList!.length <= 3 ? 0.2 : 0.4,
+                color: const Color(0xff15C0E6),
+                pointColorMapper: (ChartData data, _) {
+                  if (data.postValueHigh == 0 || data.preValueHigh == 0) {
+                    return const Color(0xff10E196);
+                  } else {
+                    return const Color(0xff15C0E6);
+                  }
+                },
+                xValueMapper: (ChartData data, _) => "${data.sequenceName}",
+                highValueMapper: (ChartData data, _) => data.preValueHigh,
+                lowValueMapper: (ChartData data, _) => data.preValueLow,
               ),
               RangeColumnSeries<ChartData, String>(
-                  borderRadius: BorderRadius.zero,
-                  dataSource: chartDataList ?? [],
-                  width: chartDataList!.length <= 3 ? 0.2 : 0.4,
-                  color: const Color(0xff10E196),
-                  pointColorMapper: (ChartData data, _) {
-                    if (data.postValueHigh == 0 || data.preValueHigh == 0) {
-                      return const Color(0xff15C0E6);
-                    } else {
-                      return Color(0xff10E196);
-                    }
-                  },
-                  xValueMapper: (ChartData data, _) => "${data.sequenceName}",
-                  highValueMapper: (ChartData data, _) => data.waterValueHigh,
-                  lowValueMapper: (ChartData data, _) => data.waterValueLow
+                borderRadius: BorderRadius.zero,
+                dataSource: chartDataList ?? [],
+                width: chartDataList!.length <= 3 ? 0.2 : 0.4,
+                color: const Color(0xff10E196),
+                pointColorMapper: (ChartData data, _) {
+                  if (data.postValueHigh == 0 || data.preValueHigh == 0) {
+                    return const Color(0xff15C0E6);
+                  } else {
+                    return Color(0xff10E196);
+                  }
+                },
+                xValueMapper: (ChartData data, _) => "${data.sequenceName}",
+                highValueMapper: (ChartData data, _) => data.waterValueHigh,
+                lowValueMapper: (ChartData data, _) => data.waterValueLow,
               ),
               RangeColumnSeries<ChartData, String>(
-                  borderRadius: BorderRadius.zero,
-                  dataSource: chartDataList ?? [],
-                  width: chartDataList!.length <= 3 ? 0.2 : 0.4,
-                  color: const Color(0xff15C0E6),
-                  pointColorMapper: (ChartData data, _) {
-                    if (data.postValueHigh == 0 || data.preValueHigh == 0) {
-                      return const Color(0xff10E196);
-                    } else {
-                      return const Color(0xff15C0E6);
-                    }
-                  },
-                  xValueMapper: (ChartData data, _) => "${data.sequenceName}",
-                  highValueMapper: (ChartData data, _) => data.postValueHigh,
-                  lowValueMapper: (ChartData data, _) => data.postValueLow
+                borderRadius: BorderRadius.zero,
+                dataSource: chartDataList ?? [],
+                width: chartDataList!.length <= 3 ? 0.2 : 0.4,
+                color: const Color(0xff15C0E6),
+                xValueMapper: (ChartData data, _) => "${data.sequenceName}",
+                highValueMapper: (ChartData data, _) => data.postValueHigh,
+                lowValueMapper: (ChartData data, _) => data.postValueLow,
               ),
             ],
           ),
@@ -555,8 +624,8 @@ class _PreviewScreenState extends State<PreviewScreen> {
         showWidget2: irrigationProvider.sampleScheduleModel!.selected == irrigationProvider.scheduleTypes[3],
         showRow2: irrigationProvider.sampleScheduleModel!.selected == irrigationProvider.scheduleTypes[3],
         show2ndWidget: irrigationProvider.sampleScheduleModel!.selected == irrigationProvider.scheduleTypes[3],
-        title5: "On time",
-        title6: "Interval",
+        title5: "Start time",
+        title6: "Cycle Interval",
         title7: "Cycles",
         itemList5: irrigationProvider.sampleScheduleModel!.dayCountSchedule.schedule["onTime"],
         itemList6: irrigationProvider.sampleScheduleModel!.dayCountSchedule.schedule["interval"],
@@ -567,7 +636,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
 
   Widget buildFertilizerDetails({required bool centralSelectorCondition}) {
     return buildCategory(
-        categoryTitle: "Fertilizer details",
+        categoryTitle: "Fertigation details",
         title1: MediaQuery.of(context).size.width > 800 ? "Central fertilizer site" : "Cent. fert site",
         title2: centralSelectorCondition ? "Cent. fert selector" : "Local fert Site",
         itemList1: irrigationProvider.selectionModel!.data.centralFertilizerSite,
@@ -764,13 +833,13 @@ class _PreviewScreenState extends State<PreviewScreen> {
           dataRowMaxHeight: 45,
           columns: [
             buildDataColumn(label: "RTC No", widthRatio: screenWidth > 1200 ? constraints.maxWidth * 0.04 : null),
-            buildDataColumn(label: "On time", widthRatio: screenWidth > 1200 ? constraints.maxWidth * 0.04 : null),
-            buildDataColumn(label: "Interval", widthRatio: screenWidth > 1200 ? constraints.maxWidth * 0.04 : null),
+            buildDataColumn(label: "Start time", widthRatio: screenWidth > 1200 ? constraints.maxWidth * 0.04 : null),
+            buildDataColumn(label: "Cycle Interval", widthRatio: screenWidth > 1200 ? constraints.maxWidth * 0.04 : null),
             buildDataColumn(label: "No. of cycles", widthRatio: screenWidth > 1200 ? constraints.maxWidth * 0.04 : null),
             if(allowStopMethodCondition || defaultOffTime)
-              buildDataColumn(label: "Off time", widthRatio: screenWidth > 1200 ? constraints.maxWidth * 0.04 : null),
+              buildDataColumn(label: "Stop time", widthRatio: screenWidth > 1200 ? constraints.maxWidth * 0.04 : null),
             if(allowStopMethodCondition || defaultMaxTime)
-              buildDataColumn(label: "Max time", widthRatio: screenWidth > 1200 ? constraints.maxWidth * 0.04 : null),
+              buildDataColumn(label: "Max run time", widthRatio: screenWidth > 1200 ? constraints.maxWidth * 0.04 : null),
           ],
           dataList: rtcList.values.toList(),
           cellBuilders: [

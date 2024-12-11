@@ -284,6 +284,7 @@ class DefaultModel {
   });
 
   factory DefaultModel.fromJson(Map<String, dynamic> json) {
+    print("json in the $json");
     return DefaultModel(
         runListLimit: json['runListLimit'],
         rtcOffTime: json['rtcOffTime'],
@@ -1065,7 +1066,7 @@ class Program {
         priority: json['priority'],
         sequence: json['sequence'],
         schedule: json['schedule'],
-      hardwareData: json['hardware'],
+        hardwareData: json['hardware'],
         controllerReadStatus: json['controllerReadStatus']
     );
   }
@@ -1078,8 +1079,8 @@ class ProgramDetails {
   String defaultProgramName;
   String programType;
   String priority;
-  String controllerReadStatus;
   bool completionOption;
+  String controllerReadStatus;
   String delayBetweenZones;
   String adjustPercentage;
 
@@ -1093,9 +1094,8 @@ class ProgramDetails {
         required this.priority,
         required this.completionOption,
         required this.delayBetweenZones,
-        required this.adjustPercentage,
-        required this.controllerReadStatus
-      });
+        required this.controllerReadStatus,
+        required this.adjustPercentage});
 
   factory ProgramDetails.fromJson(Map<String, dynamic> json) {
     return ProgramDetails(
@@ -1108,13 +1108,13 @@ class ProgramDetails {
         completionOption: json['data']['incompleteRestart'] == "1" ? true : false,
         delayBetweenZones: json["data"]["delayBetweenZones"],
         adjustPercentage: json["data"]["adjustPercentage"],
-      controllerReadStatus: json['controllerReadStatus'] ?? "0"
+        controllerReadStatus: json['data']['controllerReadStatus'] ?? "0"
     );
   }
 }
 
 class ChartData {
-  String? sequenceName;
+  String sequenceName;
   String valves;
   int preValueLow;
   int preValueHigh;
@@ -1123,9 +1123,12 @@ class ChartData {
   dynamic constantSetting;
   dynamic waterValueLow;
   dynamic waterValueHigh;
+  dynamic waterValueInTime;
+  double flowRate;
+  int method;
 
   ChartData({
-    this.sequenceName,
+    required this.sequenceName,
     required this.valves,
     required this.preValueLow,
     required this.preValueHigh,
@@ -1134,6 +1137,9 @@ class ChartData {
     required this.constantSetting,
     required this.waterValueLow,
     required this.waterValueHigh,
+    required this.waterValueInTime,
+    required this.flowRate,
+    required this.method,
   });
 
   factory ChartData.fromJson(Map<String, dynamic> json, dynamic constantSetting, List<dynamic> valves) {
@@ -1143,8 +1149,6 @@ class ChartData {
     }
 
     int calculateValueInSec(String value, List<dynamic> valves, dynamic constantSetting, String method) {
-      // print(value);
-
       if (method == 'Time') {
         int seconds = timeToSeconds(value);
 
@@ -1167,9 +1171,8 @@ class ChartData {
         var totalFlowRate = nominalFlowRate.map(int.parse).reduce((a, b) => a + b);
         var valveFlowRate = totalFlowRate * 0.00027778;
 
+        // Calculate flow rate in liters
         var flowRateInTimePeriod = valveFlowRate * seconds;
-        // print('Flow rate for $seconds seconds: $flowRateInTimePeriod');
-
         return flowRateInTimePeriod.round();
       } else {
         var nominalFlowRate = <String>[];
@@ -1190,7 +1193,6 @@ class ChartData {
         }
         var totalFlowRate = nominalFlowRate.map(int.parse).reduce((a, b) => a + b);
         var valveFlowRate = totalFlowRate * 0.00027778;
-        // print(valveFlowRate);
         return value == '0' ? 0 : (value.isNotEmpty ? int.parse(value) : 0);
       }
     }
@@ -1204,17 +1206,45 @@ class ChartData {
     int waterHigh = waterLow + (calculateValueInSec(json['method'] == 'Time' ? json['timeValue'] : json['quantityValue'], valves, constantSetting,json['method']) - preValue - postValue);
     int postLow = waterHigh;
     int postHigh = postLow + postValue;
-    // print("waterHigh ==> $waterHigh");
+    int waterValueInTime = postHigh;
+    int method = json['method'] == 'Time' ? 1 : 0;
+
+    double flowRate = calculateFlowRate(constantSetting, valves);
+
     return ChartData(
-      sequenceName: json['seqName'] ?? "No name",
-      valves: json['valve'].map((e) => e['name']).toList().join('\t\n'),
-      preValueLow: preLow,
-      preValueHigh: preHigh,
-      constantSetting: constantSetting,
-      waterValueLow: waterLow,
-      waterValueHigh: waterHigh,
-      postValueLow: postLow,
-      postValueHigh: postHigh,
+        sequenceName: json['seqName'] ?? "No name",
+        valves: json['valve'].map((e) => e['name']).toList().join('\t\n'),
+        preValueLow: preLow,
+        preValueHigh: preHigh,
+        constantSetting: constantSetting,
+        waterValueLow: waterLow,
+        waterValueHigh: waterHigh,
+        postValueLow: postLow,
+        postValueHigh: postHigh,
+        waterValueInTime: waterValueInTime,
+        flowRate: flowRate,
+        method: method
     );
+  }
+
+  static double calculateFlowRate(dynamic constantSetting, List<dynamic> valves) {
+    var nominalFlowRate = <String>[];
+    var sno = <String>[];
+    for (var val in valves) {
+      for (var i = 0; i < constantSetting['valve'].length; i++) {
+        for (var j = 0; j < constantSetting['valve'][i]['valve'].length; j++) {
+          if (!sno.contains(constantSetting['valve'][i]['valve'][j]['sNo'])) {
+            if ('${val['sNo']}' == '${constantSetting['valve'][i]['valve'][j]['sNo']}') {
+              if (constantSetting['valve'][i]['valve'][j]['nominalFlow'] != '') {
+                sno.add(constantSetting['valve'][i]['valve'][j]['sNo'].toString());
+                nominalFlowRate.add(constantSetting['valve'][i]['valve'][j]['nominalFlow']);
+              }
+            }
+          }
+        }
+      }
+    }
+    var totalFlowRate = nominalFlowRate.map(int.parse).reduce((a, b) => a + b);
+    return totalFlowRate * 0.00027778;
   }
 }

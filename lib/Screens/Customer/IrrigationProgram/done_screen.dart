@@ -36,11 +36,11 @@ class _AdditionalDataScreenState extends State<AdditionalDataScreen> {
                       buildListTile(
                         padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.width > 1200 ? 8 : 0),
                         context: context,
-                        title: ['Program Name', 'Priority', 'Delay Between Zones', 'scale factor'][index].toUpperCase(),
+                        title: ['Program Name', 'Priority', 'Valve Off Delay', 'scale factor'][index].toUpperCase(),
                         subTitle: [tempProgramName != '' ? tempProgramName : widget.serialNumber == 0
                             ? "Program ${doneProvider.programCount}"
                             : doneProvider.programDetails!.programName.isNotEmpty ? programName : doneProvider.programDetails!.defaultProgramName,
-                          'Prioritize the program to run', 'Set the delay between each zones', 'Set the value to adjust'][index],
+                          'Prioritize the program to run', 'Set valve off delay', 'Adjust duration or flow'][index],
                         textColor: Colors.black,
                         icon: [Icons.drive_file_rename_outline_rounded, Icons.priority_high, Icons.timer_outlined, Icons.safety_check][index],
                         trailing: [
