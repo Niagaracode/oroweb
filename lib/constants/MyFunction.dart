@@ -181,27 +181,27 @@ String getImageForProduct(String product) {
   String value = product.substring(0, 2);
   switch (value) {
     case 'VL':
-      return '${baseImgPath}dl_valve.png';
+      return '${baseImgPath}valve_gray.png';
     case 'MV':
-      return '${baseImgPath}dl_main_valve.png';
+      return '${baseImgPath}dp_main_valve_not_open.png';
     case 'SP':
-      return '${baseImgPath}dl_source_pump.png';
+      return '${baseImgPath}irrigation_pump.png';
     case 'IP':
-      return '${baseImgPath}dl_irrigation_pump.png';
+      return '${baseImgPath}irrigation_pump.png';
     case 'AS':
       return '${baseImgPath}dl_analog_sensor.png';
     case 'LS':
       return '${baseImgPath}dl_level_sensor.png';
     case 'FB':
-      return '${baseImgPath}dl_booster_pump.png';
+      return '${baseImgPath}booster_pump.png';
     case 'Central Filter Site':
       return '${baseImgPath}dl_central_filtration_site.png';
     case 'AG':
-      return '${baseImgPath}dl_agitator.png';
+      return '${baseImgPath}dp_agitator_gray.png';
     case 'Injector':
       return '${baseImgPath}dl_injector.png';
     case 'FL':
-      return '${baseImgPath}dl_filter.png';
+      return '${baseImgPath}filter.png';
     case 'Downstream Valve':
       return '${baseImgPath}dl_downstream_valve.png';
     case 'Fan':
@@ -219,9 +219,9 @@ String getImageForProduct(String product) {
     case 'PSW':
       return '${baseImgPath}dl_pressure_switch.png';
     case 'LO':
-      return '${baseImgPath}dl_pressure_sensor.png';
+      return '${baseImgPath}dp_prs_sensor.png';
     case 'Differential Pressure Sensor':
-      return '${baseImgPath}dl_differential_pressure_sensor.png';
+      return '${baseImgPath}dp_prs_sensor.png';
     case 'EC':
       return '${baseImgPath}dl_ec_sensor.png';
     case 'PH':
@@ -259,11 +259,11 @@ String getImageForProduct(String product) {
     case 'Radiation Set':
       return '${baseImgPath}dl_radiation_sets.png';
     case 'FC':
-      return '${baseImgPath}dl_fertilization_sets.png';
+      return '${baseImgPath}fert_chanel.png';
     case 'Filter Set':
       return '${baseImgPath}dl_filter_sets.png';
     case 'SM':
-      return '${baseImgPath}dl_moisture_sensor.png';
+      return '${baseImgPath}moisture_sensor.png';
     case 'Float':
       return '${baseImgPath}dl_float.png';
     case 'Moisture Condition':

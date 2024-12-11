@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -23,9 +22,9 @@ import 'IrrigationProgram/program_library.dart';
 class FilterBackwashUI1 extends StatefulWidget {
   const FilterBackwashUI1(
       {Key? key,
-      required this.userId,
-      required this.controllerId,
-      this.deviceID});
+        required this.userId,
+        required this.controllerId,
+        this.deviceID});
   final userId, controllerId, deviceID;
 
   @override
@@ -41,11 +40,10 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
   final _formKey = GlobalKey<FormState>();
   late MqttPayloadProvider mqttPayloadProvider;
 
-
   @override
   void initState() {
-
-    mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
+    mqttPayloadProvider =
+        Provider.of<MqttPayloadProvider>(context, listen: false);
 
     super.initState();
     //MqttWebClient().init();
@@ -59,10 +57,11 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
     };
     final response = await HttpService()
         .postRequest("getUserPlanningFilterBackwashing", body);
-    print(body);
+    print("fetchData $body");
     if (response.statusCode == 200) {
       setState(() {
         var jsondata1 = jsonDecode(response.body);
+        print("jsondata1    $jsondata1");
         _filterbackwash = Filterbackwash.fromJson(jsondata1);
         MQTTManager().connect();
       });
@@ -78,13 +77,13 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
 
   @override
   Widget build(BuildContext context) {
-
-    mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: true);
+    mqttPayloadProvider =
+        Provider.of<MqttPayloadProvider>(context, listen: true);
 
     if (_filterbackwash.code != 200) {
       return Center(
           child:
-              Text(_filterbackwash.message ?? 'Currently No Filter Available'));
+          Text(_filterbackwash.message ?? 'Currently No Filter Available'));
     } else if (_filterbackwash.data == null) {
       return const Center(child: CircularProgressIndicator());
     } else if (_filterbackwash.data!.isEmpty) {
@@ -99,7 +98,7 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
             animationDuration: const Duration(milliseconds: 888),
             length: _filterbackwash.data!.length ?? 0,
             child: Scaffold(
-              backgroundColor: Color(0xffE6EDF5),
+              backgroundColor: const Color(0xffE6EDF5),
               body: SizedBox(
                 child: Column(
                   children: [
@@ -121,7 +120,7 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                         unselectedLabelColor: Colors.black,
                         labelColor: Colors.white,
                         labelStyle:
-                            const TextStyle(fontWeight: FontWeight.bold),
+                        const TextStyle(fontWeight: FontWeight.bold),
                         tabs: [
                           for (var i = 0; i < _filterbackwash.data!.length; i++)
                             Tab(
@@ -143,18 +142,18 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                         for (var i = 0; i < _filterbackwash.data!.length; i++)
                           MediaQuery.sizeOf(context).width > 600
                               ? buildTab(
-                                  _filterbackwash.data![i].filter,
-                                  i,
-                                  _filterbackwash.data![i].name,
-                                  _filterbackwash.data![i].sNo ?? 0,
-                                  constaint.maxWidth,
-                                  constaint.maxHeight)
+                              _filterbackwash.data![i].filter,
+                              i,
+                              _filterbackwash.data![i].name,
+                              _filterbackwash.data![i].sNo ?? 0,
+                              constaint.maxWidth,
+                              constaint.maxHeight)
                               : buildTabMob(
-                                  _filterbackwash.data![i].filter,
-                                  i,
-                                  _filterbackwash.data![i].name,
-                                  _filterbackwash.data![i].sNo ?? 0,
-                                )
+                            _filterbackwash.data![i].filter,
+                            i,
+                            _filterbackwash.data![i].name,
+                            _filterbackwash.data![i].sNo ?? 0,
+                          )
                       ]),
                     ),
                   ],
@@ -211,6 +210,27 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                const Center(
+                  child: Text(
+                    "Filter Backwash Settings",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                ),
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(right: 10),
+                      child: Text(
+                        "Delta P - Differential Pressure  ",
+                        textAlign: TextAlign.right,
+                        style: TextStyle(
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 customizeGridView(
                   maxWith: width / 3 < 350 ? 350 : width / 3,
                   maxheight: 60,
@@ -224,10 +244,10 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                           elevation: 7,
                           child: ListTile(
                             title: Text(
-                              '${Listofvalue?[0].value[j]['name']} ON TIME',
+                              '${Listofvalue?[0].value[j]['name']} BACKWASH ON TIME',
                               style: TextStyle(
                                 fontSize:
-                                    FontSizeUtils.fontSizeLabel(context) ?? 16,
+                                FontSizeUtils.fontSizeLabel(context) ?? 16,
                                 fontWeight: FontWeight.bold,
                               ),
                               softWrap: true,
@@ -239,7 +259,7 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                                   child: InkWell(
                                     child: Text(
                                       '${Listofvalue?[0].value![j]['value']}' !=
-                                              ''
+                                          ''
                                           ? '${Listofvalue?[0].value![j]['value']}'
                                           : '00:00:00',
                                       style: const TextStyle(fontSize: 20),
@@ -251,15 +271,15 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                                           return AlertDialog(
                                             title: HoursMinutesSeconds(
                                               initialTime:
-                                                  '${Listofvalue?[0].value![j]['value']}' !=
-                                                          ''
-                                                      ? '${Listofvalue?[0].value![j]['value']}'
-                                                      : '00:00:00',
+                                              '${Listofvalue?[0].value![j]['value']}' !=
+                                                  ''
+                                                  ? '${Listofvalue?[0].value![j]['value']}'
+                                                  : '00:00:00',
                                               onPressed: () {
                                                 setState(() {
                                                   Listofvalue?[0].value![j]
-                                                          ['value'] =
-                                                      '${overAllPvd.hrs.toString().padLeft(2, '0')}:${overAllPvd.min.toString().padLeft(2, '0')}:${overAllPvd.sec.toString().padLeft(2, '0')}';
+                                                  ['value'] =
+                                                  '${overAllPvd.hrs.toString().padLeft(2, '0')}:${overAllPvd.min.toString().padLeft(2, '0')}:${overAllPvd.sec.toString().padLeft(2, '0')}';
                                                 });
                                                 Navigator.pop(context);
                                               },
@@ -295,14 +315,15 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
   }
 
   Widget filterCard(
-    List<Filter>? Listofvalue,
-    int index,
-    int srno,
-  ) {
+      List<Filter>? Listofvalue,
+      int index,
+      int srno,
+      )
+  {
     var overAllPvd = Provider.of<OverAllUse>(context, listen: true);
     final RegExp _regex = RegExp(r'^([0-9]|[1-9][0-9])(\.[0-9])?$');
     if (Listofvalue?[index].widgetTypeId == 1) {
-      if (Listofvalue?[index].title == "DIFFERENTIAL PRESSURE VALUE") {
+      if (Listofvalue?[index].sNo == 6) {
         return SizedBox(
           height: 60,
           width: 400,
@@ -365,7 +386,7 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                               'bar',
                               style: TextStyle(
                                 fontSize:
-                                    FontSizeUtils.fontSizeLabel(context) ?? 16,
+                                FontSizeUtils.fontSizeLabel(context) ?? 16,
                                 fontWeight: FontWeight.bold,
                               ),
                               softWrap: true,
@@ -427,20 +448,23 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
           elevation: 7,
           //color: myTheme.primaryColorLight.withOpacity(0.4),
           child: ListTile(
-            title: Text(
-              '${Listofvalue?[index].title}',
-              style: TextStyle(
-                fontSize: FontSizeUtils.fontSizeLabel(context) ?? 16,
-                fontWeight: FontWeight.bold,
+              title: Text(
+                '${Listofvalue?[index].title}',
+                style: TextStyle(
+                  fontSize: FontSizeUtils.fontSizeLabel(context) ?? 16,
+                  fontWeight: FontWeight.bold,
+                ),
+                softWrap: true,
               ),
-              softWrap: true,
-            ),
-            trailing: IconButton(
-              icon: const Icon(Icons.not_started_outlined),
-              onPressed: () {
-                manualonoff(srno);
-              },
-            ),
+              trailing:  TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white, backgroundColor: Colors.green, // White text color
+                ),
+                onPressed: () {
+                  manualonoff(srno);
+                },
+                child: const Text('ON/OFF'),
+              )
           ),
         ),
       );
@@ -486,9 +510,9 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                         value: items,
                         child: Container(
                             child: Text(
-                          items,
-                          style: const TextStyle(color: Colors.white),
-                        )),
+                              items,
+                              style: const TextStyle(color: Colors.white),
+                            )),
                       );
                     }).toList(),
                     onChanged: (value) {
@@ -506,7 +530,7 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
         ),
       );
     } else if (Listofvalue?[index].widgetTypeId == 5 &&
-        Listofvalue?[index].title != "FILTER ON TIME") {
+        Listofvalue?[index].sNo != 1) {
       return SizedBox(
         height: 60,
         width: 400,
@@ -526,35 +550,35 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
               width: 100,
               child: Container(
                   child: Center(
-                child: InkWell(
-                  child: Text(
-                    '${Listofvalue?[index].value}' != ''
-                        ? '${Listofvalue?[index].value}'
-                        : '00:00:00',
-                    style: const TextStyle(fontSize: 20),
-                  ),
-                  onTap: () async {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: HoursMinutesSeconds(
-                              initialTime: '${Listofvalue?[index].value}' != ''
-                                  ? '${Listofvalue?[index].value}'
-                                  : '00:00:00',
-                              onPressed: () {
-                                setState(() {
-                                  Listofvalue?[index].value =
+                    child: InkWell(
+                      child: Text(
+                        '${Listofvalue?[index].value}' != ''
+                            ? '${Listofvalue?[index].value}'
+                            : '00:00:00',
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                      onTap: () async {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: HoursMinutesSeconds(
+                                  initialTime: '${Listofvalue?[index].value}' != ''
+                                      ? '${Listofvalue?[index].value}'
+                                      : '00:00:00',
+                                  onPressed: () {
+                                    setState(() {
+                                      Listofvalue?[index].value =
                                       '${overAllPvd.hrs.toString().padLeft(2, '0')}:${overAllPvd.min.toString().padLeft(2, '0')}:${overAllPvd.sec.toString().padLeft(2, '0')}';
-                                });
-                                Navigator.pop(context);
-                              },
-                            ),
-                          );
-                        });
-                  },
-                ),
-              )),
+                                    });
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              );
+                            });
+                      },
+                    ),
+                  )),
             ),
           ),
         ),
@@ -565,18 +589,19 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
   }
 
   Widget buildTabMob(
-    List<Filter>? listOfValue,
-    int i,
-    String? name,
-    int srNo,
-  ) {
+      List<Filter>? listOfValue,
+      int i,
+      String? name,
+      int srNo,
+      )
+  {
     var overAllPvd = Provider.of<OverAllUse>(context, listen: true);
     final RegExp regex = RegExp(r'^([0-9]|[1-9][0-9])(\.[0-9])?$');
     return Expanded(
       child: Container(
         width: 300,
         decoration: BoxDecoration(
-          color: Color(0xffE6EDF5),
+          color: const Color(0xffE6EDF5),
           borderRadius: BorderRadius.circular(15.0),
           boxShadow: [
             BoxShadow(
@@ -597,8 +622,8 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                   itemCount: listOfValue?.length ?? 0,
                   itemBuilder: (context, index) {
                     if (listOfValue?[index].widgetTypeId == 1) {
-                      if (listOfValue?[index].title ==
-                          "DIFFERENTIAL PRESSURE VALUE") {
+                      if (listOfValue?[index].sNo ==
+                          6) {
                         return Column(
                           children: [
                             Card(
@@ -612,8 +637,8 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                                   '${listOfValue?[index].title}',
                                   style: TextStyle(
                                     fontSize:
-                                        FontSizeUtils.fontSizeLabel(context) ??
-                                            16,
+                                    FontSizeUtils.fontSizeLabel(context) ??
+                                        16,
                                     fontWeight: FontWeight.bold,
                                   ),
                                   softWrap: true,
@@ -645,7 +670,7 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                                               // FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,1}$')),
                                             ],
                                             initialValue:
-                                                listOfValue?[index].value ?? '',
+                                            listOfValue?[index].value ?? '',
                                             validator: (value) {
                                               if (value == null ||
                                                   value.isEmpty) {
@@ -670,8 +695,8 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                                                 'bar',
                                                 style: TextStyle(
                                                   fontSize: FontSizeUtils
-                                                          .fontSizeLabel(
-                                                              context) ??
+                                                      .fontSizeLabel(
+                                                      context) ??
                                                       16,
                                                   fontWeight: FontWeight.bold,
                                                 ),
@@ -698,8 +723,8 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                                 '${listOfValue?[index].title}',
                                 style: TextStyle(
                                   fontSize:
-                                      FontSizeUtils.fontSizeLabel(context) ??
-                                          16,
+                                  FontSizeUtils.fontSizeLabel(context) ??
+                                      16,
                                   fontWeight: FontWeight.bold,
                                 ),
                                 softWrap: true,
@@ -720,7 +745,7 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                                       FilteringTextInputFormatter.digitsOnly
                                     ],
                                     initialValue:
-                                        listOfValue?[index].value ?? '',
+                                    listOfValue?[index].value ?? '',
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Warranty is required';
@@ -750,8 +775,8 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                                 '${listOfValue?[index].title}',
                                 style: TextStyle(
                                   fontSize:
-                                      FontSizeUtils.fontSizeLabel(context) ??
-                                          16,
+                                  FontSizeUtils.fontSizeLabel(context) ??
+                                      16,
                                   fontWeight: FontWeight.bold,
                                 ),
                                 softWrap: true,
@@ -794,8 +819,8 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                                 '${listOfValue?[index].title}',
                                 style: TextStyle(
                                   fontSize:
-                                      FontSizeUtils.fontSizeLabel(context) ??
-                                          16,
+                                  FontSizeUtils.fontSizeLabel(context) ??
+                                      16,
                                   fontWeight: FontWeight.bold,
                                 ),
                                 softWrap: true,
@@ -812,8 +837,8 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                                           value: items,
                                           child: Container(
                                               child: Text(
-                                            items,
-                                          )),
+                                                items,
+                                              )),
                                         );
                                       }).toList(),
                                       onChanged: (value) {
@@ -833,7 +858,7 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                         ],
                       );
                     } else if (listOfValue?[index].widgetTypeId == 5 &&
-                        listOfValue?[index].title != "FILTER ON TIME") {
+                        listOfValue?[index].sNo != 1) {
                       return Column(
                         children: [
                           Card(
@@ -847,8 +872,8 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                                 '${listOfValue?[index].title}',
                                 style: TextStyle(
                                   fontSize:
-                                      FontSizeUtils.fontSizeLabel(context) ??
-                                          16,
+                                  FontSizeUtils.fontSizeLabel(context) ??
+                                      16,
                                   fontWeight: FontWeight.bold,
                                 ),
                                 softWrap: true,
@@ -857,40 +882,42 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                                 width: 100,
                                 child: Container(
                                     child: Center(
-                                  child: InkWell(
-                                    child: Text(
-                                      '${listOfValue?[index].value}' != ''
-                                          ? '${listOfValue?[index].value}'
-                                          : '00:00:00',
-                                      style: const TextStyle(fontSize: 20),
-                                    ),
-                                    onTap: () async {
-                                      showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return AlertDialog(
-                                              title: HoursMinutesSeconds(
-                                                initialTime: '${listOfValue?[index].value}' != ''
-                                                    ? '${listOfValue?[index].value}'
-                                                    : '00:00:00',
-                                                // initialTime:
-                                                //     '${listOfValue?[index].value}' !=
-                                                //             ''
-                                                //         ? '${listOfValue?[index].value}'
-                                                //         : '00:00:00',
-                                                onPressed: () {
-                                                  setState(() {
-                                                    listOfValue?[index].value =
+                                      child: InkWell(
+                                        child: Text(
+                                          '${listOfValue?[index].value}' != ''
+                                              ? '${listOfValue?[index].value}'
+                                              : '00:00:00',
+                                          style: const TextStyle(fontSize: 20),
+                                        ),
+                                        onTap: () async {
+                                          showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return AlertDialog(
+                                                  title: HoursMinutesSeconds(
+                                                    initialTime:
+                                                    '${listOfValue?[index].value}' !=
+                                                        ''
+                                                        ? '${listOfValue?[index].value}'
+                                                        : '00:00:00',
+                                                    // initialTime:
+                                                    //     '${listOfValue?[index].value}' !=
+                                                    //             ''
+                                                    //         ? '${listOfValue?[index].value}'
+                                                    //         : '00:00:00',
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        listOfValue?[index].value =
                                                         '${overAllPvd.hrs.toString().padLeft(2, '0')}:${overAllPvd.min.toString().padLeft(2, '0')}:${overAllPvd.sec.toString().padLeft(2, '0')}';
-                                                  });
-                                                  Navigator.pop(context);
-                                                },
-                                              ),
-                                            );
-                                          });
-                                    },
-                                  ),
-                                )),
+                                                      });
+                                                      Navigator.pop(context);
+                                                    },
+                                                  ),
+                                                );
+                                              });
+                                        },
+                                      ),
+                                    )),
                               ),
                             ),
                           ),
@@ -905,7 +932,7 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                             width: double.infinity,
                             child: ListView.builder(
                                 itemCount:
-                                    listOfValue?[index].value!.length ?? 0,
+                                listOfValue?[index].value!.length ?? 0,
                                 itemBuilder: (context, flusingindex) {
                                   return Column(
                                     children: [
@@ -914,16 +941,16 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                                         color: Colors.white,
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
-                                              BorderRadius.circular(10),
+                                          BorderRadius.circular(10),
                                         ),
                                         child: ListTile(
                                           title: Text(
-                                            '${listOfValue?[index].value[flusingindex]['name']} ON TIME',
+                                            '${listOfValue?[index].value[flusingindex]['name']} BACKWASH ON TIME',
                                             style: TextStyle(
                                               fontSize:
-                                                  FontSizeUtils.fontSizeLabel(
-                                                          context) ??
-                                                      16,
+                                              FontSizeUtils.fontSizeLabel(
+                                                  context) ??
+                                                  16,
                                               fontWeight: FontWeight.bold,
                                             ),
                                             softWrap: true,
@@ -932,49 +959,49 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                                             width: 90,
                                             child: Container(
                                                 child: Center(
-                                              child: InkWell(
-                                                child: Text(
-                                                  '${listOfValue?[index].value![flusingindex]['value']}' !=
+                                                  child: InkWell(
+                                                    child: Text(
+                                                      '${listOfValue?[index].value![flusingindex]['value']}' !=
                                                           ''
-                                                      ? '${listOfValue?[index].value![flusingindex]['value']}'
-                                                      : '00:00:00',
-                                                  style: const TextStyle(
-                                                      fontSize: 20),
-                                                ),
-                                                onTap: () async {
-                                                  showDialog(
-                                                      context: context,
-                                                      builder: (context) {
-                                                        return AlertDialog(
-                                                          title:
+                                                          ? '${listOfValue?[index].value![flusingindex]['value']}'
+                                                          : '00:00:00',
+                                                      style: const TextStyle(
+                                                          fontSize: 20),
+                                                    ),
+                                                    onTap: () async {
+                                                      showDialog(
+                                                          context: context,
+                                                          builder: (context) {
+                                                            return AlertDialog(
+                                                              title:
                                                               HoursMinutesSeconds(
                                                                 initialTime:
                                                                 '${listOfValue?[0].value![flusingindex]['value']}' !=
                                                                     ''
                                                                     ? '${listOfValue?[0].value![flusingindex]['value']}'
                                                                     : '00:00:00',
-                                                            // initialTime:
-                                                            //     '${listOfValue?[index].value![flusingindex]['value']}' !=
-                                                            //             ''
-                                                            //         ? '${listOfValue?[index].value![flusingindex]['value']}'
-                                                            //         : '00:00:00',
-                                                            onPressed: () {
-                                                              setState(() {
-                                                                listOfValue?[index]
-                                                                            .value![flusingindex]
-                                                                        [
-                                                                        'value'] =
+                                                                // initialTime:
+                                                                //     '${listOfValue?[index].value![flusingindex]['value']}' !=
+                                                                //             ''
+                                                                //         ? '${listOfValue?[index].value![flusingindex]['value']}'
+                                                                //         : '00:00:00',
+                                                                onPressed: () {
+                                                                  setState(() {
+                                                                    listOfValue?[index]
+                                                                        .value![flusingindex]
+                                                                    [
+                                                                    'value'] =
                                                                     '${overAllPvd.hrs.toString().padLeft(2, '0')}:${overAllPvd.min.toString().padLeft(2, '0')}:${overAllPvd.sec.toString().padLeft(2, '0')}';
-                                                              });
-                                                              Navigator.pop(
-                                                                  context);
-                                                            },
-                                                          ),
-                                                        );
-                                                      });
-                                                },
-                                              ),
-                                            )),
+                                                                  });
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                },
+                                                              ),
+                                                            );
+                                                          });
+                                                    },
+                                                  ),
+                                                )),
                                           ),
                                         ),
                                       ),
@@ -1006,12 +1033,17 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
       ]
     };
     List<Map<String, dynamic>> filterBackWash =
-        _filterbackwash.data!.map((condition) => condition.toJson()).toList();
-    Map<String, Object> body = {
+    _filterbackwash.data!.map((condition) => condition.toJson()).toList();
+
+    print("filterBackWash------->${filterBackWash}");
+    Map<String, dynamic> body = {
       "userId": widget.userId,
       "controllerId": widget.controllerId,
-      "filterBackwash": filterBackWash,
-      "hardware":payLoadFinal,
+      "filterBackwash": {
+        "filterBackwashing": filterBackWash,
+        "controllerReadStatus": "0",
+      },
+      "hardware": payLoadFinal,
       "createUser": widget.userId
     };
 
@@ -1025,25 +1057,27 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
 
     if (MQTTManager().isConnected == true) {
       await validatePayloadSent(
-          dialogContext: context,
-          context: context,
-          mqttPayloadProvider: mqttPayloadProvider,
-          acknowledgedFunction: () async{
-            final response = await HttpService()
-                .postRequest("createUserPlanningFilterBackwashing", body);
-            final jsonDataResponse = json.decode(response.body);
-            GlobalSnackBar.show(
-                context, jsonDataResponse['message'], response.statusCode);
-          },
-          payload: payLoadFinal,
-          payloadCode: '900',
-          deviceId: widget.deviceID,
+        dialogContext: context,
+        context: context,
+        mqttPayloadProvider: mqttPayloadProvider,
+        acknowledgedFunction: () async {
+          setState(() {
+            body["filterBackwash"]["controllerReadStatus"] = "1";
+          });
+
+          final response = await HttpService()
+              .postRequest("createUserPlanningFilterBackwashing", body);
+          final jsonDataResponse = json.decode(response.body);
+          GlobalSnackBar.show(
+              context, jsonDataResponse['message'], response.statusCode);
+        },
+        payload: payLoadFinal,
+        payloadCode: '900',
+        deviceId: widget.deviceID,
       );
     } else {
       GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
     }
-
-
   }
 
   manualonoff(int index) async {
@@ -1061,8 +1095,8 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
   }
 
   String toMqttFormat(
-    List<Datum>? data,
-  ) {
+      List<Datum>? data,
+      ) {
     String mqttData = '';
     for (var i = 0; i < data!.length; i++) {
       int sno = data[i].sNo!;
@@ -1089,9 +1123,9 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
         whileFlushing = '4';
       }
       String cycles =
-          data[i].filter![4].value!.isEmpty ? '0' : data[i].filter![4].value!;
+      data[i].filter![4].value!.isEmpty ? '0' : data[i].filter![4].value!;
       String pressureValues =
-          data[i].filter![5].value!.isEmpty ? '0' : data[i].filter![5].value!;
+      data[i].filter![5].value!.isEmpty ? '0' : data[i].filter![5].value!;
       String deltaPressureDelay = data[i].filter![6].value!.isEmpty
           ? '00:00:00'
           : '${data[i].filter![6].value!}';
@@ -1102,7 +1136,7 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
           ? '00:00:00'
           : '${data[i].filter![7].value!}';
       mqttData +=
-          '$sno,$id,$flushingTime,$filterInterval,$flushingInterval,$whileFlushing,$cycles,$pressureValues,$deltaPressureDelay,$dwellTimeMainFilter,$afterDeltaPressureDelay;';
+      '$sno,$id,$flushingTime,$filterInterval,$flushingInterval,$whileFlushing,$cycles,$pressureValues,$deltaPressureDelay,$dwellTimeMainFilter,$afterDeltaPressureDelay;';
     }
     return mqttData;
   }

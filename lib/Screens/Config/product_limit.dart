@@ -158,7 +158,6 @@ class _ProductLimitsState extends State<ProductLimits> with SingleTickerProvider
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              physics: const NeverScrollableScrollPhysics(),
               children: [
                 Container(
                   height: mediaQuery.size.height-230,
@@ -194,14 +193,11 @@ class _ProductLimitsState extends State<ProductLimits> with SingleTickerProvider
                                           borderRadius: const BorderRadius.only(topLeft: Radius.circular(5.0), bottomLeft: Radius.circular(5.0)),
                                         ),
                                         child: Padding(
-                                          padding: const EdgeInsets.all(5.0),
-                                          child: CircleAvatar(
-                                            radius: 20,
-                                            backgroundImage: AssetImage(getImageForProduct(productLimits[index].product)),
-                                            backgroundColor: Colors.yellow,
-                                          ),
+                                          padding: const EdgeInsets.all(10.0),
+                                          child : Image.asset(getImageForProduct(productLimits[index].product)),
                                         ),
-                                      ),),
+                                      ),
+                                    ),
                                     Expanded(
                                       flex :3,
                                       child: Column(
@@ -314,13 +310,13 @@ class _ProductLimitsState extends State<ProductLimits> with SingleTickerProvider
     String baseImgPath = 'assets/images/';
     switch (product) {
       case 'Valve':
-        return '${baseImgPath}dl_valve.png';
+        return '${baseImgPath}valve_gray.png';
       case 'Main Valve':
-        return '${baseImgPath}dl_main_valve.png';
+        return '${baseImgPath}dp_main_valve_not_open.png';
       case 'Source Pump':
-        return '${baseImgPath}dl_source_pump.png';
+        return '${baseImgPath}irrigation_pump.png';
       case 'Irrigation Pump':
-        return '${baseImgPath}dl_irrigation_pump.png';
+        return '${baseImgPath}irrigation_pump.png';
       case 'Irrigation Line':
         return '${baseImgPath}dl_irrigation_line.png';
       case 'Analog Sensor':
@@ -328,17 +324,17 @@ class _ProductLimitsState extends State<ProductLimits> with SingleTickerProvider
       case 'Level Sensor':
         return '${baseImgPath}dl_level_sensor.png';
       case 'Booster Pump':
-        return '${baseImgPath}dl_booster_pump.png';
+        return '${baseImgPath}booster_pump.png';
       case 'Central Fertilizer Site':
         return '${baseImgPath}dl_central_fertilizer_site.png';
       case 'Central Filter Site':
         return '${baseImgPath}dl_central_filtration_site.png';
       case 'Agitator':
-        return '${baseImgPath}dl_agitator.png';
+        return '${baseImgPath}dp_agitator_gray.png';
       case 'Injector':
-        return '${baseImgPath}dl_injector.png';
+        return '${baseImgPath}fert_chanel.png';
       case 'Filter':
-        return '${baseImgPath}dl_filter.png';
+        return '${baseImgPath}filter.png';
       case 'Downstream Valve':
         return '${baseImgPath}dl_downstream_valve.png';
       case 'Fan':
@@ -348,17 +344,17 @@ class _ProductLimitsState extends State<ProductLimits> with SingleTickerProvider
       case 'Selector':
         return '${baseImgPath}dl_selector.png';
       case 'Water Meter':
-        return '${baseImgPath}dl_water_meter.png';
+        return '${baseImgPath}water_meter.png';
       case 'Fertilizer Meter':
         return '${baseImgPath}dl_fertilizer_meter.png';
       case 'Co2 Sensor':
         return '${baseImgPath}dl_co2.png';
       case 'Pressure Switch':
-        return '${baseImgPath}dl_pressure_switch.png';
+        return '${baseImgPath}pressure_switch.png';
       case 'Pressure Sensor':
-        return '${baseImgPath}dl_pressure_sensor.png';
+        return '${baseImgPath}pressure_sensor.png';
       case 'Differential Pressure Sensor':
-        return '${baseImgPath}dl_differential_pressure_sensor.png';
+        return '${baseImgPath}pressure_sensor.png';
       case 'EC Sensor':
         return '${baseImgPath}dl_ec_sensor.png';
       case 'PH Sensor':
@@ -400,7 +396,7 @@ class _ProductLimitsState extends State<ProductLimits> with SingleTickerProvider
       case 'Filter Set':
         return '${baseImgPath}dl_filter_sets.png';
       case 'Moisture Sensor':
-        return '${baseImgPath}dl_moisture_sensor.png';
+        return '${baseImgPath}moisture_sensor.png';
       case 'Float':
         return '${baseImgPath}dl_float.png';
       case 'Moisture Condition':

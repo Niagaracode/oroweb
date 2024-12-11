@@ -18,6 +18,7 @@ class AllNodeListAndDetails extends StatefulWidget {
 class _AllNodeListAndDetailsState extends State<AllNodeListAndDetails> {
   @override
   Widget build(BuildContext context) {
+    print(widget.siteData.master[widget.masterInx].gemLive[0].nodeList.toList());
     return Scaffold(
       backgroundColor: Colors.teal.shade50,
       appBar: AppBar(
@@ -115,11 +116,7 @@ class _AllNodeListAndDetailsState extends State<AllNodeListAndDetails> {
                                     child: Text('${widget.siteData.master[widget.masterInx].gemLive[0].nodeList[i].rlyStatus[index].rlyNo}', style: const TextStyle(color: Colors.black, fontSize: 12)),
                                   ),
                                   const SizedBox(height: 5,),
-                                  CircleAvatar(
-                                    radius: 25,
-                                    backgroundImage: AssetImage(getImageForProduct(widget.siteData.master[widget.masterInx].gemLive[0].nodeList[i].rlyStatus[index].name!)),
-                                    backgroundColor: Colors.transparent,
-                                  ),
+                                  Image.asset(getImageForProduct(widget.siteData.master[widget.masterInx].gemLive[0].nodeList[i].rlyStatus[index].name!),width: 40, height: 40,),
                                   Text(widget.siteData.master[widget.masterInx].gemLive[0].nodeList[i].rlyStatus[index].name!, style: const TextStyle(color: Colors.black, fontSize: 12)),
                                 ],
                               ),
@@ -156,11 +153,8 @@ class _AllNodeListAndDetailsState extends State<AllNodeListAndDetails> {
                                   ),
                                   const SizedBox(height: 5,),*/
 
-                                  CircleAvatar(
-                                    radius: 25,
-                                    backgroundImage: AssetImage(getImageForProduct(widget.siteData.master[widget.masterInx].gemLive[0].nodeList[i].sensor[index].name!)),
-                                    backgroundColor: Colors.transparent,
-                                  ),
+                                  Image.asset(getImageForProduct(widget.siteData.master[widget.masterInx].gemLive[0].nodeList[i].sensor[index].name),width: 40, height: 40,),
+
                                   Container(width: 40, height: 14,
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(3),

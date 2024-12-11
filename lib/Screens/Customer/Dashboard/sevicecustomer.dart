@@ -29,7 +29,7 @@ class _TicketHomePageState extends State<TicketHomePage> {
   DateFormat timeformat = DateFormat("HH:mm:ss");
   DateFormat ExceptdateFormat = DateFormat("yyyy-MM-dd");
   ServicecustomerModel _servicecustomerModel = ServicecustomerModel();
-  String dropdownvalue = 'Controller Issue';
+  String dropdownvalue =  'Controller Regarding';
 
   @override
   void initState() {

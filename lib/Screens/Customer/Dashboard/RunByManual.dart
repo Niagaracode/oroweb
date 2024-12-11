@@ -2405,7 +2405,7 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                         CheckboxListTile(
                                           title: Text(dashBoardData[0].agitator[index].name),
                                           subtitle: Text('Location : ${dashBoardData[0].agitator[index].location}',style: const TextStyle(fontWeight: FontWeight.normal),),
-                                          secondary: Image.asset('assets/images/agitator.png'),
+                                          secondary: Image.asset('assets/images/dp_agitator_gray.png'),
                                           value: dashBoardData[0].agitator[index].selected,
                                           onChanged: (bool? newValue) {
                                             setState(() {
