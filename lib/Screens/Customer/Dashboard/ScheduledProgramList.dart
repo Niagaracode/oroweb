@@ -224,52 +224,37 @@ class ScheduledProgramList extends StatelessWidget {
           dataRowHeight: 45.0,
           headingRowHeight: 40.0,
           headingRowColor: WidgetStateProperty.all<Color>(Colors.yellow.shade50),
-          columns:  [
-            const DataColumn2(
+          columns:  const [
+            DataColumn2(
               label: Text('Line Id', style: TextStyle(fontSize: 13),),
               fixedWidth: 50,
             ),
-            const DataColumn2(
+            DataColumn2(
               label: Text('Name', style: TextStyle(fontSize: 13),),
               size: ColumnSize.M,
             ),
-            const DataColumn2(
+            DataColumn2(
               label: Text('Method', style: TextStyle(fontSize: 13)),
               size: ColumnSize.M,
             ),
-            const DataColumn2(
+            DataColumn2(
               label: Text('Status or Reason', style: TextStyle(fontSize: 13)),
               size: ColumnSize.L,
             ),
-            const DataColumn2(
+            DataColumn2(
               label: Center(child: Text('Zone', style: TextStyle(fontSize: 13),)),
               fixedWidth: 50,
             ),
-            const DataColumn2(
+            DataColumn2(
               label: Center(child: Text('Start Date & Time', style: TextStyle(fontSize: 13),)),
               size: ColumnSize.M,
             ),
-            const DataColumn2(
+            DataColumn2(
               label: Center(child: Text('End Date', style: TextStyle(fontSize: 13),)),
               size: ColumnSize.S,
             ),
             DataColumn2(
-              label: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                      tooltip: 'Scheduled Program details',
-                      onPressed: getPermissionStatusBySNo(context, 3) ? () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ScheduleViewScreen(deviceId: siteData.master[masterInx].deviceId, userId: userId, controllerId: siteData.master[masterInx].controllerId, customerId: siteData.customerId),
-                          ),
-                        );
-                      }:null,
-                      icon: const Icon(Icons.view_list_outlined)),
-                ],
-              ),
+              label: Text(''),
               fixedWidth: 265,
             ),
           ],

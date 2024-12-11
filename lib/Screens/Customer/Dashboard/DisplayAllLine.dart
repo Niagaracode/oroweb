@@ -35,6 +35,7 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
 
             (widget.provider.centralFertilizer.isEmpty && widget.provider.localFertilizer.isEmpty &&
@@ -56,23 +57,69 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
+                          final levels = widget.provider.payloadIrrLine
+                              .expand((record) => record.level)
+                              .where((level) => level != null)
+                              .toList();
+
                           return AlertDialog(
                             title: const Text('Level List'),
-                            content: widget.provider.payloadIrrLine[0].level.isNotEmpty?Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: widget.provider.payloadIrrLine[0].level.map((levelItem) {
-                                return ListTile(
-                                  title: Text(levelItem.swName),
-                                  trailing: Column(
-                                    children: [
-                                      Text('Percent: ${levelItem.levelPercent}%'),
-                                      Text('Value: ${levelItem.value}',)
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                            ):
-                            const Text('No level available'),
+                            content: levels.isNotEmpty
+                                ? SingleChildScrollView(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: levels.map((levelItem) {
+                                  return ListTile(
+                                    leading: Image.asset(
+                                      'assets/images/level_sensor.png',
+                                      height: 30,
+                                      width: 30,
+                                    ),
+                                    title: Text(
+                                      (levelItem.swName.isNotEmpty ?? false)
+                                          ? levelItem.swName
+                                          : levelItem.name ?? 'No Name',
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                    trailing: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text.rich(
+                                          TextSpan(
+                                            text: 'Percent: ', // Regular text
+                                            style: const TextStyle(fontSize: 12),
+                                            children: [
+                                              TextSpan(
+                                                text: '${levelItem.levelPercent}%',
+                                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Text.rich(
+                                          TextSpan(
+                                            text: 'Level: ', // Regular text
+                                            style: const TextStyle(fontSize: 12),
+                                            children: [
+                                              TextSpan(
+                                                text: getUnitByParameter(
+                                                  context,
+                                                  'Level Sensor',
+                                                  levelItem.value,
+                                                ) ??
+                                                    '',
+                                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            )
+                                : const Text('No levels available'), // Display if levels are empty
                             actions: [
                               TextButton(
                                 onPressed: () {
@@ -152,15 +199,18 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
+                                    final levels = widget.provider.payloadIrrLine
+                                        .expand((record) => record.level)
+                                        .where((level) => level != null)
+                                        .toList();
+
                                     return AlertDialog(
                                       title: const Text('Level List'),
-                                      content: widget.provider.payloadIrrLine.any((line) => line.level.isNotEmpty)
+                                      content: levels.isNotEmpty
                                           ? SingleChildScrollView(
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
-                                          children: widget.provider.payloadIrrLine
-                                              .expand((line) => line.level) // Combine all levels from all lines
-                                              .map((levelItem) {
+                                          children: levels.map((levelItem) {
                                             return ListTile(
                                               leading: Image.asset(
                                                 'assets/images/level_sensor.png',
@@ -168,10 +218,10 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
                                                 width: 30,
                                               ),
                                               title: Text(
-                                                (levelItem.swName.isNotEmpty == true
+                                                (levelItem.swName.isNotEmpty ?? false)
                                                     ? levelItem.swName
-                                                    : levelItem.name) ??
-                                                    'No Name',
+                                                    : levelItem.name ?? 'No Name',
+                                                style: const TextStyle(fontSize: 14),
                                               ),
                                               trailing: Column(
                                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,7 +230,7 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
                                                     TextSpan(
                                                       text: 'Percent: ', // Regular text
                                                       style: const TextStyle(fontSize: 12),
-                                                      children: <TextSpan>[
+                                                      children: [
                                                         TextSpan(
                                                           text: '${levelItem.levelPercent}%',
                                                           style: const TextStyle(fontWeight: FontWeight.bold),
@@ -192,12 +242,13 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
                                                     TextSpan(
                                                       text: 'Level: ', // Regular text
                                                       style: const TextStyle(fontSize: 12),
-                                                      children: <TextSpan>[
+                                                      children: [
                                                         TextSpan(
                                                           text: getUnitByParameter(
-                                                              context,
-                                                              'Level Sensor',
-                                                              levelItem.value.toString()) ??
+                                                            context,
+                                                            'Level Sensor',
+                                                            levelItem.value,
+                                                          ) ??
                                                               '',
                                                           style: const TextStyle(fontWeight: FontWeight.bold),
                                                         ),
@@ -210,7 +261,7 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
                                           }).toList(),
                                         ),
                                       )
-                                          : const Text('No level available'),
+                                          : const Text('No levels available'), // Display if levels are empty
                                       actions: [
                                         TextButton(
                                           onPressed: () {

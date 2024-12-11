@@ -10,7 +10,6 @@ import 'package:oro_irrigation_new/Models/Customer/Dashboard/SentAndReceivedMode
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../../constants/http_service.dart';
-import '../../../constants/theme.dart';
 
 class SentAndReceived extends StatefulWidget {
   const SentAndReceived({Key? key, required this.customerID, required this.controllerId, required this.from}) : super(key: key);
@@ -77,7 +76,7 @@ class _SentAndReceivedState extends State<SentAndReceived> {
                 },
                 calendarStyle: const CalendarStyle(
                   todayDecoration: BoxDecoration(
-                    color: primaryColorLight,
+                    color: Colors.blueAccent,
                     shape: BoxShape.circle,
                   ),
                   selectedDecoration: BoxDecoration(
@@ -93,7 +92,7 @@ class _SentAndReceivedState extends State<SentAndReceived> {
             ),
           ),
           const SizedBox(width: 5,),
-          Container(width: 0.5, height: widget.from=='Gem'? MediaQuery.sizeOf(context).height-77: MediaQuery.sizeOf(context).height-120, color: primaryColorLightGray,),
+          Container(width: 0.5, height: widget.from=='Gem'? MediaQuery.sizeOf(context).height-77: MediaQuery.sizeOf(context).height-120, color: Colors.teal.shade200,),
           msgListBox(screenWidth),
         ],
       ),

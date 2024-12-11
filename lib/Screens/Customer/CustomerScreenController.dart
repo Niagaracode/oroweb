@@ -13,7 +13,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../Models/Customer/Dashboard/DashboardNode.dart';
 import '../../Models/Customer/Dashboard/ProgramList.dart';
-import '../../MyGemini.dart';
 import '../../constants/MQTTManager.dart';
 import '../../constants/MyFunction.dart';
 import '../../constants/http_service.dart';
@@ -35,6 +34,7 @@ import 'Dashboard/sevicecustomer.dart';
 import 'Logs/irrigation_and_pump_log.dart';
 import 'ProgramSchedule.dart';
 import 'PumpControllerScreen/PumpDashboard.dart';
+import 'ScheduleView.dart';
 
 
 class CustomerScreenController extends StatefulWidget {
@@ -590,7 +590,26 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
             const SizedBox(width: 15,),
             Container(width: 1, height: 20, color: Colors.white54,),
             const SizedBox(width: 5,),
-            Text('Last sync : ${payload.syncDateTime}', style: const TextStyle(fontSize: 15, color: Colors.white70),),
+            Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  color: Colors.transparent
+              ),
+              width: 45,
+              height: 45,
+              child: IconButton(
+                tooltip: 'refresh',
+                onPressed: onRefreshClicked,
+                icon: const Icon(Icons.refresh),
+                color: Colors.white,
+                iconSize: 24.0,
+                hoverColor: Colors.cyan,
+              ),
+            ),
+            Text(
+              'Last sync @ : ${formatDateTime(DateTime.parse(payload.syncDateTime))}',
+              style: const TextStyle(fontSize: 15, color: Colors.white70),
+            )
 
           ],
         ),
@@ -648,28 +667,21 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     payload.payloadIrrLine.every((record) => record.irrigationPauseFlag == 1)
-                        ? const Icon(Icons.play_arrow_outlined, color: Colors.white)
-                        : const Icon(Icons.pause, color: Colors.white),
+                        ? const Icon(Icons.play_arrow_outlined, color: Colors.black)
+                        : const Icon(Icons.pause, color: Colors.black),
                     const SizedBox(width: 5),
                     Text(payload.payloadIrrLine.every((record) => record.irrigationPauseFlag == 1) ? 'RESUME ALL LINE' : 'PAUSE ALL LINE',
-                        style: const TextStyle(color: Colors.white)),
+                        style: const TextStyle(color: Colors.black)),
                   ],
                 ),
               ):
               const SizedBox(),
 
               const SizedBox(width: 10),
-              IconButton(tooltip : 'Ai-Controller', onPressed: (){
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MyGemini(),
-                  ),
-                );
-              }, icon: const CircleAvatar(
+              const IconButton(color: Colors.transparent, onPressed: null, icon: CircleAvatar(
                 radius: 17,
-                backgroundColor: Colors.white,
-                child: Icon(Icons.mic),
+                backgroundColor: Colors.black12,
+                child: Icon(Icons.mic, color: Colors.black26,),
               )),
               IconButton(tooltip : 'Help & Support', onPressed: (){
                 showMenu(
@@ -854,10 +866,10 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                 NavigationRailDestination(
                   padding: EdgeInsets.only(top: 5),
                   icon: Tooltip(
-                    message: 'Dashboard',
-                    child: Icon(Icons.dashboard_outlined),
+                    message: 'Home',
+                    child: Icon(Icons.home_outlined),
                   ),
-                  selectedIcon: Icon(Icons.dashboard_outlined, color: Colors.white,),
+                  selectedIcon: Icon(Icons.home, color: Colors.white,),
                   label: Text(''),
                 ),
                 NavigationRailDestination(
@@ -865,7 +877,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                     message: 'All my devices',
                     child: Icon(Icons.devices_other),
                   ),
-                  selectedIcon: Icon(Icons.devices_other, color: Colors.white),
+                  selectedIcon: Icon(Icons.devices_other_outlined, color: Colors.white),
                   label: Text(''),
                 ),
                 NavigationRailDestination(
@@ -873,7 +885,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                     message: 'Sent & Received',
                     child: Icon(Icons.question_answer_outlined),
                   ),
-                  selectedIcon: Icon(Icons.question_answer_outlined, color: Colors.white,),
+                  selectedIcon: Icon(Icons.question_answer, color: Colors.white,),
                   label: Text(''),
                 ),
                 NavigationRailDestination(
@@ -881,7 +893,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                     message: 'Controller Logs',
                     child: Icon(Icons.receipt_outlined),
                   ),
-                  selectedIcon: Icon(Icons.receipt_outlined, color: Colors.white,),
+                  selectedIcon: Icon(Icons.receipt, color: Colors.white,),
                   label: Text(''),
                 ),
                 NavigationRailDestination(
@@ -889,7 +901,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                     message: 'Weather',
                     child: Icon(CupertinoIcons.cloud_sun_bolt),
                   ),
-                  selectedIcon: Icon(CupertinoIcons.cloud_sun_bolt, color: Colors.white,),
+                  selectedIcon: Icon(CupertinoIcons.cloud_sun_bolt_fill, color: Colors.white,),
                   label: Text(''),
                 ),
                 NavigationRailDestination(
@@ -897,7 +909,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                     message: 'Service request',
                     child: Icon(Icons.support_agent),
                   ),
-                  selectedIcon: Icon(Icons.support_agent, color: Colors.white,),
+                  selectedIcon: Icon(Icons.support_agent_outlined, color: Colors.white,),
                   label: Text(''),
                 ),
                 NavigationRailDestination(
@@ -905,7 +917,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                     message: 'Settings',
                     child: Icon(Icons.settings_outlined),
                   ),
-                  selectedIcon: Icon(Icons.settings_outlined, color: Colors.white,),
+                  selectedIcon: Icon(Icons.settings, color: Colors.white,),
                   label: Text(''),
                 ),
               ],
@@ -985,22 +997,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                     ),
                   ),
                   const SizedBox(height: 15),
-                  Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.transparent
-                    ),
-                    width: 45,
-                    height: 45,
-                    child: IconButton(
-                      tooltip: 'refresh',
-                      onPressed: onRefreshClicked,
-                      icon: const Icon(Icons.refresh),
-                      color: Colors.white,
-                      iconSize: 24.0,
-                      hoverColor: Colors.cyan,
-                    ),
-                  ),
+                  AlarmButton(payload: payload, deviceID: mySiteList[siteIndex].master[masterIndex].deviceId, customerId: widget.customerId, controllerId: mySiteList[siteIndex].master[masterIndex].controllerId,),
                   const SizedBox(height: 15),
                   CircleAvatar(
                     radius: 20,
@@ -1009,7 +1006,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                       height: 45,
                       width: 45,
                       child: IconButton(
-                        tooltip: 'Show node list',
+                        tooltip: 'Node status',
                         onPressed: () {
                           sideSheet();
                         },
@@ -1029,7 +1026,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                     width: 45,
                     height: 45,
                     child: IconButton(
-                      tooltip: 'View all Node details',
+                      tooltip: 'Input/Output Connection details',
                       onPressed: () {
                         Navigator.push(context,
                           MaterialPageRoute(
@@ -1037,6 +1034,60 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                           ),
                         );
                       },
+                      icon: const Icon(Icons.settings_input_component_outlined),
+                      color: Colors.white,
+                      iconSize: 24.0,
+                      hoverColor: Colors.cyan,
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: Colors.transparent
+                    ),
+                    width: 45,
+                    height: 45,
+                    child: IconButton(
+                      tooltip: 'Program',
+                      onPressed: getPermissionStatusBySNo(context, 10) ? () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProgramSchedule(
+                              customerID: mySiteList[siteIndex].customerId,
+                              controllerID: mySiteList[siteIndex].master[masterIndex].controllerId,
+                              siteName: mySiteList[siteIndex].groupName,
+                              imeiNumber: mySiteList[siteIndex].master[masterIndex].deviceId,
+                              userId: widget.userId,
+                            ),
+                          ),
+                        );
+                      }:null,
+                      icon: const Icon(Icons.list_alt),
+                      color: Colors.white,
+                      iconSize: 24.0,
+                      hoverColor: Colors.cyan,
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: Colors.transparent
+                    ),
+                    width: 45,
+                    height: 45,
+                    child: IconButton(
+                      tooltip: 'Scheduled Program details',
+                      onPressed: getPermissionStatusBySNo(context, 3) ? () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ScheduleViewScreen(deviceId: mySiteList[siteIndex].master[masterIndex].deviceId, userId: widget.userId, controllerId: mySiteList[siteIndex].master[masterIndex].controllerId, customerId: widget.customerId),
+                          ),
+                        );
+                      }:null,
                       icon: const Icon(Icons.view_list_outlined),
                       color: Colors.white,
                       iconSize: 24.0,
@@ -1052,7 +1103,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                     width: 45,
                     height: 45,
                     child: IconButton(
-                      tooltip: 'Manual Mode',
+                      tooltip: 'Manual',
                       onPressed: getPermissionStatusBySNo(context, 2) ? () {
                         showGeneralDialog(
                           barrierLabel: "Side sheet",
@@ -1095,38 +1146,6 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                       hoverColor: Colors.cyan,
                     ),
                   ),
-                  const SizedBox(height: 15),
-                  Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.transparent
-                    ),
-                    width: 45,
-                    height: 45,
-                    child: IconButton(
-                      tooltip: 'Planning',
-                      onPressed: getPermissionStatusBySNo(context, 10) ? () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ProgramSchedule(
-                              customerID: mySiteList[siteIndex].customerId,
-                              controllerID: mySiteList[siteIndex].master[masterIndex].controllerId,
-                              siteName: mySiteList[siteIndex].groupName,
-                              imeiNumber: mySiteList[siteIndex].master[masterIndex].deviceId,
-                              userId: widget.userId,
-                            ),
-                          ),
-                        );
-                      }:null,
-                      icon: const Icon(Icons.list_alt),
-                      color: Colors.white,
-                      iconSize: 24.0,
-                      hoverColor: Colors.cyan,
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  AlarmButton(payload: payload, deviceID: mySiteList[siteIndex].master[masterIndex].deviceId, customerId: widget.customerId, controllerId: mySiteList[siteIndex].master[masterIndex].controllerId,),
                 ],
               ),
             ):
@@ -1301,7 +1320,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                     ),
                   );
                 } else {
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(); // Close the dialog
                   _showErrorDialog(context);
                 }
               },
@@ -1666,21 +1685,21 @@ class _SideSheetClassState extends State<SideSheetClass> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                const Expanded(child: Text('NODE LIST', style: TextStyle(color: Colors.black, fontSize: 15))),
-                IconButton(tooltip:'Node Hourly logs',onPressed: (){
+                const Expanded(child: Text('NODE STATUS', style: TextStyle(color: Colors.black, fontSize: 15))),
+                IconButton(tooltip:'Hourly Power Logs for the Node',onPressed: (){
                   Navigator.push(context,
                     MaterialPageRoute(
                       builder: (context) => NodeHrsLog(userId: widget.customerId, controllerId: widget.controllerId,),
                     ),
                   );
-                }, icon: const Icon(Icons.ssid_chart, color: primaryColorDark,)),
-                IconButton(tooltip:'Sensor Hourly logs',onPressed: (){
+                }, icon: const Icon(Icons.power_outlined, color: primaryColorDark,)),
+                IconButton(tooltip:'Hourly Sensor Logs',onPressed: (){
                   Navigator.push(context,
                     MaterialPageRoute(
                       builder: (context) => SensorHourlyLogs(userId: widget.customerId, controllerId: widget.controllerId,),
                     ),
                   );
-                }, icon: const Icon(Icons.sensors, color: primaryColorDark,)),
+                }, icon: const Icon(Icons.settings_input_antenna, color: primaryColorDark,)),
               ],
             ),
           ),
@@ -1855,12 +1874,12 @@ class _SideSheetClassState extends State<SideSheetClass> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             widget.nodeList[index].rlyStatus.any((rly) => rly.Status == 2 || rly.Status == 3)? const Icon(Icons.warning, color: Colors.orangeAccent):
-                            const Icon(Icons.info_outline, color: primaryColorDark,),
+                            const Icon(Icons.info_outline,),
                             IconButton(
                               onPressed: () {
                                 showEditProductDialog(context, widget.nodeList[index].deviceName, widget.nodeList[index].controllerId, index);
                               },
-                              icon: const Icon(Icons.edit_outlined),
+                              icon: const Icon(Icons.edit_outlined, color: primaryColorDark,),
                             ),
                           ],
                         ),
@@ -1911,14 +1930,14 @@ class _SideSheetClassState extends State<SideSheetClass> {
                                   trailing: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Icon(Icons.solar_power_outlined, color: primaryColorDark),
+                                      const Icon(Icons.solar_power),
                                       const SizedBox(width: 5),
                                       Text(
                                         '${widget.nodeList[index].sVolt} - V',
                                         style: const TextStyle(fontWeight: FontWeight.normal),
                                       ),
                                       const SizedBox(width: 5),
-                                      const Icon(Icons.battery_3_bar_rounded, color: primaryColorDark),
+                                      const Icon(Icons.battery_3_bar_rounded),
                                       const SizedBox(width: 5),
                                       Text(
                                         '${widget.nodeList[index].batVolt} - V',
@@ -1926,7 +1945,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                                       ),
                                       const SizedBox(width: 5),
                                       IconButton(
-                                        tooltip: 'Serial set for all Relay',
+                                        tooltip: 'Serial set',
                                         onPressed: getPermissionStatusBySNo(context, 7) ? () {
                                           String payLoadFinal = jsonEncode({
                                             "2300": [
@@ -1937,7 +1956,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                                           sentToServer('Serial set for the ${widget.nodeList[index].deviceName} all Relay', payLoadFinal);
                                           GlobalSnackBar.show(context, 'Your comment sent successfully', 200);
                                         }:null,
-                                        icon: Icon(Icons.fact_check_outlined, color: getPermissionStatusBySNo(context, 7) ? Colors.teal:Colors.black26),
+                                        icon: Icon(Icons.fact_check_outlined, color: getPermissionStatusBySNo(context, 7) ? primaryColorDark:Colors.black26),
                                       )
                                     ],
                                   ),
@@ -1989,7 +2008,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                                       child: GridView.builder(
                                         itemCount: widget.nodeList[index].rlyStatus.length, // Number of items in the grid
                                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 6,
+                                          crossAxisCount: 5,
                                           crossAxisSpacing: 5.0,
                                           mainAxisSpacing: 5.0,
                                           childAspectRatio: 1.45,
@@ -2027,7 +2046,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                                                     : widget.nodeList[index].rlyStatus[indexGv].name)
                                                     .toString(),
                                                 style:
-                                                const TextStyle(color: Colors.black, fontSize: 8),
+                                                const TextStyle(color: Colors.black, fontSize: 9),
                                               ),
                                             ],
                                           );
@@ -2047,18 +2066,21 @@ class _SideSheetClassState extends State<SideSheetClass> {
                                       child: GridView.builder(
                                         itemCount: widget.nodeList[index].sensor.length, // Number of items in the grid
                                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 6,
+                                          crossAxisCount: 5,
                                           crossAxisSpacing: 5.0,
                                           mainAxisSpacing: 5.0,
                                           childAspectRatio: 1.45,
                                         ),
                                         itemBuilder: (BuildContext context, int indexSnr) {
                                           return Column(
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            mainAxisAlignment: MainAxisAlignment.center,
                                             children: [
                                               CircleAvatar(
                                                 radius: 13,
                                                 backgroundColor: Colors.black38,
                                                 child: Text(
+                                                  textAlign: TextAlign.center,
                                                   (widget.nodeList[index].sensor[indexSnr].angIpNo !=
                                                       null
                                                       ? 'A-${widget.nodeList[index].sensor[indexSnr].angIpNo}'
@@ -2120,7 +2142,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
             ),
             Row(
               children: [
-                const Expanded(child: Text('NODE LIST', style: TextStyle(color: Colors.black, fontSize: 15))),
+                const Expanded(child: Text('NODE STATUS', style: TextStyle(color: Colors.black, fontSize: 15))),
                 SizedBox(
                   width: 40,
                   child: IconButton(
@@ -2325,7 +2347,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                                           const SizedBox(width: 5,),
                                           Text('${widget.nodeList[index].batVolt} Volt', style: const TextStyle(fontWeight: FontWeight.normal),),
                                           const SizedBox(width: 5,),
-                                          IconButton(tooltip : 'Serial set for all Relay', onPressed: (){
+                                          IconButton(tooltip : 'Serial set', onPressed: (){
                                             String payLoadFinal = jsonEncode({
                                               "2300": [
                                                 {"2301": "${widget.nodeList[index].serialNumber}"},
@@ -2399,7 +2421,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                           );
                         },
                       ),
-                      IconButton(onPressed: (){}, icon: Icon(Icons.edit)),
+                      IconButton(tooltip:'Change node name', onPressed: (){}, icon: const Icon(Icons.edit, color: primaryColorDark,)),
                     ],
                   ))),
                 ])),
@@ -2458,8 +2480,8 @@ class _SideSheetClassState extends State<SideSheetClass> {
   }
 
   double calculateGridHeight(int itemCount) {
-    int rows = (itemCount / 6).ceil();
-    return rows * 45;
+    int rows = (itemCount / 5).ceil();
+    return rows * 53;
   }
 
 }

@@ -13,6 +13,7 @@ import '../../Models/customer_product.dart';
 import '../../Models/interface_model.dart';
 import '../../constants/MQTTManager.dart';
 import '../../constants/http_service.dart';
+import '../../constants/snack_bar.dart';
 import '../Config/product_limit.dart';
 import '../Customer/ConfigDashboard/configMakerView.dart';
 
@@ -383,10 +384,11 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
                                 "createUser": widget.userID,
                                 "products": salesList,
                               };
-
+                              print(body);
                               final response = await HttpService().postRequest("transferProduct", body);
                               if(response.statusCode == 200)
                               {
+                                print(response.body);
                                 var data = jsonDecode(response.body);
                                 if(data["code"]==200)
                                 {
@@ -406,8 +408,7 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
                                   getMasterProduct();
                                 }
                                 else{
-                                  //_showSnackBar(data["message"]);
-                                  //_showAlertDialog('Warning', data["message"]);
+                                  GlobalSnackBar.show(context, data["message"], data["code"]);
                                 }
                               }
                             }
@@ -892,9 +893,9 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
                                       if (data["code"] == 200) {
                                         getCustomerSite();
                                         getMasterProduct();
-                                        _showSnackBar(data["message"]);
+                                        GlobalSnackBar.show(context, data["message"], data["code"]);
                                       } else {
-                                        _showSnackBar(data["message"]);
+                                        GlobalSnackBar.show(context, data["message"], data["code"]);
                                       }
                                     }
                                   },
@@ -1155,16 +1156,16 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
                                                   if (response.statusCode == 200) {
                                                     var data = jsonDecode(response.body);
                                                     if (data["code"] == 200) {
-                                                      _showSnackBar(data["message"]);
+                                                      GlobalSnackBar.show(context, data["message"], data["code"]);
                                                       getCustomerSite();
                                                       //getNodeStockList();
                                                     }
                                                     else {
-                                                      _showSnackBar(data["message"]);
+                                                      GlobalSnackBar.show(context, data["message"], data["code"]);
                                                     }
                                                   }
                                                 }else{
-                                                  _showSnackBar('You can not delete the device, Because the device is used in config maker');
+                                                  GlobalSnackBar.show(context, 'You can not delete the device, Because the device is used in config maker', 400);
                                                 }
                                               },
                                               icon: const Icon(Icons.delete_outline, color: Colors.red,)),
@@ -1234,10 +1235,10 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
                                             if(data["code"]==200)
                                             {
                                               updatedInterface.clear();
-                                              _showSnackBar(data["message"]);
+                                              GlobalSnackBar.show(context, data["message"], data["code"]);
                                             }
                                             else{
-                                              _showSnackBar(data["message"]);
+                                              GlobalSnackBar.show(context, data["message"], data["code"]);
                                             }
                                           }
                                         },
@@ -1438,14 +1439,6 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
     }
   }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 3),
-      ),
-    );
-  }
 
   List<int> missingArray(List<int> no) {
     List<int> missingValues = [];

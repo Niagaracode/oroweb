@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import 'package:data_table_2/data_table_2.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../Models/Customer/Dashboard/DashBoardValve.dart';
 import '../../../Models/Customer/Dashboard/DashboardDataProvider.dart';
@@ -248,10 +250,9 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
       ) :
       screenWidth>600?Column(
         children: [
-          Container(
-            color:primaryColorLightGray,
-            width: 700,
-            height: 45,
+          SizedBox(
+            width: 750,
+            height: 50,
             child: Row(
               children: [
                 programList.length>1 ? SizedBox(
@@ -259,6 +260,7 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                   child: DropdownButtonFormField(
                     value: programList.isNotEmpty ? programList[ddCurrentPosition] : null,
                     decoration: const InputDecoration(
+                      labelText: 'Select by',
                       contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
                       border: InputBorder.none,
                       focusedBorder: InputBorder.none,
@@ -335,15 +337,18 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                   ),
                 ),
 
-                const SizedBox(width: 8,),
+                const SizedBox(width: 5,),
 
                 _segmentWithFlow.index == 1 ? SizedBox(
-                  width: 100,
+                  width: 85,
                   child: TextButton(
                     onPressed: () {
                       _showDurationInputDialog(context);
                     },
                     style: ButtonStyle(
+                      padding: WidgetStateProperty.all(
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                      ),
                       backgroundColor: WidgetStateProperty.all<Color>(myTheme.primaryColor.withOpacity(0.2)),
                       shape: WidgetStateProperty.all<OutlinedBorder>(
                         RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
@@ -354,7 +359,7 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                 ) :
                 Container(),
                 _segmentWithFlow.index == 2 ? SizedBox(
-                  width: 100,
+                  width: 85,
                   child: TextField(
                     maxLength: 7,
                     controller: _flowLiter,
@@ -375,10 +380,11 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                 ):
                 Container(),
 
-                const SizedBox(width: 8,),
+                const SizedBox(width: 5,),
               ],
             ),
           ),
+          const Divider(height: 4),
           Expanded(
             child: Row(
               children: [
@@ -405,9 +411,9 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                         Container(
                                           width: MediaQuery.of(context).size.width,
                                           height: 40,
-                                          decoration: const BoxDecoration(
-                                            color: primaryColorLightGray,
-                                            borderRadius: BorderRadius.only(
+                                          decoration: BoxDecoration(
+                                            color: Colors.teal.shade50, // Background color (optional)
+                                            borderRadius: const BorderRadius.only(
                                               topLeft: Radius.circular(5.0),
                                               topRight: Radius.circular(5.0),
                                             ),
@@ -453,7 +459,8 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                                 child: Tooltip(
                                                   message: dashBoardData[0].sourcePump[index].selected? 'Close' : 'Open',
                                                   child: Switch(
-                                                    activeColor: primaryColorLight,
+                                                    hoverColor: Colors.pink.shade100,
+                                                    activeColor: Colors.teal,
                                                     value: dashBoardData[0].sourcePump[index].selected,
                                                     onChanged: (value) {
                                                       setState(() {
@@ -491,9 +498,9 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                         Container(
                                           width: MediaQuery.of(context).size.width,
                                           height: 40,
-                                          decoration: const BoxDecoration(
-                                            color: primaryColorLightGray,
-                                            borderRadius: BorderRadius.only(
+                                          decoration: BoxDecoration(
+                                            color: Colors.teal.shade50, // Background color (optional)
+                                            borderRadius: const BorderRadius.only(
                                               topLeft: Radius.circular(5.0),
                                               topRight: Radius.circular(5.0),
                                             ),
@@ -539,7 +546,8 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                                 child: Tooltip(
                                                   message: dashBoardData[0].irrigationPump[index].selected? 'Close' : 'Open',
                                                   child: Switch(
-                                                    activeColor: primaryColorLight,
+                                                    hoverColor: Colors.pink.shade100,
+                                                    activeColor: Colors.teal,
                                                     value: dashBoardData[0].irrigationPump[index].selected,
                                                     onChanged: (value) {
                                                       setState(() {
@@ -576,9 +584,9 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                         Container(
                                           width: MediaQuery.of(context).size.width,
                                           height: 40,
-                                          decoration: const BoxDecoration(
-                                            color: primaryColorLightGray,
-                                            borderRadius: BorderRadius.only(
+                                          decoration: BoxDecoration(
+                                            color: Colors.teal.shade50, // Background color (optional)
+                                            borderRadius: const BorderRadius.only(
                                               topLeft: Radius.circular(5.0),
                                               topRight: Radius.circular(5.0),
                                             ),
@@ -624,7 +632,8 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                                 child: Tooltip(
                                                   message: dashBoardData[0].mainValve[index].selected? 'Close' : 'Open',
                                                   child: Switch(
-                                                    activeColor: primaryColorLight,
+                                                    hoverColor: Colors.pink.shade100,
+                                                    activeColor: Colors.teal,
                                                     value: dashBoardData[0].mainValve[index].selected,
                                                     onChanged: (value) {
                                                       setState(() {
@@ -673,9 +682,9 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                                 Container(
                                                   width: MediaQuery.of(context).size.width,
                                                   height: 40,
-                                                  decoration: const BoxDecoration(
-                                                    color: primaryColorLightGray,
-                                                    borderRadius: BorderRadius.only(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.teal.shade50, // Background color (optional)
+                                                    borderRadius: const BorderRadius.only(
                                                       topLeft: Radius.circular(5.0),
                                                       topRight: Radius.circular(5.0),
                                                     ),
@@ -720,7 +729,8 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                                         child: Tooltip(
                                                           message: filters[index].selected? 'Close' : 'Open',
                                                           child: Switch(
-                                                            activeColor: primaryColorLight,
+                                                            hoverColor: Colors.pink.shade100,
+                                                            activeColor: Colors.teal,
                                                             value: filters[index].selected,
                                                             onChanged: (value) {
                                                               for (var i = 0; i < dashBoardData[0].centralFilterSite.length; i++) {
@@ -780,9 +790,9 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                                 Container(
                                                   width: MediaQuery.of(context).size.width,
                                                   height: 40,
-                                                  decoration: const BoxDecoration(
-                                                    color: primaryColorLightGray,
-                                                    borderRadius: BorderRadius.only(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.teal.shade50, // Background color (optional)
+                                                    borderRadius: const BorderRadius.only(
                                                       topLeft: Radius.circular(5.0),
                                                       topRight: Radius.circular(5.0),
                                                     ),
@@ -827,7 +837,8 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                                         child: Tooltip(
                                                           message: filters[index].selected? 'Close' : 'Open',
                                                           child: Switch(
-                                                            activeColor: primaryColorLight,
+                                                            hoverColor: Colors.pink.shade100,
+                                                            activeColor: Colors.teal,
                                                             value: filters[index].selected,
                                                             onChanged: (value) {
                                                               setState(() {
@@ -880,9 +891,9 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                                 Container(
                                                   width: MediaQuery.of(context).size.width,
                                                   height: 40,
-                                                  decoration: const BoxDecoration(
-                                                    color: primaryColorLightGray,
-                                                    borderRadius: BorderRadius.only(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.teal.shade50, // Background color (optional)
+                                                    borderRadius: const BorderRadius.only(
                                                       topLeft: Radius.circular(5.0),
                                                       topRight: Radius.circular(5.0),
                                                     ),
@@ -927,7 +938,8 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                                         child: Tooltip(
                                                           message: fertilizers[index].selected? 'Close' : 'Open',
                                                           child: Switch(
-                                                            activeColor: primaryColorLight,
+                                                            hoverColor: Colors.pink.shade100,
+                                                            activeColor: Colors.teal,
                                                             value: fertilizers[index].selected,
                                                             onChanged: (value) {
                                                               setState(() {
@@ -979,9 +991,9 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                                 Container(
                                                   width: MediaQuery.of(context).size.width,
                                                   height: 40,
-                                                  decoration: const BoxDecoration(
-                                                    color: primaryColorLightGray,
-                                                    borderRadius: BorderRadius.only(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.teal.shade50, // Background color (optional)
+                                                    borderRadius: const BorderRadius.only(
                                                       topLeft: Radius.circular(5.0),
                                                       topRight: Radius.circular(5.0),
                                                     ),
@@ -1026,7 +1038,8 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                                         child: Tooltip(
                                                           message: fertilizers[index].selected? 'Close' : 'Open',
                                                           child: Switch(
-                                                            activeColor: primaryColorLight,
+                                                            hoverColor: Colors.pink.shade100,
+                                                            activeColor: Colors.teal,
                                                             value: fertilizers[index].selected,
                                                             onChanged: (value) {
                                                               setState(() {
@@ -1068,9 +1081,9 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                         Container(
                                           width: MediaQuery.of(context).size.width,
                                           height: 40,
-                                          decoration: const BoxDecoration(
-                                            color: primaryColorLightGray,
-                                            borderRadius: BorderRadius.only(
+                                          decoration: BoxDecoration(
+                                            color: Colors.teal.shade50, // Background color (optional)
+                                            borderRadius: const BorderRadius.only(
                                               topLeft: Radius.circular(5.0),
                                               topRight: Radius.circular(5.0),
                                             ),
@@ -1116,7 +1129,8 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                                 child: Tooltip(
                                                   message: dashBoardData[0].agitator[index].selected? 'Close' : 'Open',
                                                   child: Switch(
-                                                    activeColor: primaryColorLight,
+                                                    hoverColor: Colors.pink.shade100,
+                                                    activeColor: Colors.teal,
                                                     value: dashBoardData[0].agitator[index].selected,
                                                     onChanged: (value) {
                                                       setState(() {
@@ -1153,9 +1167,9 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                         Container(
                                           width: MediaQuery.of(context).size.width,
                                           height: 40,
-                                          decoration: const BoxDecoration(
-                                            color: primaryColorLightGray,
-                                            borderRadius: BorderRadius.only(
+                                          decoration: BoxDecoration(
+                                            color: Colors.teal.shade50, // Background color (optional)
+                                            borderRadius: const BorderRadius.only(
                                               topLeft: Radius.circular(5.0),
                                               topRight: Radius.circular(5.0),
                                             ),
@@ -1201,7 +1215,8 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                                 child: Tooltip(
                                                   message: dashBoardData[0].fan[index].selected? 'Close' : 'Open',
                                                   child: Switch(
-                                                    activeColor: primaryColorLight,
+                                                    hoverColor: Colors.pink.shade100,
+                                                    activeColor: Colors.teal,
                                                     value: dashBoardData[0].fan[index].selected,
                                                     onChanged: (value) {
                                                       setState(() {
@@ -1238,9 +1253,9 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                         Container(
                                           width: MediaQuery.of(context).size.width,
                                           height: 40,
-                                          decoration: const BoxDecoration(
-                                            color: primaryColorLightGray,
-                                            borderRadius: BorderRadius.only(
+                                          decoration: BoxDecoration(
+                                            color: Colors.teal.shade50, // Background color (optional)
+                                            borderRadius: const BorderRadius.only(
                                               topLeft: Radius.circular(5.0),
                                               topRight: Radius.circular(5.0),
                                             ),
@@ -1286,7 +1301,8 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                                 child: Tooltip(
                                                   message: dashBoardData[0].fogger[index].selected? 'Close' : 'Open',
                                                   child: Switch(
-                                                    activeColor: primaryColorLight,
+                                                    hoverColor: Colors.pink.shade100,
+                                                    activeColor: Colors.teal,
                                                     value: dashBoardData[0].fogger[index].selected,
                                                     onChanged: (value) {
                                                       setState(() {
@@ -1323,9 +1339,9 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                         Container(
                                           width: MediaQuery.of(context).size.width,
                                           height: 40,
-                                          decoration: const BoxDecoration(
-                                            color: primaryColorLightGray,
-                                            borderRadius: BorderRadius.only(
+                                          decoration: BoxDecoration(
+                                            color: Colors.teal.shade50, // Background color (optional)
+                                            borderRadius: const BorderRadius.only(
                                               topLeft: Radius.circular(5.0),
                                               topRight: Radius.circular(5.0),
                                             ),
@@ -1371,7 +1387,8 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                                 child: Tooltip(
                                                   message: dashBoardData[0].boosterPump[index].selected? 'Close' : 'Open',
                                                   child: Switch(
-                                                    activeColor: primaryColorLight,
+                                                    hoverColor: Colors.pink.shade100,
+                                                    activeColor: Colors.teal,
                                                     value: dashBoardData[0].boosterPump[index].selected,
                                                     onChanged: (value) {
                                                       setState(() {
@@ -1408,9 +1425,9 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                         Container(
                                           width: MediaQuery.of(context).size.width,
                                           height: 40,
-                                          decoration: const BoxDecoration(
-                                            color: primaryColorLightGray,
-                                            borderRadius: BorderRadius.only(
+                                          decoration: BoxDecoration(
+                                            color: Colors.teal.shade50, // Background color (optional)
+                                            borderRadius: const BorderRadius.only(
                                               topLeft: Radius.circular(5.0),
                                               topRight: Radius.circular(5.0),
                                             ),
@@ -1456,7 +1473,8 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                                 child: Tooltip(
                                                   message: dashBoardData[0].selector[index].selected? 'Close' : 'Open',
                                                   child: Switch(
-                                                    activeColor: primaryColorLight,
+                                                    hoverColor: Colors.pink.shade100,
+                                                    activeColor: Colors.teal,
                                                     value: dashBoardData[0].selector[index].selected,
                                                     onChanged: (value) {
                                                       setState(() {
@@ -1501,7 +1519,7 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
               children: [
                 const SizedBox(width: 10),
                 MaterialButton(
-                  color: primaryColorPureRed,
+                  color: Colors.redAccent,
                   textColor: Colors.white,
                   onPressed:() async {
                     if(ddCurrentPosition==0){
@@ -1541,7 +1559,7 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                 ),
                 const SizedBox(width: 16),
                 MaterialButton(
-                  color: primaryColorPureGreen,
+                  color: Colors.green,
                   textColor: Colors.white,
                   onPressed:() {
                     standaloneSelection.clear();
@@ -1779,7 +1797,7 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
         children: [
           TabBar(
             controller: _tabController,
-            indicatorColor: primaryColorDark,
+            indicatorColor: Colors.teal,
             tabs: const [
               Tab(text: 'Main line'),
               Tab(text: 'Line'),
@@ -1803,7 +1821,7 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
                                 padding: EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
                                 child: Text('Source Pump'),
                               ),
-                              Container(
+                              SizedBox(
                                 height: dashBoardData[0].sourcePump.length * 65,
                                 child : ListView.builder(
                                   itemCount: dashBoardData[0].sourcePump.length,
@@ -2814,7 +2832,7 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
           ),
           actions: [
             MaterialButton(
-              color: primaryColorPureRed,
+              color: Colors.redAccent,
               textColor: Colors.white,
               onPressed:() async {
                 Navigator.of(context).pop();
@@ -2822,7 +2840,7 @@ class _RunByManualState extends State<RunByManual>  with SingleTickerProviderSta
               child: const Text('Cancel'),
             ),
             MaterialButton(
-              color: primaryColorDark,
+              color: Colors.teal,
               textColor: Colors.white,
               onPressed:() async {
                 if (_validateTime(_hoursController.text, 'hours') &&
@@ -2916,9 +2934,9 @@ class _DisplayLineOrSequenceState extends State<DisplayLineOrSequence> {
                 Container(
                   width: screenWidth>600? MediaQuery.of(context).size.width-400: MediaQuery.of(context).size.width,
                   height: 50,
-                  decoration: const BoxDecoration(
-                    color: primaryColorLightGray,
-                    borderRadius: BorderRadius.only(topRight: Radius.circular(5), topLeft: Radius.circular(5)),
+                  decoration: BoxDecoration(
+                    color: myTheme.primaryColor.withOpacity(0.1),
+                    borderRadius: const BorderRadius.only(topRight: Radius.circular(5), topLeft: Radius.circular(5)),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -2931,7 +2949,7 @@ class _DisplayLineOrSequenceState extends State<DisplayLineOrSequence> {
                       ),
 
                       if (widget.ddCurrentPosition!=0)
-                        const VerticalDivider(color: primaryColorLightGray),
+                        VerticalDivider(color: myTheme.primaryColor.withOpacity(0.1)),
 
                       if(widget.ddCurrentPosition!=0)
                         Center(
@@ -2941,7 +2959,8 @@ class _DisplayLineOrSequenceState extends State<DisplayLineOrSequence> {
                               scale: 0.7,
                               child: Switch(
                                 value: line.selected,
-                                activeColor: primaryColorLight,
+                                hoverColor: Colors.pink.shade100,
+                                activeColor: Colors.teal,
                                 onChanged: (value) {
                                   setState(() {
                                     for (var line in widget.lineOrSequence) {
@@ -2992,7 +3011,8 @@ class _DisplayLineOrSequenceState extends State<DisplayLineOrSequence> {
                           child: Tooltip(
                             message: groupedValves[valveLocation]![index].isOn? 'Close' : 'Open',
                             child: Switch(
-                              activeColor: primaryColorLight,
+                              hoverColor: Colors.pink.shade100,
+                              activeColor: Colors.teal,
                               value: groupedValves[valveLocation]![index].isOn,
                               onChanged: (value) {
                                 setState(() {

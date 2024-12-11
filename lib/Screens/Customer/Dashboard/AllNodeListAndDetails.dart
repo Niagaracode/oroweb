@@ -21,7 +21,7 @@ class _AllNodeListAndDetailsState extends State<AllNodeListAndDetails> {
     return Scaffold(
       backgroundColor: Colors.teal.shade50,
       appBar: AppBar(
-        title: const Text('All Node list and details'),
+        title: const Text('Input/Output connection details'),
         actions: [
           IconButton(tooltip: 'Set serial for all nodes', onPressed: (){
             /*String payLoadFinal = jsonEncode({
@@ -69,7 +69,7 @@ class _AllNodeListAndDetailsState extends State<AllNodeListAndDetails> {
                         const Icon(Icons.battery_3_bar_rounded),
                         Text('${widget.siteData.master[widget.masterInx].gemLive[0].nodeList[i].batVolt} Volt', style: const TextStyle(fontWeight: FontWeight.normal),),
                         const SizedBox(width: 5,),
-                        IconButton(tooltip : 'Serial set for all Relay', onPressed: (){
+                        IconButton(tooltip : 'Serial set', onPressed: (){
                           String payLoadFinal = jsonEncode({
                             "2300": [
                               {"2301": "${widget.siteData.master[widget.masterInx].gemLive[0].nodeList[i].serialNumber}"},
@@ -210,5 +210,6 @@ class _AllNodeListAndDetailsState extends State<AllNodeListAndDetails> {
       ),
     );
   }
+
 
 }

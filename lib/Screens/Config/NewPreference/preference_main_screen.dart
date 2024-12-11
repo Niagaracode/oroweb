@@ -82,7 +82,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
       }
     }
     // overAllPvd = Provider.of<OverAllUse>(context, listen: true);
-    if(preferenceProvider.commonPumpSettings != null){
+    if(preferenceProvider.generalDataResult != null && preferenceProvider.commonPumpSettings != null){
       return LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
             return Scaffold(

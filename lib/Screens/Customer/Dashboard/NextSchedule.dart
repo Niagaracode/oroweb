@@ -120,7 +120,7 @@ class _NextScheduleState extends State<NextSchedule> {
           minWidth: 1000,
           dataRowHeight: 45.0,
           headingRowHeight: 40.0,
-          headingRowColor: MaterialStateProperty.all<Color>(Colors.orange.shade50),
+          headingRowColor: WidgetStateProperty.all<Color>(Colors.orange.shade50),
           columns: const [
             DataColumn2(
                 label: Text('Name', style: TextStyle(fontSize: 13),),
@@ -148,7 +148,7 @@ class _NextScheduleState extends State<NextSchedule> {
                 size: ColumnSize.M
             ),
             DataColumn2(
-                label: Center(child: Text('Total(Duration/Flow)', style: TextStyle(fontSize: 13),)),
+                label: Center(child: Text('Set(Duration/Flow)', style: TextStyle(fontSize: 13),)),
                 size: ColumnSize.M
             ),
           ],

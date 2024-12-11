@@ -529,3 +529,23 @@ double convertMetersToInches(double meters) {
 double convertBarToKPa(double bar) {
   return bar * 100;
 }
+
+String formatDateTime(DateTime dateTime) {
+  final now = DateTime.now();
+  final todayStart = DateTime(now.year, now.month, now.day);
+  final yesterdayStart = todayStart.subtract(const Duration(days: 1));
+  final difference = now.difference(dateTime);
+
+  if (dateTime.isAfter(todayStart)) {
+    return 'Today ${DateFormat('hh:mm a').format(dateTime)}';
+  } else if (dateTime.isAfter(yesterdayStart)) {
+    return 'Yesterday ${DateFormat('hh:mm a').format(dateTime)}';
+  } else if (difference.inDays <= 7) {
+    return '${difference.inDays} days ago';
+  } else if (difference.inDays <= 30) {
+    int weeks = (difference.inDays / 7).floor();
+    return '$weeks week${weeks > 1 ? 's' : ''} ago';
+  } else {
+    return DateFormat('MMM d, yyyy').format(dateTime);
+  }
+}

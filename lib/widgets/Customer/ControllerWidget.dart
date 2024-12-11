@@ -105,7 +105,7 @@ class _MasterControllerState extends State<MasterController>{
                 ),
                 width: 45,
                 height: 45,
-                child: IconButton(tooltip:'View all Node details', onPressed: (){
+                child: IconButton(tooltip:'Input/Output Connection details', onPressed: (){
                   //showNodeDetailsBottomSheet(context);
                 }, icon: const Icon(Icons.grid_view, color: Colors.white)),
               ),
