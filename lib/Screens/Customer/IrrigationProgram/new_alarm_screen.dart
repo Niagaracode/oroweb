@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:oro_irrigation_new/Screens/Customer/IrrigationProgram/schedule_screen.dart';
+import 'package:oro_irrigation_new/Screens/Customer/IrrigationProgram/water_and_fertilizer_screen.dart';
 import 'package:oro_irrigation_new/state_management/irrigation_program_main_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../ScheduleView.dart';
-import '../ScheduleView.dart';
 
 class NewAlarmScreen2 extends StatefulWidget {
   const NewAlarmScreen2({super.key});
@@ -74,17 +73,13 @@ class _NewAlarmScreen2State extends State<NewAlarmScreen2> {
                       const SizedBox(height: 5,),
                       Expanded(
                         child: SingleChildScrollView(
-                          child: Wrap(
-                            alignment: WrapAlignment.start,
-                            runAlignment: WrapAlignment.start,
-                            spacing: 5,
-                            runSpacing: 8,
-                            children: [
-                              for(var index = 0; index < alarmProvider.newAlarmList!.alarmList.length; index++)
-                                Container(
-                                  width: 310,
-                                  // margin: EdgeInsets.symmetric(vertical: 5),
-                                  child: Column(
+                          child: customizeGridView(
+                              maxWith: 400,
+                              maxHeight: 90,
+                              screenWidth: constraints.maxWidth,
+                              listOfWidget: [
+                                for(var index = 0; index < alarmProvider.newAlarmList!.alarmList.length; index++)
+                                  Column(
                                     children: [
                                       buildCustomListTile(
                                           context: context,
@@ -102,42 +97,47 @@ class _NewAlarmScreen2State extends State<NewAlarmScreen2> {
                                       ),
                                       SizedBox(height: index == alarmProvider.newAlarmList!.alarmList.length - 1 ? 50 : 10,)
                                     ],
-                                  ),
-                                )
-                            ],
+                                  )
+                              ]
                           ),
                         ),
                       ),
                       // Expanded(
-                      //     child: ListView.builder(
-                      //         itemCount: alarmProvider.newAlarmList!.alarmList.length,
-                      //         itemBuilder: (BuildContext context, int index) {
-                      //           final item = alarmProvider.newAlarmList!.alarmList[index];
-                      //           return Container(
-                      //             margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05, vertical: 5),
+                      //   child: SingleChildScrollView(
+                      //     child: Wrap(
+                      //       alignment: WrapAlignment.start,
+                      //       runAlignment: WrapAlignment.start,
+                      //       spacing: 5,
+                      //       runSpacing: 8,
+                      //       children: [
+                      //         for(var index = 0; index < alarmProvider.newAlarmList!.alarmList.length; index++)
+                      //           SizedBox(
+                      //             width: 310,
+                      //             // margin: EdgeInsets.symmetric(vertical: 5),
                       //             child: Column(
                       //               children: [
                       //                 buildCustomListTile(
                       //                     context: context,
                       //                     padding: const EdgeInsets.symmetric(vertical: 8),
-                      //                     title: item.name,
+                      //                     title: alarmProvider.newAlarmList!.alarmList[index].name,
                       //                     // icon: Icons.alarm,
                       //                     icon: iconList[index],
                       //                     isSwitch: true,
-                      //                     switchValue: item.value,
+                      //                     switchValue: alarmProvider.newAlarmList!.alarmList[index].value,
                       //                     onSwitchChanged: (newValue) {
                       //                       setState(() {
-                      //                         item.value = newValue;
+                      //                         alarmProvider.newAlarmList!.alarmList[index].value = newValue;
                       //                       });
                       //                     }
                       //                 ),
                       //                 SizedBox(height: index == alarmProvider.newAlarmList!.alarmList.length - 1 ? 50 : 10,)
                       //               ],
                       //             ),
-                      //           );
-                      //         }
-                      //     )
-                      // )
+                      //           )
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 );

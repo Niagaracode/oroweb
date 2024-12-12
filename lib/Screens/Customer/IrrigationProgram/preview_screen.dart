@@ -193,13 +193,13 @@ class _PreviewScreenState extends State<PreviewScreen> {
                       child: Row(
                         children: [
                           Expanded(
-                              child: (filterCategoryCondition)
-                                  ? buildFilterDetails(localFilterCondition: localFilterCondition) : Container()
+                              child: (fertilizerCategoryCondition || fertilizerCondition)
+                                  ? buildFertilizerDetails(centralSelectorCondition: centralSelectorCondition) : Container()
                           ),
                           const SizedBox(width: 10,),
                           Expanded(
-                              child: (fertilizerCategoryCondition || fertilizerCondition)
-                                  ? buildFertilizerDetails(centralSelectorCondition: centralSelectorCondition) : Container()
+                              child: (filterCategoryCondition)
+                                  ? buildFilterDetails(localFilterCondition: localFilterCondition) : Container()
                           ),
                         ],
                       ),

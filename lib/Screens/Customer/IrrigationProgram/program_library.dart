@@ -634,7 +634,7 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
               // print(programProvider.programLibrary!.program.where((element) => element.programName.isNotEmpty).length);
               if(programProvider.programLibrary!.program.where((element) => element.programName.isNotEmpty).length < programProvider.programLibrary!.programLimit){
                 return AlertDialog(
-                  title: const Text("Select Program type"),
+                  title: Text("Select Program type", style: TextStyle(color: Theme.of(context).primaryColor),),
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: programProvider.programLibrary!.programType.map((e) {
@@ -648,7 +648,7 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                   actions: [
                     TextButton(
                         onPressed: () => Navigator.pop(dialogContext),
-                        child: const Text('Cancel')),
+                        child: const Text('Cancel', style: TextStyle(color: Colors.red),)),
                     TextButton(
                         onPressed: () {
                           Navigator.pop(dialogContext);

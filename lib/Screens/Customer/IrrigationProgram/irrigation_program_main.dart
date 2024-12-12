@@ -150,7 +150,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
     int selectedIndex = mainProvider.selectedTabIndex;
     // print("irrigation program class");
 
-    if(mainProvider.irrigationLine != null || mainProvider.programDetails != null) {
+    if(mainProvider.irrigationLine != null && mainProvider.programDetails != null) {
       final program = mainProvider.programDetails!.programName.isNotEmpty
           ? mainProvider.programName == ''? "Program ${mainProvider.programCount+1}" : mainProvider.programName
           : mainProvider.programDetails!.defaultProgramName;

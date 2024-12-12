@@ -159,25 +159,64 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           child: Text(irrigationProgramProvider.selectedScheduleType,
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),),
                         ),
-                        buildPopUpMenuButton(
-                            context: context,
-                            dataList: irrigationProgramProvider.scheduleTypes,
-                            onSelected: (selectedValue) => irrigationProgramProvider.updateSelectedScheduleType(selectedValue),
-                            child: Container(
-                              padding: const EdgeInsets.all(8.0),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Theme.of(context).primaryColor
-                                // border: Border.all(color: Colors.grey)
-                              ),
-                              child: const Row(
-                                children: [
-                                  Text("Change schedule type", style: TextStyle(color: Colors.white),),
-                                  SizedBox(width: 5,),
-                                  Icon(Icons.edit, color: Colors.white,)
-                                ],
-                              ),
-                            )
+                        InkWell(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return SimpleDialog(
+                                  title: Text('Select schedule type', style: TextStyle(color: Theme.of(context).primaryColor),),
+                                  children: [
+                                    for(var i = 0; i < irrigationProgramProvider.scheduleTypes.length; i++)
+                                      Column(
+                                        children: [
+                                          SimpleDialogOption(
+                                            onPressed: () {
+                                              irrigationProgramProvider.updateSelectedScheduleType(irrigationProgramProvider.scheduleTypes[i]);
+                                              Navigator.pop(context);
+                                            },
+                                            padding: EdgeInsets.zero,
+                                            child: ListTile(
+                                              contentPadding: EdgeInsets.symmetric(horizontal: 20),
+                                              title: Text(irrigationProgramProvider.scheduleTypes[i]),
+                                              subtitle: Text(
+                                                  ["Manually start whenever needed",
+                                                    "Schedule for specific days",
+                                                    "Schedule based on run days, skip days",
+                                                    '1. Without cycle limit, program will run continuously \n2. With cycle limit, program will run daily at real time clock by setting start time'][i]
+                                              ),
+                                              trailing: Icon(
+                                                irrigationProgramProvider.selectedScheduleType != irrigationProgramProvider.scheduleTypes[i]
+                                                    ? Icons.radio_button_off
+                                                    : Icons.radio_button_checked,
+                                                color: irrigationProgramProvider.selectedScheduleType == irrigationProgramProvider.scheduleTypes[i] ? Theme.of(context).primaryColor : null,
+                                              ),
+                                            ),
+                                          ),
+                                          if(i != irrigationProgramProvider.scheduleTypes.length-1)
+                                            Divider(endIndent: 20, indent: 20,)
+                                        ],
+                                      ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(8.0),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: Theme.of(context).primaryColor
+                              // border: Border.all(color: Colors.grey)
+                            ),
+                            child: const Row(
+                              children: [
+                                Text("Select schedule type", style: TextStyle(color: Colors.white),),
+                                SizedBox(width: 5,),
+                                Icon(Icons.edit, color: Colors.white,)
+                              ],
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -870,117 +909,84 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         if(scheduleType == irrigationProgramProvider.scheduleTypes[1])
           CustomAnimatedSwitcher(
             condition: int.parse(noOfDays) != 0,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  // margin: const EdgeInsets.symmetric(horizontal: 30),
-                  child: GestureDetector(
-                    onHorizontalDragUpdate: (details) {
-                      _scrollController.jumpTo(_scrollController.offset - details.primaryDelta! / 2);
-                    },
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      controller: _scrollController,
-                      child: Center(
-                        child: Row(
+            child: GestureDetector(
+              onHorizontalDragUpdate: (details) {
+                _scrollController.jumpTo(_scrollController.offset - details.primaryDelta! / 2);
+              },
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                controller: _scrollController,
+                child: Center(
+                  child: Row(
+                    children: [
+                      for(var index = 0; index < int.parse(noOfDays); index++)
+                        Row(
                           children: [
-                            for(var index = 0; index < int.parse(noOfDays); index++)
-                              Row(
-                                children: [
-                                  buildPopUpMenuButton(
-                                      context: context,
-                                      dataList: irrigationProgramProvider.scheduleOptions,
-                                      selected: (type != null && type.isNotEmpty) ? type[index] : irrigationProgramProvider.scheduleOptions[2],
-                                      onSelected: (newValue) {
-                                        irrigationProgramProvider.updateDropdownValue(index, newValue);
-                                      },
-                                      child: Card(
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(10)
-                                        ),
-                                        surfaceTintColor: cardColor,
-                                        color: cardColor,
-                                        elevation: 3,
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets.all(8.0),
-                                                    child: Text(days[index]),
-                                                  ),
-                                                  Padding(
-                                                    padding: const EdgeInsets.all(8.0),
-                                                    child: Text('${(type != null && type.isNotEmpty) ? type[index] : irrigationProgramProvider.scheduleOptions[2]}', style: TextStyle(color: Theme.of(context).primaryColor),),
-                                                  )
-                                                ],
-                                              ),
-                                              const SizedBox(width: 10,),
-                                              Container(
-                                                  decoration: const BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    gradient: linearGradientLeading,
-                                                  ),
-                                                  child: CircleAvatar(
-                                                    backgroundColor: Colors.transparent,
-                                                    radius: 20,
-                                                    child: Icon((type != null && type.isNotEmpty) ? (type[index] == irrigationProgramProvider.scheduleOptions[0]
-                                                        ? iconList[0]
-                                                        : type[index] == irrigationProgramProvider.scheduleOptions[1]
-                                                        ? iconList[1]
-                                                        : type[index] == irrigationProgramProvider.scheduleOptions[2]
-                                                        ? iconList[2]
-                                                        : iconList[3]) : iconList[2],
-                                                      color: Colors.white,),
-                                                    // child: Text('${index + 1}', style: const TextStyle(color: Colors.white)),
-                                                  )
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      )
+                            buildPopUpMenuButton(
+                                context: context,
+                                dataList: irrigationProgramProvider.scheduleOptions,
+                                selected: (type != null && type.isNotEmpty) ? type[index] : irrigationProgramProvider.scheduleOptions[2],
+                                onSelected: (newValue) {
+                                  irrigationProgramProvider.updateDropdownValue(index, newValue);
+                                },
+                                child: Card(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)
                                   ),
-                                  const SizedBox(width: 10,)
-                                ],
-                              )
+                                  surfaceTintColor: cardColor,
+                                  color: cardColor,
+                                  elevation: 3,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.all(8.0),
+                                              child: Text(days[index]),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.all(8.0),
+                                              child: Text('${(type != null && type.isNotEmpty) ? type[index] : irrigationProgramProvider.scheduleOptions[2]}', style: TextStyle(color: Theme.of(context).primaryColor),),
+                                            )
+                                          ],
+                                        ),
+                                        const SizedBox(width: 10,),
+                                        Container(
+                                            decoration: const BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              gradient: linearGradientLeading,
+                                            ),
+                                            child: CircleAvatar(
+                                              backgroundColor: Colors.transparent,
+                                              radius: 20,
+                                              child: Icon((type != null && type.isNotEmpty) ? (type[index] == irrigationProgramProvider.scheduleOptions[0]
+                                                  ? iconList[0]
+                                                  : type[index] == irrigationProgramProvider.scheduleOptions[1]
+                                                  ? iconList[1]
+                                                  : type[index] == irrigationProgramProvider.scheduleOptions[2]
+                                                  ? iconList[2]
+                                                  : iconList[3]) : iconList[2],
+                                                color: Colors.white,),
+                                              // child: Text('${index + 1}', style: const TextStyle(color: Colors.white)),
+                                            )
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                )
+                            ),
+                            const SizedBox(width: 10,)
                           ],
-                        ),
-                      ),
-                    ),
+                        )
+                    ],
                   ),
                 ),
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: [
-                //     IconButton(
-                //       icon: const Icon(Icons.arrow_back_ios),
-                //       onPressed: () {
-                //         _scrollController.animateTo(
-                //           _scrollController.position.pixels - 200,
-                //           duration: const Duration(milliseconds: 500),
-                //           curve: Curves.easeInOut,
-                //         );
-                //       },
-                //     ),
-                //     IconButton(
-                //       icon: const Icon(Icons.arrow_forward_ios),
-                //       onPressed: () {
-                //         _scrollController.animateTo(
-                //           _scrollController.position.pixels + 200,
-                //           duration: const Duration(milliseconds: 500),
-                //           curve: Curves.easeInOut,
-                //         );
-                //       },
-                //     ),
-                //   ],
-                // )
-              ],
+              ),
             ),
           ),
         if(scheduleType == irrigationProgramProvider.scheduleTypes[1])
