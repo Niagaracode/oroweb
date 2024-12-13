@@ -25,7 +25,6 @@ import '../product_inventory.dart';
 import 'AccountManagement.dart';
 import 'CustomerDashboard.dart';
 import 'Dashboard/AllNodeListAndDetails.dart';
-import 'Dashboard/ControllerLogs.dart';
 import 'Dashboard/ControllerSettings.dart';
 import 'Dashboard/NodeHourlyLog/NodeHrsLog.dart';
 import 'Dashboard/RunByManual.dart';

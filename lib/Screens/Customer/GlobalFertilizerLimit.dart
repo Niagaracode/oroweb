@@ -9,7 +9,6 @@ import '../../Widgets/HoursMinutesSeconds.dart';
 import '../../constants/MQTTManager.dart';
 import '../../constants/http_service.dart';
 import '../../constants/theme.dart';
-import '../../state_management/FertilizerSetProvider.dart';
 import '../../state_management/GlobalFertLimitProvider.dart';
 import '../../state_management/overall_use.dart';
 import '../../widgets/TextFieldForGlobalFert.dart';

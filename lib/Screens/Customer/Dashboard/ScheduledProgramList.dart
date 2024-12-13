@@ -1,7 +1,5 @@
-import 'dart:async';
 import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:calendar_view/calendar_view.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -13,7 +11,6 @@ import '../../../constants/MyFunction.dart';
 import '../../../constants/http_service.dart';
 import '../../../constants/snack_bar.dart';
 import '../../../state_management/MqttPayloadProvider.dart';
-import '../ScheduleView.dart';
 
 class ScheduledProgramList extends StatelessWidget {
   ScheduledProgramList({Key? key, required this.siteData, required this.userId, required this.scheduledPrograms, required this.masterInx}) : super(key: key);

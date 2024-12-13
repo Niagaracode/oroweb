@@ -3,11 +3,9 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_irrigation_new/Screens/Customer/IrrigationProgram/water_and_fertilizer_screen.dart';
-import 'package:provider/provider.dart';
 import '../../constants/MQTTManager.dart';
 import '../../constants/http_service.dart';
 import '../../constants/theme.dart';
-import '../../state_management/overall_use.dart';
 import '../Config/Constant/general_in_constant.dart';
 
 class Calibration extends StatefulWidget {

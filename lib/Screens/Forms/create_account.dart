@@ -9,7 +9,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../Models/country_list.dart';
 import '../../Models/state_list.dart';
 import '../../constants/http_service.dart';
-import '../../constants/snack_bar.dart';
 import '../../constants/theme.dart';
 
 class CreateAccount extends StatefulWidget {

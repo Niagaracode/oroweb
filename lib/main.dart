@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
-import 'package:oro_irrigation_new/MyGemini.dart';
-import 'package:oro_irrigation_new/Screens/Config/NewPreference/preference_main_screen.dart';
 import 'package:oro_irrigation_new/Screens/map/maplatlong_provider.dart';
 import 'package:oro_irrigation_new/constants/theme.dart';
 import 'package:oro_irrigation_new/screens/DashBoard.dart';

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:oro_irrigation_new/Screens/Config/Constant/general_in_constant.dart';
-import 'package:oro_irrigation_new/Screens/Customer/IrrigationProgram/schedule_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../../../state_management/constant_provider.dart';

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:mqtt_client/mqtt_browser_client.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:uuid/uuid.dart';

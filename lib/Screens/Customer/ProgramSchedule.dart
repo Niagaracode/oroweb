@@ -9,7 +9,6 @@ import 'package:oro_irrigation_new/screens/Customer/virtual_screen.dart';
 import 'package:oro_irrigation_new/screens/Customer/watersourceUI.dart';
 import 'package:provider/provider.dart';
 
-import '../../Models/IrrigationModel/sequence_model.dart';
 import '../../constants/http_service.dart';
 import '../../state_management/FertilizerSetProvider.dart';
 import '../Config/Constant/constant_tab_bar_view.dart';
@@ -18,7 +17,6 @@ import '../map/custommarker.dart';
 import 'FertilizerSet.dart';
 import 'GlobalFertilizerLimit.dart';
 import 'IrrigationProgram/program_library.dart';
-import 'ScheduleView.dart';
 import 'WeatherScreen.dart';
 import 'calibration.dart';
 import 'conditionscreen.dart';

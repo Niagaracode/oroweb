@@ -10,7 +10,6 @@ import 'package:intl/intl.dart';
 import 'dart:html' if (dart.library.html) 'dart:html' as html;
 
 import '../../constants/http_service.dart';
-import '../../state_management/irrigation_program_main_provider.dart';
 import '../../state_management/schedule_view_provider.dart';
 import '../../widgets/SCustomWidgets/custom_date_range_picker.dart';
 

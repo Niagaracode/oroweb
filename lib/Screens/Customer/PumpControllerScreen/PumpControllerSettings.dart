@@ -16,7 +16,6 @@ import '../../Forms/create_account.dart';
 
 import 'package:timezone/standalone.dart' as tz;
 
-import 'PumpPreferenceScreen.dart';
 
 class PumpControllerSettings extends StatefulWidget {
   const PumpControllerSettings({Key? key, required this.customerId, required this.controllerId, required this.adDrId}) : super(key: key);

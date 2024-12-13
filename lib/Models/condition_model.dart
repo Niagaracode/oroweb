@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
 
 ConditionModel conditionModelFromJson(String str) =>
     ConditionModel.fromJson(json.decode(str));

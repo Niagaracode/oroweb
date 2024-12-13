@@ -3,16 +3,11 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:loading_indicator/loading_indicator.dart';
-import 'package:provider/provider.dart';
 
 import '../../Models/product_limit_model.dart';
 import '../../constants/http_service.dart';
-import '../../constants/theme.dart';
-import '../../state_management/config_maker_provider.dart';
 import 'config_maker/config_maker.dart';
 import 'config_screen.dart';
-import 'dealer_definition_config.dart';
 
 class ProductLimits extends StatefulWidget {
   const ProductLimits({Key? key, required this.userID,  required this.customerID, required this.userType, required this.inputCount, required this.siteName, required this.controllerId, required this.deviceId, required this.outputCount, required this.myCatIds}) : super(key: key);

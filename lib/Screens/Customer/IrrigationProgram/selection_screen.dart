@@ -3,7 +3,6 @@ import 'package:oro_irrigation_new/Screens/Customer/IrrigationProgram/schedule_s
 import 'package:oro_irrigation_new/Screens/Customer/IrrigationProgram/sequence_screen.dart';
 import 'package:oro_irrigation_new/state_management/irrigation_program_main_provider.dart';
 import 'package:provider/provider.dart';
-import '../../../widgets/SCustomWidgets/custom_alert_dialog.dart';
 import '../../../widgets/SCustomWidgets/custom_animated_switcher.dart';
 import 'conditions_screen.dart';
 final purpleLight = const Color(0xff8833FF).withOpacity(0.05);

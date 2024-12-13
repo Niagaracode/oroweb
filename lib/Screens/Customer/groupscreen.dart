@@ -8,14 +8,11 @@ import 'package:oro_irrigation_new/constants/snack_bar.dart';
 import 'package:oro_irrigation_new/state_management/irrigation_program_main_provider.dart';
 import 'package:provider/provider.dart';
 import '../../../Models/Customer/GroupsModel.dart';
-import '../../../constants/MQTTManager.dart';
 import '../../../constants/http_service.dart';
 import '../../../state_management/SelectedGroupProvider.dart';
 import '../../../state_management/group_provider.dart';
 import '../../Models/IrrigationModel/sequence_model.dart';
 import '../../constants/theme.dart';
-import '../../state_management/MqttPayloadProvider.dart';
-import 'IrrigationProgram/program_library.dart';
 
 class MyGroupScreen extends StatefulWidget {
   const MyGroupScreen(

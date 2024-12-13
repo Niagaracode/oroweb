@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:oro_irrigation_new/Screens/Customer/IrrigationProgram/preview_screen.dart';
 import 'package:oro_irrigation_new/screens/Config/config_maker/source_pump.dart';
 import 'package:provider/provider.dart';
-import 'package:universal_html/html.dart';
 
 import '../../../constants/theme.dart';
 import '../../../state_management/config_maker_provider.dart';

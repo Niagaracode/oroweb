@@ -82,6 +82,8 @@ dependencies:
   device_info_plus: ^10.1.0
   pretty_gauge: ^1.0.1
 
+  path_provider: any
+  vector_math: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

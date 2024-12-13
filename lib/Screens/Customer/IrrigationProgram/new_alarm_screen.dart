@@ -4,8 +4,6 @@ import 'package:oro_irrigation_new/Screens/Customer/IrrigationProgram/schedule_s
 import 'package:oro_irrigation_new/state_management/irrigation_program_main_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../ScheduleView.dart';
-import '../ScheduleView.dart';
 
 class NewAlarmScreen2 extends StatefulWidget {
   const NewAlarmScreen2({super.key});

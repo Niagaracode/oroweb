@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:oro_irrigation_new/constants/theme.dart';
 import 'package:provider/provider.dart';
 
-import '../../state_management/config_maker_provider.dart';
 import '../../state_management/constant_provider.dart';
 
 class TextFieldForConstant extends StatefulWidget {

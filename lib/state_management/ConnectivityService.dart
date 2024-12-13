@@ -1,6 +1,5 @@
 import 'dart:html' as html;
 import 'package:flutter/cupertino.dart';
-import '../constants/MQTTManager.dart';
 
 class ConnectivityService with ChangeNotifier {
   bool _isConnected = true;
