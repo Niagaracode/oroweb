@@ -566,11 +566,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                 case 25:
                   if (!sendAll ? individualPumpSetting.changed : true) {
                     int index = preferenceProvider.individualPumpSetting!.indexWhere((e) => e.deviceId == commonSetting.deviceId);
-                    if(preferenceProvider.individualPumpSetting![index].controlGem){
-                      preferenceProvider.individualPumpSetting![index].settingList[2].setting.firstWhere((element) => element.serialNumber == 1).value == false;
-                      preferenceProvider.individualPumpSetting![index].settingList[2].setting.firstWhere((element) => element.serialNumber == 2).value == false;
-                    }
-                    final payload = jsonEncode({"600-$pumpIndex": jsonEncode({"sentSms": 'scheduleconfig,$pumpIndex,${getSettingValue(individualPumpSetting)}'})});
+                    final payload = jsonEncode({"600-$pumpIndex": jsonEncode({"sentSms": 'scheduleconfig,$pumpIndex,${getSettingValue(individualPumpSetting, controlToOroGem: preferenceProvider.individualPumpSetting![index].controlGem)}'})});
                     scheduleConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+${categoryId}": payload);
                   }
                   break;
@@ -639,11 +635,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                 case 25:
                   if (!sendAll ? (individualPumpSetting.controllerReadStatus == "0") : true) {
                     int index = preferenceProvider.individualPumpSetting!.indexWhere((e) => e.deviceId == commonSetting.deviceId);
-                    if(preferenceProvider.individualPumpSetting![index].controlGem){
-                      preferenceProvider.individualPumpSetting![index].settingList[2].setting.firstWhere((element) => element.serialNumber == 1).value == false;
-                      preferenceProvider.individualPumpSetting![index].settingList[2].setting.firstWhere((element) => element.serialNumber == 2).value == false;
-                    }
-                    final payload = jsonEncode({"600-$pumpIndex": jsonEncode({"sentSms": 'scheduleconfig,$pumpIndex,${getSettingValue(individualPumpSetting)}'})});
+                    final payload = jsonEncode({"600-$pumpIndex": jsonEncode({"sentSms": 'scheduleconfig,$pumpIndex,${getSettingValue(individualPumpSetting, controlToOroGem: preferenceProvider.individualPumpSetting![index].controlGem)}'})});
                     scheduleConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+${categoryId}": payload);
                   }
                   break;
@@ -750,7 +742,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
     return listToAdd.join(",");
   }
 
-  dynamic getSettingValue(settingCategory) {
+  dynamic getSettingValue(settingCategory, {bool? controlToOroGem}) {
     List<String> values = [];
 
     for (var setting in settingCategory.setting) {
@@ -758,6 +750,11 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
       if (setting.value is bool) {
         if(setting.title != 'RTC') {
           value = setting.value ? "1" : "0";
+        }
+        if(controlToOroGem ?? false) {
+          if(setting.title == "TANK" || setting.title == "SUMP") {
+            value = '0';
+          }
         }
       } else if (setting.value is String) {
         switch (setting.widgetTypeId) {

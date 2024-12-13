@@ -570,7 +570,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
             payloadCode: "2500",
             deviceId: widget.deviceId
         );
-        await Future.delayed(const Duration(seconds: 1), () async {
+        await Future.delayed(const Duration(seconds: 300), () async {
           // print("userData['controllerReadStatus'] ==> ${userData['controllerReadStatus']}");
           final createUserProgram = await httpService.postRequest('createUserProgram', userData);
           final response = jsonDecode(createUserProgram.body);
@@ -580,7 +580,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
             if(widget.toDashboard) {
               Navigator.of(context).pop();
             } else {
-              Navigator.of(context).pop();
+              // Navigator.of(context).pop();
               Navigator.of(context).pop();
               Navigator.pushReplacement(
                   context,
