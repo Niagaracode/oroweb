@@ -2614,7 +2614,7 @@ class IrrigationProgramProvider extends ChangeNotifier {
   }
 
   //TODO: PROGRAM RESET
-  Future<String> userProgramReset(int userId, int controllerId, int programId, deviceId, serialNumber, String defaultProgramName, String programName) async {
+  Future<String> userProgramReset(int userId, int controllerId, int programId, deviceId, serialNumber, String defaultProgramName, String programName, String active) async {
     try {
       var userData = {
         "userId": userId,
@@ -2623,10 +2623,11 @@ class IrrigationProgramProvider extends ChangeNotifier {
         "programId": programId,
         "defaultProgramName": defaultProgramName,
         "serialNumber": serialNumber,
-        "programName": programName
+        "programName": programName,
+        "modifyUser": userId,
       };
 
-      var getUserProgramName = await httpService.putRequest('resetUserProgram', userData);
+      var getUserProgramName = await httpService.putRequest(active == "inactive" ? "inactiveUserProgram" : active == "active" ? "activeUserProgram" : 'resetUserProgram', userData);
       if (getUserProgramName.statusCode == 200) {
         final responseJson = getUserProgramName.body;
         final convertedJson = jsonDecode(responseJson);
@@ -2746,7 +2747,7 @@ class IrrigationProgramProvider extends ChangeNotifier {
 
   //TODO: UPDATE PROGRAM DETAILS
   Future<String> updateUserProgramDetails(
-      int userId, int controllerId, int serialNumber, int programId, String programName, String priority, defaultProgramName, String controllerReadStatus) async {
+      int userId, int controllerId, int serialNumber, int programId, String programName, String priority, defaultProgramName, String controllerReadStatus, hardwareData) async {
     try {
       Map<String, dynamic> userData = {
         "userId": userId,
@@ -2757,7 +2758,8 @@ class IrrigationProgramProvider extends ChangeNotifier {
         "programName": programName,
         "priority": priority,
         "defaultProgramName": defaultProgramName,
-        "controllerReadStatus": controllerReadStatus
+        "controllerReadStatus": controllerReadStatus,
+        "hardware": hardwareData
       };
 
       var updateUserProgramDetails = await httpService.putRequest('updateUserProgramDetails', userData);

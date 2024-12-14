@@ -100,14 +100,14 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
         builder: (BuildContext context, BoxConstraints constraints) {
           double cardSize = 0.0;
           if(constraints.maxWidth < 800){
-            cardSize = constraints.maxWidth -20;
+            cardSize = constraints.maxWidth - 20;
           }else{
-            cardSize = 400;
+            cardSize = 380;
           }
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if(irrigationProgramMainProvider.programLibrary!.program.any((element) => element.programName.isEmpty) && constraints.maxWidth < 800)
+              if(irrigationProgramMainProvider.programLibrary!.program.any((element) => element.programName.isNotEmpty && element.active == "0") && constraints.maxWidth < 800)
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 10),
                   width: double.infinity,
@@ -136,7 +136,7 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                     ),
                   ),
                 ),
-              if(irrigationProgramMainProvider.programLibrary!.program.any((element) => element.programName.isEmpty) && constraints.maxWidth >= 800)
+              if(irrigationProgramMainProvider.programLibrary!.program.any((element) => element.programName.isNotEmpty && element.active == "0") && constraints.maxWidth >= 800)
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 10),
                   child: Row(
@@ -159,85 +159,85 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                     ],
                   ),
                 ),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Wrap(
-                    // spacing: 20,
-                    runSpacing: 20,
-                    alignment: WrapAlignment.start,
-                    runAlignment: WrapAlignment.start,
-                    children: [
-                      for(var index = 0; index < irrigationProgramMainProvider.programLibrary!.program.length; index++)
-                        if(irrigationProgramMainProvider.selectedFilterType == 0 && irrigationProgramMainProvider.programLibrary!.program[index].programName.isNotEmpty)
-                          buildProgramItem(
-                              programItem: irrigationProgramMainProvider.programLibrary!.program[index],
-                              programLibraryData: irrigationProgramMainProvider.programLibrary!.program,
-                              cardSize: cardSize,
-                              index: index,
-                              constraints: constraints
-                          )
-                      else if(irrigationProgramMainProvider.selectedFilterType == 1 && irrigationProgramMainProvider.programLibrary!.program[index].programName.isEmpty)
-                          buildProgramItem(
-                              programItem: irrigationProgramMainProvider.programLibrary!.program[index],
-                              programLibraryData: irrigationProgramMainProvider.programLibrary!.program,
-                              cardSize: cardSize,
-                              index: index,
-                              constraints: constraints
-                          )
-                    ],
-                  ),
-                  // child: customizeGridView(
-                  //     maxWith: cardSize + 20,
-                  //     maxHeight: 280,
-                  //     screenWidth: constraints.maxWidth,
-                  //     listOfWidget: [
-                  //       for(var index = 0; index < irrigationProgramMainProvider.programLibrary!.program.length; index++)
-                  //         SizedBox(
-                  //           width: cardSize,
-                  //           child: Column(
-                  //             children: [
-                  //               buildProgramItem(
-                  //                   programItem: irrigationProgramMainProvider.programLibrary!.program[index],
-                  //                   programLibraryData: irrigationProgramMainProvider.programLibrary!.program,
-                  //                   cardSize: cardSize,
-                  //                   index: index,
-                  //                   constraints: constraints
-                  //               ),
-                  //               const SizedBox(height: 20,),
-                  //             ],
-                  //           ),
-                  //         ),
-                  //     ]
-                  // )
-                ),
-              ),
               // Expanded(
               //   child: SingleChildScrollView(
-              //     child: customizeGridView(
-              //         maxWith: cardSize + 20,
-              //         maxHeight: 280,
-              //         screenWidth: constraints.maxWidth,
-              //         listOfWidget: [
-              //           for(var index = 0; index < irrigationProgramMainProvider.programLibrary!.program.length; index++)
-              //             SizedBox(
-              //               width: cardSize,
-              //               child: Column(
-              //                 children: [
-              //                   buildProgramItem(
-              //                       programItem: irrigationProgramMainProvider.programLibrary!.program[index],
-              //                       programLibraryData: irrigationProgramMainProvider.programLibrary!.program,
-              //                       cardSize: cardSize,
-              //                       index: index,
-              //                       constraints: constraints
-              //                   ),
-              //                   const SizedBox(height: 20,),
-              //                 ],
-              //               ),
-              //             ),
-              //         ]
+              //     child: Wrap(
+              //       // spacing: 20,
+              //       runSpacing: 20,
+              //       alignment: WrapAlignment.start,
+              //       runAlignment: WrapAlignment.start,
+              //       children: [
+              //         for(var index = 0; index < irrigationProgramMainProvider.programLibrary!.program.length; index++)
+              //           if(irrigationProgramMainProvider.selectedFilterType == 0 && irrigationProgramMainProvider.programLibrary!.program[index].programName.isNotEmpty)
+              //             buildProgramItem(
+              //                 programItem: irrigationProgramMainProvider.programLibrary!.program[index],
+              //                 programLibraryData: irrigationProgramMainProvider.programLibrary!.program,
+              //                 cardSize: cardSize,
+              //                 index: index,
+              //                 constraints: constraints
+              //             )
+              //         else if(irrigationProgramMainProvider.selectedFilterType == 1 && irrigationProgramMainProvider.programLibrary!.program[index].programName.isEmpty)
+              //             buildProgramItem(
+              //                 programItem: irrigationProgramMainProvider.programLibrary!.program[index],
+              //                 programLibraryData: irrigationProgramMainProvider.programLibrary!.program,
+              //                 cardSize: cardSize,
+              //                 index: index,
+              //                 constraints: constraints
+              //             )
+              //       ],
               //     ),
+              //     // child: customizeGridView(
+              //     //     maxWith: cardSize + 20,
+              //     //     maxHeight: 280,
+              //     //     screenWidth: constraints.maxWidth,
+              //     //     listOfWidget: [
+              //     //       for(var index = 0; index < irrigationProgramMainProvider.programLibrary!.program.length; index++)
+              //     //         SizedBox(
+              //     //           width: cardSize,
+              //     //           child: Column(
+              //     //             children: [
+              //     //               buildProgramItem(
+              //     //                   programItem: irrigationProgramMainProvider.programLibrary!.program[index],
+              //     //                   programLibraryData: irrigationProgramMainProvider.programLibrary!.program,
+              //     //                   cardSize: cardSize,
+              //     //                   index: index,
+              //     //                   constraints: constraints
+              //     //               ),
+              //     //               const SizedBox(height: 20,),
+              //     //             ],
+              //     //           ),
+              //     //         ),
+              //     //     ]
+              //     // )
               //   ),
               // ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: customizeGridView(
+                      maxWith: cardSize + 20,
+                      maxHeight: 300,
+                      screenWidth: constraints.maxWidth,
+                      listOfWidget: [
+                        for(var index = 0; index < irrigationProgramMainProvider.programLibrary!.program.length; index++)
+                          SizedBox(
+                            width: cardSize,
+                            child: Column(
+                              children: [
+                                buildProgramItem(
+                                    programItem: irrigationProgramMainProvider.programLibrary!.program[index],
+                                    programLibraryData: irrigationProgramMainProvider.programLibrary!.program,
+                                    cardSize: cardSize,
+                                    index: index,
+                                    constraints: constraints
+                                ),
+                                const SizedBox(height: 20,),
+                              ],
+                            ),
+                          ),
+                      ]
+                  ),
+                ),
+              ),
             ],
           );
         },
@@ -351,16 +351,24 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                             String programName = "Program $serialNumber";
                             String defaultProgramName = programName;
                             copyController.text = programName;
-                            programCopy(program: programItem, serialNumber: serialNumber, programType: programType, programName: programName, defaultProgramName: defaultProgramName);
+                            programCopy(
+                                program: programItem,
+                                serialNumber: serialNumber,
+                                programType: programType,
+                                programName: programName,
+                                defaultProgramName: defaultProgramName,
+                                programLibraryData: programLibraryData,
+                                context: context
+                            );
                           }
                       ),
                       const SizedBox(width: 10,),
                       buildIconActionWidget(
-                          icon: Icons.delete,
-                          iconColor: const Color(0xfffd847c),
-                          containerColor: const Color(0xffFFDEDC),
-                          toolTip: "Remove program",
-                          onTap: () => showDeleteConfirmationDialog(programItem)
+                          icon: programItem.active == "1" ? Icons.remove_circle : Icons.check_circle,
+                          iconColor: programItem.active == "1" ? const Color(0xfffd847c) : const Color(0xff10b637),
+                          containerColor: programItem.active == "1" ? const Color(0xffFFDEDC) : const Color(0xffd2f3df),
+                          toolTip: programItem.active == "1" ? "Inactive program" : "Active program",
+                          onTap: () => showDeleteConfirmationDialog(programItem, programItem.active == "1" ? "inactive" : "active")
                       ),
                       const SizedBox(width: 10,),
                       buildIconActionWidget(
@@ -368,49 +376,55 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                           iconColor: const Color(0xffFFB27D),
                           containerColor: const Color(0xffFFF0E5),
                           toolTip: "Edit",
-                          onTap: () => showEditItemDialog(programItem, index)
+                          onTap: () {
+                            // print(index);
+                            print(programItem.programName);
+                            print(programItem.defaultProgramName);
+                            showEditItemDialog(programItem, index, programLibraryData);
+                          }
                       ),
                       const SizedBox(width: 10,),
                       buildIconActionWidget(
-                        icon: Icons.send,
-                        iconColor: Color(programItem.controllerReadStatus == "1" ? 0xff10b637 : 0xfffbefc6),
-                        // iconColor: programItem.controllerReadStatus == "1" ? const Color(
-                        //     0xff10b637) : const Color(0xfffbcd38),
-                        // containerColor: programItem.controllerReadStatus == "1" ? const Color(
-                        //     0xffd2f3df) : const Color(0xfffbefc6),
-                        containerColor: Color(programItem.controllerReadStatus == "1" ? 0xffd2f3df : 0xfffbefc6),
+                        icon: programItem.active == "1" ? Icons.send : Icons.delete,
+                        iconColor: programItem.active == "1" ? programItem.controllerReadStatus == "1" ? const Color(
+                            0xff10b637) : const Color(0xfffbcd38) : const Color(0xfffd847c),
+                        containerColor: programItem.active == "1" ? programItem.controllerReadStatus == "1" ? const Color(
+                            0xffd2f3df) : const Color(0xffFFDEDC) : const Color(0xffFFDEDC),
                         toolTip: "Send",
                         onTap: () async{
-                          Map<String, dynamic> dataToMqtt = programItem.hardwareData;
-
-                          try {
-                            await validatePayloadSent(
-                                dialogContext: context,
-                                context: context,
-                                mqttPayloadProvider: mqttPayloadProvider,
-                                acknowledgedFunction: () {
+                          if(programItem.active == "1") {
+                            Map<String, dynamic> dataToMqtt = programItem.hardwareData;
+                            try {
+                              await validatePayloadSent(
+                                  dialogContext: context,
+                                  context: context,
+                                  mqttPayloadProvider: mqttPayloadProvider,
+                                  acknowledgedFunction: () {
+                                    setState(() {
+                                      controllerReadStatus = "1";
+                                    });
+                                    // showSnackBar(message: "${mqttPayloadProvider.messageFromHw['Name']} from controller", context: context);
+                                  },
+                                  payload: dataToMqtt,
+                                  payloadCode: "2500",
+                                  deviceId: widget.deviceId
+                              ).whenComplete(() async {
+                                if(mqttPayloadProvider.messageFromHw['Code'] != "200") {
                                   setState(() {
-                                    controllerReadStatus = "1";
+                                    controllerReadStatus = "0";
                                   });
-                                  // showSnackBar(message: "${mqttPayloadProvider.messageFromHw['Name']} from controller",);
-                                },
-                                payload: dataToMqtt,
-                                payloadCode: "2500",
-                                deviceId: widget.deviceId
-                            ).whenComplete(() async {
-                              if(mqttPayloadProvider.messageFromHw != null && mqttPayloadProvider.messageFromHw['Code'] != "200") {
-                                setState(() {
-                                  controllerReadStatus = "0";
-                                });
-                              }
-                            });
-                            await saveProgramDetails(programItem);
-                            await Future.delayed(const Duration(seconds: 2), () async{
-                              await irrigationProgramMainProvider.programLibraryData(widget.customerId, widget.controllerId,);
-                            });
-                          } catch (error) {
-                            showSnackBar(message: 'Failed to update because of $error',);
-                            print("Error: $error");
+                                }
+                              });
+                              await saveProgramDetails(programItem, dataToMqtt);
+                              await Future.delayed(const Duration(seconds: 2), () async{
+                                await irrigationProgramMainProvider.programLibraryData(widget.userID, widget.controllerId,);
+                              });
+                            } catch (error) {
+                              showSnackBar(message: 'Failed to update because of $error', context: context);
+                              print("Error: $error");
+                            }
+                          } else {
+                            showDeleteConfirmationDialog(programItem, "delete");
                           }
                         },
                       ),
@@ -699,51 +713,80 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
     );
   }
 
-  void programCopy({required Program program, required int serialNumber, required String programType, required String programName, required String defaultProgramName}) {
+  void programCopy({
+    required BuildContext context,
+    required Program program,
+    required int serialNumber,
+    required String programType,
+    required String programName,
+    required String defaultProgramName,
+    required List<Program> programLibraryData,
+  }) {
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    String tempProgramName = "";
+
     showAdaptiveDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return StatefulBuilder(
-              builder: (BuildContext context, StateSetter stateSetter) {
-                return AlertDialog(
-                  title: const Text("Program copy!"),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextFormField(
-                        controller: copyController,
-                        autofocus: true,
-                        onChanged: (newValue) => tempProgramName = newValue,
-                        inputFormatters: [LengthLimitingTextInputFormatter(20)],
-                      )
-                    ],
-                  ),
-                  actions: [
-                    TextButton(
-                        onPressed: (){
-                          tempProgramName = "";
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text("Cancel")
-                    ),
-                    TextButton(
-                        onPressed: (){
-                          createCopyOfProgram(
-                              oldSerialNumber: program.serialNumber,
-                              serialNumber: serialNumber,
-                              programName: tempProgramName.isEmpty ? defaultProgramName : tempProgramName,
-                              defaultProgramName: defaultProgramName,
-                              programType: programType
-                          );
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text("OK")
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter stateSetter) {
+            return AlertDialog(
+              title: const Text("Program copy!"),
+              content: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: copyController,
+                      autofocus: true,
+                      onChanged: (newValue) {
+                        stateSetter(() {
+                          tempProgramName = newValue;
+                        });
+                      },
+                      inputFormatters: [LengthLimitingTextInputFormatter(20),  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),],
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Name cannot be empty";
+                        }
+                        if (programLibraryData.any((element) => element.programName == value)) {
+                          return "Name already exists";
+                        }
+                        return null;
+                      },
                     ),
                   ],
-                );
-              }
-          );
-        }
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    tempProgramName = "";
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      createCopyOfProgram(
+                        oldSerialNumber: program.serialNumber,
+                        serialNumber: serialNumber,
+                        programName: tempProgramName.isEmpty ? defaultProgramName : tempProgramName,
+                        defaultProgramName: defaultProgramName,
+                        programType: programType,
+                      );
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -758,13 +801,13 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
     });
   }
 
-  void showDeleteConfirmationDialog(Program program) {
+  void showDeleteConfirmationDialog(Program program,String toMove) {
     showAdaptiveDialog(
         context: context,
         builder: (BuildContext dialogContext) {
           return CustomAlertDialog(
               title: "Confirmation",
-              content: 'Are you sure you want to delete?',
+              content: 'Are you sure you want to ${toMove == "delete" ? "delete" : toMove == "active" ? "move to active" : "move to inactive"}?',
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(),
@@ -772,24 +815,30 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                 ),
                 TextButton(
                   onPressed: () {
-                    if(program.hardwareData.isEmpty) {
-                      print("here");
-                      deleteProgram(program);
+                    if(irrigationProgramMainProvider.programLibrary!.program.any((element) => element.programName.isNotEmpty && element.active == "0")) {
+                      irrigationProgramMainProvider.updateSelectedFilterType(0);
+                    }
+                    if(toMove == "active" || toMove == "inactive") {
+                      deleteProgram(program, toMove);
                     } else {
-                      Map<String, dynamic> deleteProgramToHardware = {
-                        "3800": [{
-                          "3801": "${program.serialNumber};"
-                        }]
-                      };
-                      validatePayloadSent(
-                          dialogContext: dialogContext,
-                          context: context,
-                          mqttPayloadProvider: mqttPayloadProvider,
-                          acknowledgedFunction: () => deleteProgram(program),
-                          payload: deleteProgramToHardware,
-                          payloadCode: "3800",
-                          deviceId: widget.deviceId
-                      );
+                      if(program.hardwareData.isEmpty) {
+                        deleteProgram(program, toMove);
+                      } else {
+                        Map<String, dynamic> deleteProgramToHardware = {
+                          "3800": [{
+                            "3801": "${program.serialNumber};"
+                          }]
+                        };
+                        validatePayloadSent(
+                            dialogContext: dialogContext,
+                            context: context,
+                            mqttPayloadProvider: mqttPayloadProvider,
+                            acknowledgedFunction: () => deleteProgram(program, toMove),
+                            payload: deleteProgramToHardware,
+                            payloadCode: "3800",
+                            deviceId: widget.deviceId
+                        );
+                      }
                     }
                     Navigator.of(dialogContext).pop();
                   },
@@ -798,71 +847,7 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
               ]);
         });
   }
-
-  void handleDelete(Program program, dialogContext) async {
-    try {
-      var deleteProgramToHardware = {
-        "3800": [{
-          "3801": "${program.serialNumber};"
-        }]
-      };
-
-      await MQTTManager().publish(jsonEncode(deleteProgramToHardware), "AppToFirmware/${widget.deviceId}");
-
-      bool isAcknowledged = false;
-      int maxWaitTime = 20;
-      int elapsedTime = 0;
-
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return const Dialog(
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(width: 16),
-                  Text("Please wait..."),
-                ],
-              ),
-            ),
-          );
-        },
-      );
-
-      while (elapsedTime < maxWaitTime) {
-        await Future.delayed(const Duration(seconds: 1));
-        elapsedTime++;
-
-        // print(mqttPayloadProvider.messageFromHw);
-        if (mqttPayloadProvider.messageFromHw != null && mqttPayloadProvider.messageFromHw['PayloadCode'] == "3800") {
-          isAcknowledged = true;
-          break;
-        }
-      }
-
-      Navigator.of(context).pop();
-
-      if (isAcknowledged) {
-        if (mqttPayloadProvider.messageFromHw['Code'] == "200") {
-          deleteProgram(program);
-        } else {
-          showSnackBar(message: "${mqttPayloadProvider.messageFromHw['Name']}");
-        }
-      } else {
-        showAlertDialog(message: "No acknowledgement received within 10 seconds");
-      }
-    } catch (error, stackTrace) {
-      Navigator.of(context).pop(); // Hide loading indicator in case of error
-      print("Error $error");
-      print("stackTrace $stackTrace");
-      showAlertDialog(message: error.toString());
-    }
-  }
-
+  
   void showAlertDialog({required String message, Widget? child}) {
     showAdaptiveDialog(
         context: context,
@@ -883,20 +868,27 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
     );
   }
 
-  void showSnackBar({required String message}) {
+  void showSnackBar({required String message, required BuildContext context}) {
     ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: message));
   }
 
-  void deleteProgram(program) {
-    irrigationProgramMainProvider.userProgramReset(widget.customerId, widget.controllerId, program.programId, widget.deviceId, program.serialNumber, program.defaultProgramName, program.programName).then((String message) {
+  void deleteProgram(Program program, String active) {
+    irrigationProgramMainProvider
+        .userProgramReset(
+        widget.userID,
+        widget.controllerId,
+        program.programId,
+        widget.deviceId, program.serialNumber, program.defaultProgramName, program.programName, active)
+        .then((String message) {
       ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: message));
-    }).then((value) => irrigationProgramMainProvider.programLibraryData(widget.customerId, widget.controllerId,))
+    }).then((value) => irrigationProgramMainProvider.programLibraryData(widget.userID, widget.controllerId))
         .catchError((error) {
       ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: error));
     });
   }
 
-  void showEditItemDialog(program, int index) {
+  void showEditItemDialog(Program program, int index, List<Program> programLibraryData) {
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
     showAdaptiveDialog(
       context: context,
       builder: (BuildContext dialogContext) =>
@@ -905,39 +897,54 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                 return AlertDialog(
                   surfaceTintColor: Colors.white,
                   title: const Text('Edit Item'),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextFormField(
-                        initialValue: program.programName.isNotEmpty
-                            ? program.programName
-                            : program.defaultProgramName,
-                        focusNode: _programNameFocusNode,
-                        onChanged: (newValue) => program.programName = newValue,
-                        inputFormatters: [LengthLimitingTextInputFormatter(20), FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),],
-                      ),
-                      const SizedBox(height: 5),
-                      Container(
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(15)),
-                        child: CustomDropdownTile(
-                          showCircleAvatar: false,
-                          width: 70,
-                          title: 'Priority',
-                          subtitle: 'Description',
-                          showSubTitle: false,
-                          content: Icons.priority_high,
-                          dropdownItems: irrigationProgramMainProvider.priorityList.map((item) => item).toList(),
-                          selectedValue: program.priority,
-                          onChanged: (newValue) {
-                            irrigationProgramMainProvider.updatePriority(newValue, index);
-                            _programNameFocusNode.unfocus();
+                  content: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextFormField(
+                          initialValue: program.programName.isNotEmpty
+                              ? program.programName
+                              : program.defaultProgramName,
+                          focusNode: _programNameFocusNode,
+                          onChanged: (newValue) => program.programName = newValue,
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(20),
+                            FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
+                          ],
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Name cannot be empty";
+                            }
+                            if (programLibraryData.any((element) => element.programName == value)) {
+                              return "Name already exists";
+                            }
+                            return null;
                           },
-                          includeNoneOption: false,
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 5),
+                        Container(
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(15)),
+                          child: CustomDropdownTile(
+                            showCircleAvatar: false,
+                            width: 70,
+                            title: 'Priority',
+                            subtitle: 'Description',
+                            showSubTitle: false,
+                            content: Icons.priority_high,
+                            dropdownItems: irrigationProgramMainProvider.priorityList.map((item) => item).toList(),
+                            selectedValue: program.priority,
+                            onChanged: (newValue) {
+                              irrigationProgramMainProvider.updatePriority(newValue, index);
+                              _programNameFocusNode.unfocus();
+                            },
+                            includeNoneOption: false,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   actions: [
                     TextButton(
@@ -947,9 +954,50 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                       child: const Text('Cancel'),
                     ),
                     TextButton(
-                      onPressed: () {
-                        saveData(program: program);
-                        Navigator.pop(dialogContext);
+                      onPressed: () async{
+                        if (_formKey.currentState!.validate()) {
+                          Map<String, dynamic> dataToMqtt = {
+                            "2800": [
+                              {
+                                "2801" : "${program.serialNumber},${program.priority == irrigationProgramMainProvider.priorityList[0] ? 1 : 0}"
+                              },
+                              {
+                                "2802" : widget.userID
+                              }
+                            ]
+                          };
+
+                          try {
+                            await validatePayloadSent(
+                                dialogContext: context,
+                                context: context,
+                                mqttPayloadProvider: mqttPayloadProvider,
+                                acknowledgedFunction: () {
+                                  setState(() {
+                                    controllerReadStatus = "1";
+                                  });
+                                  // showSnackBar(message: "${mqttPayloadProvider.messageFromHw['Name']} from controller", context: context);
+                                },
+                                payload: dataToMqtt,
+                                payloadCode: "2800",
+                                deviceId: widget.deviceId
+                            ).whenComplete(() {
+                              if(mqttPayloadProvider.messageFromHw['Code'] != "200") {
+                                setState(() {
+                                  controllerReadStatus = "0";
+                                });
+                              }
+                            });
+                            await saveProgramDetails(program, dataToMqtt);
+                            await Future.delayed(const Duration(seconds: 2), () async{
+                              await irrigationProgramMainProvider.programLibraryData(widget.userID, widget.controllerId);
+                            });
+                          } catch (error) {
+                            showSnackBar(message: 'Failed to update because of $error', context: dialogContext);
+                            print("Error: $error");
+                          }
+                          Navigator.pop(dialogContext);
+                        }
                       },
                       child: const Text('Save'),
                     ),
@@ -993,27 +1041,27 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
           });
         }
       });
-      await saveProgramDetails(program);
+      await saveProgramDetails(program, dataToMqtt);
       await Future.delayed(const Duration(seconds: 2), () async{
         await irrigationProgramMainProvider.programLibraryData(widget.customerId, widget.controllerId);
       });
     } catch (error) {
-      showSnackBar(message: 'Failed to update because of $error',);
+      showSnackBar(message: 'Failed to update because of $error', context: context,);
       print("Error: $error");
     }
   }
 
-  Future<void> saveProgramDetails(program) async{
+  Future<void> saveProgramDetails(Program program, hardwareData) async{
     irrigationProgramMainProvider
         .updateUserProgramDetails(
-        widget.customerId,
+        widget.userID,
         widget.controllerId,
         program.serialNumber,
         program.programId,
         program.programName,
         program.priority,
         program.defaultProgramName,
-        controllerReadStatus)
+        controllerReadStatus, hardwareData)
         .then((value) => ScaffoldMessenger.of(context)
         .showSnackBar(CustomSnackBar(message: value)));
   }
@@ -1095,11 +1143,11 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
     List<Widget> newWidgetList = [];
     for(var i = 0; i<listOfWidget.length; i++) {
       if(irrigationProgramMainProvider.selectedFilterType == 0) {
-        if(irrigationProgramMainProvider.programLibrary!.program[i].programName.isNotEmpty) {
+        if(irrigationProgramMainProvider.programLibrary!.program[i].active == "1") {
           newWidgetList.add(listOfWidget[i]);
         }
       } else {
-        if(irrigationProgramMainProvider.programLibrary!.program[i].programName.isEmpty) {
+        if(irrigationProgramMainProvider.programLibrary!.program[i].programName.isNotEmpty && irrigationProgramMainProvider.programLibrary!.program[i].active == "0") {
           newWidgetList.add(listOfWidget[i]);
         }
       }

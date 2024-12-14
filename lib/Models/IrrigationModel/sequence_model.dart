@@ -1042,6 +1042,7 @@ class Program {
   Map<String, dynamic> schedule;
   Map<String, dynamic> hardwareData;
   String controllerReadStatus;
+  String active;
 
   Program(
       {required this.programId,
@@ -1053,21 +1054,23 @@ class Program {
         required this.sequence,
         required this.schedule,
         required this.hardwareData,
-        required this.controllerReadStatus
+        required this.controllerReadStatus,
+        required this.active,
       });
 
   factory Program.fromJson(Map<String, dynamic> json) {
     return Program(
-        programId: json['programId'],
-        serialNumber: json['serialNumber'],
-        programName: json['programName'],
-        defaultProgramName: json['defaultProgramName'],
-        programType: json['programType'],
-        priority: json['priority'],
-        sequence: json['sequence'],
-        schedule: json['schedule'],
-        hardwareData: json['hardware'],
-        controllerReadStatus: json['controllerReadStatus']
+      programId: json['programId'],
+      serialNumber: json['serialNumber'],
+      programName: json['programName'],
+      defaultProgramName: json['defaultProgramName'],
+      programType: json['programType'],
+      priority: json['priority'],
+      sequence: json['sequence'],
+      schedule: json['schedule'],
+      hardwareData: json['hardware'],
+      controllerReadStatus: json['controllerReadStatus'],
+      active: json['active'],
     );
   }
 }
