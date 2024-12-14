@@ -348,15 +348,9 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                                 ? irrigationProgramMainProvider.programLibrary!.program.firstWhere((element) => element.programName.isEmpty).serialNumber
                                 : irrigationProgramMainProvider.programLibrary!.program.length+1;
                             final programType = programItem.programType;
-                            final elseCondition = Program(programId: 0, serialNumber: serialNumber, programName: programItem.programName, defaultProgramName: programItem.defaultProgramName, programType: programType, priority: "", sequence: [], schedule: {}, hardwareData: {}, controllerReadStatus: '');
-                            String programName = irrigationProgramMainProvider.programLibrary!.program.firstWhere((element) => element.serialNumber == serialNumber, orElse: () => elseCondition).programName;
-                            String defaultProgramName = irrigationProgramMainProvider.programLibrary!.program.firstWhere((element) => element.serialNumber == serialNumber, orElse: () => elseCondition).defaultProgramName;
-                            // copyController.text = irrigationProgramMainProvider.programLibrary!.program.firstWhere((element) => element.serialNumber == serialNumber, orElse: () => elseCondition).programName.isNotEmpty
-                            //     ? programName
-                            //     : defaultProgramName;
-                            copyController.text = programName.isNotEmpty
-                                ? programName
-                                : defaultProgramName;
+                            String programName = "Program $serialNumber";
+                            String defaultProgramName = programName;
+                            copyController.text = programName;
                             programCopy(program: programItem, serialNumber: serialNumber, programType: programType, programName: programName, defaultProgramName: defaultProgramName);
                           }
                       ),
@@ -634,7 +628,7 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
               // print(programProvider.programLibrary!.program.where((element) => element.programName.isNotEmpty).length);
               if(programProvider.programLibrary!.program.where((element) => element.programName.isNotEmpty).length < programProvider.programLibrary!.programLimit){
                 return AlertDialog(
-                  title: const Text("Select Program type"),
+                  title: Text("Select Program type", style: TextStyle(color: Theme.of(context).primaryColor),),
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: programProvider.programLibrary!.programType.map((e) {
@@ -648,7 +642,7 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                   actions: [
                     TextButton(
                         onPressed: () => Navigator.pop(dialogContext),
-                        child: const Text('Cancel')),
+                        child: const Text('Cancel', style: TextStyle(color: Colors.red),)),
                     TextButton(
                         onPressed: () {
                           Navigator.pop(dialogContext);
@@ -894,9 +888,7 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
   }
 
   void deleteProgram(program) {
-    irrigationProgramMainProvider
-        .userProgramReset(widget.customerId, widget.controllerId, program.programId, widget.deviceId, program.serialNumber, program.defaultProgramName, program.programName)
-        .then((String message) {
+    irrigationProgramMainProvider.userProgramReset(widget.customerId, widget.controllerId, program.programId, widget.deviceId, program.serialNumber, program.defaultProgramName, program.programName).then((String message) {
       ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: message));
     }).then((value) => irrigationProgramMainProvider.programLibraryData(widget.customerId, widget.controllerId,))
         .catchError((error) {
