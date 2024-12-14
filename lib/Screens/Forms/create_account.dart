@@ -402,10 +402,13 @@ class _CreateAccountState extends State<CreateAccount> {
                         'mainUserId': userID,
                       };
 
+                      print(body);
+
                       final response = widget.subUsrAccount? await HttpService().postRequest("createUserAccountWithMainUser", body):
                       await HttpService().postRequest("createUser", body);
                       if(response.statusCode == 200)
                       {
+                        print(response.body);
                         var data = jsonDecode(response.body);
                         if(data["code"]==200)
                         {

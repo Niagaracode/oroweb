@@ -540,7 +540,6 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
           displayProductList(),
         ],
       ),
-
     );
   }
 
@@ -1052,14 +1051,14 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
                                         color: Colors.redAccent,
                                         child: const Text('Delete',style: TextStyle(color: Colors.white)),
                                       ),
-                                      const SizedBox(width: 8,),
+                                      /*const SizedBox(width: 8,),
                                       IconButton(
                                         tooltip : 'view config overview',
                                         onPressed: () async {
-                                          Navigator.push(context, MaterialPageRoute(builder: (context) =>  ConfigMakerView(userId: widget.userID, controllerId: customerSiteList[siteIndex].master[mstIndex].controllerId, customerId: widget.customerID)),);
+                                          Navigator.push(context, MaterialPageRoute(builder: (context) =>  ConfigMakerView(userID: widget.userID, siteID: customerSiteList[siteIndex].master[mstIndex].controllerId, customerID: widget.customerID)),);
                                         },
                                         icon: const Icon(Icons.view_list_outlined),
-                                      ),
+                                      ),*/
                                     ],
                                   ),
                                 ),
@@ -1211,7 +1210,6 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
                                           String modifiedString = resultStringFinal.replaceAll(', ', ',');
                                           String modifiedStringFinal = '${modifiedString.substring(0, 1)},${modifiedString.substring(1)}';
                                           String stringWithoutSpace = modifiedStringFinal.replaceAll('; ', ';');
-                                          //print(stringWithoutSpace);
 
                                           String payLoadFinal = jsonEncode({
                                             "100": [

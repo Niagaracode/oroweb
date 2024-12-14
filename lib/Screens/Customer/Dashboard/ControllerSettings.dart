@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:oro_irrigation_new/constants/theme.dart';
 import '../../../Models/Customer/Dashboard/DashboardNode.dart';
 import '../../../Models/language.dart';
 import '../../../Models/notification_list_model.dart';
 import '../../../constants/http_service.dart';
 import '../../../constants/snack_bar.dart';
-import '../../../constants/theme.dart';
 import '../../Config/names_form.dart';
 import '../../Forms/create_account.dart';
 
@@ -25,6 +25,7 @@ class ControllerSettings extends StatefulWidget {
         required this.adDrId,
         required this.allSiteList})
       : super(key: key);
+
   final int customerID, masterIndex, adDrId;
   final DashboardModel siteData;
   final List<DashboardModel> allSiteList;
@@ -142,6 +143,7 @@ class _ControllerSettingsState extends State<ControllerSettings> {
   }
 
   Future<void> getSubUserList() async {
+    print(widget.customerID);
     final response = await HttpService()
         .postRequest("getUserSharedList", {"userId": widget.customerID});
     if (response.statusCode == 200) {
@@ -198,12 +200,12 @@ class _ControllerSettingsState extends State<ControllerSettings> {
         length: 5,
         child: Column(
           children: [
-            const TabBar(
-              indicatorColor: primaryColorMedium,
+            TabBar(
+              indicatorColor: Colors.teal,
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
-              dividerColor: primaryColorLightGray,
-              tabs: [
+              dividerColor: Colors.teal.shade100,
+              tabs: const [
                 Tab(text: 'General'),
                 Tab(text: 'Preference'),
                 Tab(text: 'Notification'),
@@ -241,9 +243,9 @@ class _ControllerSettingsState extends State<ControllerSettings> {
       children: [
         Expanded(
           child: ListView.builder(
-            itemCount: (notifications.length / 3).ceil(),
+            itemCount: (notifications.length / 3).ceil(), // Grouping items in rows of 3
             itemBuilder: (context, index) {
-              int startIndex = index * 3;
+              int startIndex = index * 3; // Each row starts with a multiple of 3
               return Padding(
                 padding: const EdgeInsets.only(left: 8, right: 8, top: 8),
                 child: Row(
@@ -262,7 +264,7 @@ class _ControllerSettingsState extends State<ControllerSettings> {
           ),
         ),
         ListTile(trailing: MaterialButton(
-          color: primaryColorPureGreen,
+          color: Colors.green,
           textColor: Colors.white,
           onPressed:() async {
             List<int> selectedIds = notifications.where((notification) => notification.selected).map((notification) => notification.pushNotificationId).toList();
@@ -292,9 +294,9 @@ class _ControllerSettingsState extends State<ControllerSettings> {
         margin: const EdgeInsets.all(5.0),
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5.0),
-            side: const BorderSide(color: primaryColorLightGray, width: 0.5)
+            side: BorderSide(color: Colors.teal.shade50, width: 0.5)
         ),
-        color: Colors.white,
+        color: Colors.teal.shade50,
         child: ListTile(
           title: Text(notification.notificationName),
           subtitle: Text(notification.notificationDescription, style: const TextStyle(fontSize: 12, color: Colors.black54)),
@@ -303,7 +305,8 @@ class _ControllerSettingsState extends State<ControllerSettings> {
             child: Tooltip(
               message: notification.selected? 'Disable' : 'Enable',
               child: Switch(
-                activeColor: primaryColorLight,
+                hoverColor: Colors.pink.shade100,
+                activeColor: Colors.teal,
                 value: notification.selected,
                 onChanged: (bool value) {
                   setState(() {
@@ -583,7 +586,7 @@ class _ControllerSettingsState extends State<ControllerSettings> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     MaterialButton(
-                      color: primaryColorMedium,
+                      color: Colors.teal,
                       textColor: Colors.white,
                       onPressed: () async {
                       },
@@ -591,7 +594,7 @@ class _ControllerSettingsState extends State<ControllerSettings> {
                     ),
                     const SizedBox(width: 16,),
                     MaterialButton(
-                      color: primaryColorPureGreen,
+                      color: Colors.green,
                       textColor: Colors.white,
                       onPressed: () async {
                         Map<String, Object> body = {
@@ -636,10 +639,19 @@ class _ControllerSettingsState extends State<ControllerSettings> {
 
                     showModalBottomSheet(
                       context: context,
-                      elevation: 10,
-                      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5))),
-                      builder: (BuildContext context) {
-                        return CreateAccount(callback: callbackFunction, subUsrAccount: true, customerId: widget.customerID, from: 'Sub User',);
+                      isScrollControlled: true,
+                      builder: (context) {
+                        return FractionallySizedBox(
+                          heightFactor: 0.84,
+                          widthFactor: 0.75,
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
+                            ),
+                            child: CreateAccount(callback: callbackFunction, subUsrAccount: true, customerId: widget.customerID, from: 'Sub User',),
+                          ),
+                        );
                       },
                     );
                   },
@@ -658,7 +670,7 @@ class _ControllerSettingsState extends State<ControllerSettings> {
                   return SizedBox(
                     width: 250,
                     child: Card(
-                      surfaceTintColor: primaryColorMedium,
+                      surfaceTintColor: Colors.teal,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
                             5.0), // Adjust the radius as needed
@@ -861,7 +873,7 @@ class _ControllerSettingsState extends State<ControllerSettings> {
               width: MediaQuery.sizeOf(context).width,
               child: ListTile(
                 trailing: MaterialButton(
-                  color: primaryColorPureGreen,
+                  color: Colors.green,
                   textColor: Colors.white,
                   onPressed: () async {
                     Map<String, Object> body = {
@@ -928,7 +940,7 @@ class _ControllerSettingsState extends State<ControllerSettings> {
                   return SizedBox(
                     width: 250,
                     child: Card(
-                      surfaceTintColor: primaryColorMedium,
+                      surfaceTintColor: Colors.teal,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
                             5.0), // Adjust the radius as needed
@@ -1071,7 +1083,7 @@ class _ThemeChangeDialogState extends State<ThemeChangeDialog> {
         children: <Widget>[
           RadioListTile(
             title: Container(
-              color: primaryColorLight,
+              color: Colors.cyan,
               width: 150,
               height: 75,
               child: const Center(child: Text('Theme cyan')),
@@ -1101,7 +1113,7 @@ class _ThemeChangeDialogState extends State<ThemeChangeDialog> {
           ),
           RadioListTile(
             title: Container(
-              color: primaryColorPureGreen,
+              color: Colors.green,
               width: 150,
               height: 75,
               child: const Center(child: Text('Theme green')),
@@ -1116,7 +1128,7 @@ class _ThemeChangeDialogState extends State<ThemeChangeDialog> {
           ),
           RadioListTile(
             title: Container(
-              color: primaryColorLight,
+              color: Colors.pink,
               width: 150,
               height: 75,
               child: const Center(child: Text('Theme pink')),

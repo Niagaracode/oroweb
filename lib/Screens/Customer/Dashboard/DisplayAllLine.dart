@@ -175,6 +175,8 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
               ],
             )
                 : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 ScrollConfiguration(
                   behavior: const ScrollBehavior(),

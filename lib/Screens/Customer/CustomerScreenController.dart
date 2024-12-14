@@ -1224,7 +1224,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
             _selectedIndex == 3 ? IrrigationAndPumpLog(userId: mySiteList[siteIndex].customerId, controllerId: mySiteList[siteIndex].master[masterIndex].controllerId,):
             _selectedIndex == 4 ? WeatherScreen(userId: mySiteList[siteIndex].customerId, controllerId: mySiteList[siteIndex].master[masterIndex].controllerId, deviceID: mySiteList[siteIndex].master[masterIndex].deviceId, initialIndex: 0,):
             _selectedIndex == 5 ? TicketHomePage(userId: mySiteList[siteIndex].customerId, controllerId: mySiteList[siteIndex].master[masterIndex].controllerId,):
-            ControllerSettings(customerID: mySiteList[siteIndex].customerId, siteData: mySiteList[siteIndex], masterIndex: masterIndex, adDrId: widget.comingFrom=='AdminORDealer'? widget.userId:0, allSiteList: mySiteList,),
+            ControllerSettings(customerID: widget.customerId, siteData: mySiteList[siteIndex], masterIndex: masterIndex, adDrId: widget.comingFrom=='AdminORDealer'? widget.userId:0, allSiteList: mySiteList,),
           ),
         ),
       ],
