@@ -1,17 +1,32 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:oro_irrigation_new/Screens/Customer/IrrigationProgram/irrigation_program_main.dart';
+import 'package:oro_irrigation_new/Screens/Customer/IrrigationProgram/program_library.dart';
 import 'package:oro_irrigation_new/state_management/irrigation_program_main_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../../Models/IrrigationModel/sequence_model.dart';
+import '../../../Widgets/SCustomWidgets/custom_snack_bar.dart';
+import '../../../constants/http_service.dart';
+import '../../../state_management/MqttPayloadProvider.dart';
+import '../../../widgets/SCustomWidgets/custom_alert_dialog.dart';
 import '../../../widgets/SCustomWidgets/custom_data_table.dart';
+import '../ProgramSchedule.dart';
 
 final dateFormat = DateFormat('dd-MM-yyyy');
 
 class PreviewScreen extends StatefulWidget {
-  const PreviewScreen({super.key});
+  final int userId;
+  final int controllerId;
+  final String deviceId;
+  final int serialNumber;
+  final bool toDashboard;
+  final String? programType;
+  final bool? conditionsLibraryIsNotEmpty;
+  const PreviewScreen({super.key, required this.userId, required this.controllerId, required this.deviceId, required this.serialNumber, required this.toDashboard, this.programType, this.conditionsLibraryIsNotEmpty});
 
   @override
   State<PreviewScreen> createState() => _PreviewScreenState();
@@ -20,12 +35,14 @@ class PreviewScreen extends StatefulWidget {
 class _PreviewScreenState extends State<PreviewScreen> {
   late IrrigationProgramProvider irrigationProvider;
   List<ChartData>? _chartDataList;
+  late MqttPayloadProvider mqttPayloadProvider;
   List<ChartData>? get chartDataList => _chartDataList;
   final PageController pageController = PageController();
 
   @override
   void initState() {
     irrigationProvider =  Provider.of<IrrigationProgramProvider>(context, listen: false);
+    mqttPayloadProvider =  Provider.of<MqttPayloadProvider>(context, listen: false);
     if (mounted) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         irrigationProvider.waterAndFert();
@@ -45,6 +62,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
   @override
   Widget build(BuildContext context) {
     irrigationProvider =  Provider.of<IrrigationProgramProvider>(context);
+    mqttPayloadProvider =  Provider.of<MqttPayloadProvider>(context);
     final scheduleTypeCondition = irrigationProvider.sampleScheduleModel!.selected == irrigationProvider.scheduleTypes[1]
         ? irrigationProvider.sampleScheduleModel!.scheduleAsRunList
         : irrigationProvider.sampleScheduleModel!.scheduleByDays;
@@ -368,6 +386,12 @@ class _PreviewScreenState extends State<PreviewScreen> {
                         ],
                       ),
                     ),
+                  SlidingSendButton(
+                    onSend: (){
+                      irrigationProvider.programLibraryData(widget.userId, widget.controllerId);
+                      sendFunction();
+                    },
+                  ),
                   const SizedBox(height: 80,)
                 ],
               ),
@@ -375,6 +399,93 @@ class _PreviewScreenState extends State<PreviewScreen> {
           );
         }
     );
+  }
+
+  void sendFunction() async{
+    final mainProvider = Provider.of<IrrigationProgramProvider>(context, listen: false);
+    Map<String, dynamic> dataToMqtt = {};
+    dataToMqtt = mainProvider.dataToMqtt(widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber, widget.programType);
+    var userData = {
+      "defaultProgramName": mainProvider.defaultProgramName,
+      "userId": widget.userId,
+      "controllerId": widget.controllerId,
+      "createUser": widget.userId,
+      "serialNumber": widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber,
+    };
+    if(mainProvider.irrigationLine!.sequence.isNotEmpty) {
+      // print(mainProvider.selectionModel.data!.toJson());
+      var dataToSend = {
+        "sequence": mainProvider.irrigationLine!.sequence,
+        "schedule": mainProvider.sampleScheduleModel!.toJson(),
+        "conditions": mainProvider.sampleConditions!.toJson(),
+        "waterAndFert": mainProvider.sequenceData,
+        "selection": mainProvider.selectionModel!.data.toJson(),
+        "alarm": mainProvider.newAlarmList!.toJson(),
+        "programName": mainProvider.programName,
+        "priority": mainProvider.priority,
+        "delayBetweenZones": mainProvider.programDetails!.delayBetweenZones,
+        "adjustPercentage": mainProvider.programDetails!.adjustPercentage,
+        "incompleteRestart": mainProvider.isCompletionEnabled ? "1" : "0",
+        "controllerReadStatus": 0,
+        "programType": mainProvider.selectedProgramType,
+        "hardware": dataToMqtt
+      };
+      userData.addAll(dataToSend);
+      // print(dataToMqtt);
+      try {
+        await validatePayloadSent(
+            dialogContext: context,
+            context: context,
+            mqttPayloadProvider: mqttPayloadProvider,
+            acknowledgedFunction: () {
+              setState(() {
+                userData['controllerReadStatus'] = "1";
+              });
+              // showSnackBar(message: "${mqttPayloadProvider.messageFromHw['Name']} from controller", context: context);
+            },
+            payload: dataToMqtt,
+            payloadCode: "2500",
+            deviceId: widget.deviceId
+        );
+        await Future.delayed(const Duration(milliseconds: 300), () async {
+          // print("userData['controllerReadStatus'] ==> ${userData['controllerReadStatus']}");
+          final createUserProgram = await HttpService().postRequest('createUserProgram', userData);
+          final response = jsonDecode(createUserProgram.body);
+          if(createUserProgram.statusCode == 200) {
+            await irrigationProvider.programLibraryData(widget.userId, widget.controllerId);
+            ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: response['message']));
+            if(widget.toDashboard) {
+              Navigator.of(context).pop();
+            } else {
+              // Navigator.of(context).pop();
+              Navigator.of(context).pop();
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProgramSchedule(customerID: widget.userId, controllerID: widget.controllerId, siteName: "", imeiNumber: widget.deviceId, userId: widget.userId,))
+              );
+            }
+          }
+        });
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: 'Failed to update because of $error'));
+        print("Error: $error");
+      }
+      // print(mainProvider.selectionModel.data!.localFertilizerSet!.map((e) => e.toJson()));
+    }
+    else {
+      showAdaptiveDialog<Future>(
+        context: context,
+        builder: (BuildContext context) {
+          return CustomAlertDialog(
+            title: 'Warning',
+            content: "Select valves to be sequence for Irrigation Program",
+            actions: [
+              TextButton(child: const Text("OK"), onPressed: () => Navigator.of(context).pop(),),
+            ],
+          );
+        },
+      );
+    }
   }
 
   String getItem(List data, String item, {bool check = false}) {
@@ -1032,4 +1143,107 @@ Widget _buildScheduleDetailsItem(scheduleType, item, {string = false}) {
       string
           ? '${scheduleType.schedule[item]}'
           : "${dateFormatConversion(DateTime.parse(scheduleType.schedule[item]).isBefore(DateTime.now()) ? DateTime.now().toString() : scheduleType.schedule[item])}");
+}
+
+class SlidingSendButton extends StatefulWidget {
+  final Function onSend;
+
+  const SlidingSendButton({Key? key, required this.onSend}) : super(key: key);
+
+  @override
+  _SlidingSendButtonState createState() => _SlidingSendButtonState();
+}
+
+class _SlidingSendButtonState extends State<SlidingSendButton> {
+  double _dragPosition = 0.0;
+  final double _maxDragDistance = 200.0;
+  IconData icon = Icons.send;
+  bool isSent = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onHorizontalDragUpdate: (details) {
+        setState(() {
+          // Update the drag position within bounds
+          if (!isSent) {
+            _dragPosition += details.delta.dx;
+            _dragPosition = _dragPosition.clamp(0.0, _maxDragDistance);
+          }
+        });
+      },
+      onHorizontalDragEnd: (details) {
+        if (_dragPosition == _maxDragDistance) {
+          widget.onSend(); // Trigger the send action
+          setState(() {
+            isSent = true;
+            icon = Icons.done; // Change icon to 'done'
+          });
+          Future.delayed(Duration(seconds: 1), () {
+            setState(() {
+              // Reset after a delay
+              // isSent = false;
+              // _dragPosition = 0.0;
+              // icon = Icons.send;
+            });
+          });
+        } else {
+          // Reset position if not fully dragged
+          setState(() {
+            // _dragPosition = 0.0;
+          });
+        }
+      },
+      child: Stack(
+        alignment: Alignment.centerLeft,
+        children: [
+          // Background track
+          Container(
+            width: _maxDragDistance + 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(25),
+            ),
+          ),
+          // "Slide to Send" text
+          Positioned(
+            left: isSent ? 100 : 70,
+            child: Text(
+              isSent ? "Sent!" : "-- Slide to Send -->",
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          // Sliding button with animation
+          AnimatedPositioned(
+            duration: Duration(milliseconds: 300),
+            left: _dragPosition,
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: 300),
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: isSent ? Colors.green : Theme.of(context).primaryColor,
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 5,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(
+                icon,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

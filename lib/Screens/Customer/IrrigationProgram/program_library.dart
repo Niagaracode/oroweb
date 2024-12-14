@@ -348,15 +348,9 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                                 ? irrigationProgramMainProvider.programLibrary!.program.firstWhere((element) => element.programName.isEmpty).serialNumber
                                 : irrigationProgramMainProvider.programLibrary!.program.length+1;
                             final programType = programItem.programType;
-                            final elseCondition = Program(programId: 0, serialNumber: serialNumber, programName: programItem.programName, defaultProgramName: programItem.defaultProgramName, programType: programType, priority: "", sequence: [], schedule: {}, hardwareData: {}, controllerReadStatus: '');
-                            String programName = irrigationProgramMainProvider.programLibrary!.program.firstWhere((element) => element.serialNumber == serialNumber, orElse: () => elseCondition).programName;
-                            String defaultProgramName = irrigationProgramMainProvider.programLibrary!.program.firstWhere((element) => element.serialNumber == serialNumber, orElse: () => elseCondition).defaultProgramName;
-                            // copyController.text = irrigationProgramMainProvider.programLibrary!.program.firstWhere((element) => element.serialNumber == serialNumber, orElse: () => elseCondition).programName.isNotEmpty
-                            //     ? programName
-                            //     : defaultProgramName;
-                            copyController.text = programName.isNotEmpty
-                                ? programName
-                                : defaultProgramName;
+                            String programName = "Program $serialNumber";
+                            String defaultProgramName = programName;
+                            copyController.text = programName;
                             programCopy(program: programItem, serialNumber: serialNumber, programType: programType, programName: programName, defaultProgramName: defaultProgramName);
                           }
                       ),
@@ -894,9 +888,7 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
   }
 
   void deleteProgram(program) {
-    irrigationProgramMainProvider
-        .userProgramReset(widget.customerId, widget.controllerId, program.programId, widget.deviceId, program.serialNumber, program.defaultProgramName, program.programName)
-        .then((String message) {
+    irrigationProgramMainProvider.userProgramReset(widget.customerId, widget.controllerId, program.programId, widget.deviceId, program.serialNumber, program.defaultProgramName, program.programName).then((String message) {
       ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: message));
     }).then((value) => irrigationProgramMainProvider.programLibraryData(widget.customerId, widget.controllerId,))
         .catchError((error) {

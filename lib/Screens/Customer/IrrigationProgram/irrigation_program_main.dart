@@ -300,9 +300,19 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                         onPressed: () {
                           _navigateToPreviousTab();
                         },
-                      context: context
+                        context: context
                     ),
-                  const SizedBox(width: 20,),
+                  const SizedBox(width: 10,),
+                  CircleAvatar(
+                    // backgroundColor: Theme.of(context).primaryColor,
+                    child: Text("${selectedIndex + 1}",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        // color: Colors.white
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10,),
                   if(selectedIndex != labels.length-1)
                     buildActionButtonColored(
                         key: "nextPage",
@@ -315,25 +325,19 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                           } else {
                             validateSelection2();
                           }
-                          // if(_tabController.index == 0 && (irrigationProvider.programName.isEmpty || widget.serialNumber == 0)){
-                          //   validatorFunction(context, mainProvider);
-                          // } else {
-                          //   _navigateToNextTab();
-                          // }
                         }
                     ),
-                  if(selectedIndex == labels.length-1)
-                    buildActionButtonColored(
-                        key: "send",
-                        icon: Icons.send,
-                        label: "Save",
-                        context: context,
-                        onPressed: () {
-                          // mainProvider.dataToMqtt(widget.serialNumber);
-                          mainProvider.programLibraryData(widget.userId, widget.controllerId);
-                          sendFunction();
-                        }
-                    ),
+                  // if(selectedIndex == labels.length-1)
+                  //   buildActionButtonColored(
+                  //       key: "send",
+                  //       icon: Icons.send,
+                  //       label: "Save",
+                  //       context: context,
+                  //       onPressed: () {
+                  //         mainProvider.programLibraryData(widget.userId, widget.controllerId);
+                  //         sendFunction();
+                  //       }
+                  //   ),
                 ],
               ),
               floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -730,20 +734,20 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
             ? conditionsLibraryIsNotEmpty
             ? WaterAndFertilizerScreen(userId: widget.userId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram,)
             : const NewAlarmScreen2()
-            : AdditionalDataScreen(serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram,);
+            : AdditionalDataScreen(serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram,userId: widget.userId, controllerId: widget.controllerId, toDashboard: widget.toDashboard, deviceId: widget.deviceId, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, programType: widget.programType);
       case 5:
         return isIrrigationProgram
             ? conditionsLibraryIsNotEmpty
             ? const NewAlarmScreen2()
-            : AdditionalDataScreen(serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram,)
-            : const PreviewScreen();
+            : AdditionalDataScreen(serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram,userId: widget.userId, controllerId: widget.controllerId, toDashboard: widget.toDashboard, deviceId: widget.deviceId, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, programType: widget.programType)
+            : PreviewScreen(userId: widget.userId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, deviceId: widget.deviceId, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, programType: widget.programType,);
       case 6:
         return conditionsLibraryIsNotEmpty
-            ? AdditionalDataScreen(serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram,)
-            : const PreviewScreen();
+            ? AdditionalDataScreen(serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram,userId: widget.userId, controllerId: widget.controllerId, toDashboard: widget.toDashboard, deviceId: widget.deviceId, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, programType: widget.programType)
+            : PreviewScreen(userId: widget.userId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, deviceId: widget.deviceId, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, programType: widget.programType,);
       case 7:
         return conditionsLibraryIsNotEmpty
-            ? const PreviewScreen()
+            ? PreviewScreen(userId: widget.userId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, deviceId: widget.deviceId, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, programType: widget.programType,)
             : Container();
       default:
         return Container();
