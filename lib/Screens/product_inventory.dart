@@ -55,8 +55,6 @@ class ProductInventoryState extends State<ProductInventory> {
   PrdModel? initialSelectedModel;
   int indexOfInitialSelection = 0;
 
-  late List<DropdownMenuEntry<StockModel>> ddCategoryList;
-  List<StockModel> productStockList = <StockModel>[];
   String rplMdl = '-', rplImeiNo = '-';
 
   final ScrollController _scrollController = ScrollController();
@@ -64,6 +62,10 @@ class ProductInventoryState extends State<ProductInventory> {
 
   TextEditingController txtFldSearch = TextEditingController();
 
+  final TextEditingController imeiController = TextEditingController();
+  List<DropdownMenuItem<StockModel>> stockEntries = [];
+  StockModel? selectedStock;
+  int selectedProductId = 0;
 
 
   @override
@@ -79,9 +81,16 @@ class ProductInventoryState extends State<ProductInventory> {
         }
       }
     });
-    ddCategoryList =  <DropdownMenuEntry<StockModel>>[];
     selectedModel =  <DropdownMenuEntry<PrdModel>>[];
     getUserInfo();
+    getMyStock();
+
+    imeiController.addListener(() {
+      imeiController.value = imeiController.value.copyWith(
+        text: imeiController.text.toUpperCase(),
+        selection: TextSelection.collapsed(offset: imeiController.text.length),
+      );
+    });
   }
 
   int getSetNumber(int length) {
@@ -99,6 +108,53 @@ class ProductInventoryState extends State<ProductInventory> {
       setState(() {
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> getMyStock() async {
+    Map<String, dynamic> body = {
+      "fromUserId": null,
+      "toUserId": widget.userId,
+    };
+
+    try {
+      final response = await HttpService().postRequest("getProductStock", body);
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        if (data["code"] == 200) {
+          final cntList = data["data"];
+          final List<DropdownMenuItem<StockModel>> entries = cntList.map<DropdownMenuItem<StockModel>>((item) {
+            final model = StockModel.fromJson(item);
+            return DropdownMenuItem<StockModel>(
+              value: model,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(model.categoryName, style: const TextStyle(fontSize: 13),),
+                  Text(
+                    model.imeiNo,
+                    style: const TextStyle(color: Colors.black54, fontSize: 12),
+                  ),
+                ],
+              ),
+            );
+          }).toList();
+
+          // Update the state to refresh the UI
+          setState(() {
+            stockEntries = entries;
+          });
+
+          print("Stock entries loaded: ${entries.length}");
+        } else {
+          print("Unexpected response code: ${data["code"]}");
+        }
+      } else {
+        print('Failed response: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      print('Network or parsing error: $e');
     }
   }
 
@@ -308,7 +364,24 @@ class ProductInventoryState extends State<ProductInventory> {
                   ),
                   const SizedBox(width: 8,),
                   PopupMenuButton<dynamic>(
-                    icon: const Icon(Icons.filter_alt_outlined),
+                    icon: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      height: 30,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(color: Colors.white24),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.filter_alt_outlined),
+                          SizedBox(width: 3),
+                          Text(
+                            'Filter',
+                            style: TextStyle(fontSize: 13, color: Colors.white, fontWeight: FontWeight.normal),
+                          ),
+                        ],
+                      ),
+                    ),
                     tooltip: 'filter by category or model',
                     itemBuilder: (BuildContext context) {
                       List<PopupMenuEntry<dynamic>> menuItems = [];
@@ -462,7 +535,24 @@ class ProductInventoryState extends State<ProductInventory> {
                   ),
                   const SizedBox(width: 8,),
                   PopupMenuButton<dynamic>(
-                    icon: const Icon(Icons.filter_alt_outlined),
+                    icon: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      height: 30,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(color: Colors.white24),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.filter_alt_outlined),
+                          SizedBox(width: 3),
+                          Text(
+                            'Filter',
+                            style: TextStyle(fontSize: 13, color: Colors.white, fontWeight: FontWeight.normal),
+                          ),
+                        ],
+                      ),
+                    ),
                     tooltip: 'filter by category or model',
                     itemBuilder: (BuildContext context) {
                       List<PopupMenuEntry<dynamic>> menuItems = [];
@@ -597,41 +687,42 @@ class ProductInventoryState extends State<ProductInventory> {
             columnSpacing: 12,
             horizontalMargin: 12,
             minWidth: 1200,
-            dataRowHeight: 40.0,
+            dataRowHeight: 35.0,
             headingRowHeight: 35,
             headingRowColor: WidgetStateProperty.all<Color>(primaryColorDark.withOpacity(0.1)),
+            border: TableBorder.all(color: Colors.teal.shade100, width: 0.5),
             columns: const [
               DataColumn2(
                   label: Center(child: Text('S.No')),
                   fixedWidth: 70
               ),
               DataColumn2(
-                  label: Text('Category'),
-                  size: ColumnSize.M
+                  label: Center(child: Text('Category')),
+                  size: ColumnSize.S
               ),
               DataColumn2(
-                  label: Text('Model Name'),
-                  size: ColumnSize.M
+                  label: Center(child: Text('Model Name')),
+                  size: ColumnSize.S
               ),
               DataColumn2(
-                label: Text('Device Id'),
-                fixedWidth: 170,
+                  label: Center(child: Text('Device Id')),
+                  size: ColumnSize.S
               ),
               DataColumn2(
                 label: Center(child: Text('M.Date')),
-                fixedWidth: 95,
+                fixedWidth: 100,
               ),
               DataColumn2(
                 label: Center(child: Text('Warranty')),
-                fixedWidth: 80,
+                fixedWidth: 90,
               ),
               DataColumn2(
                 label: Center(child: Text('Status')),
                 fixedWidth: 110,
               ),
               DataColumn2(
-                label: Center(child: Text('Sales Person')),
-                fixedWidth: 150,
+                  label: Center(child: Text('Sales Person')),
+                  size: ColumnSize.S
               ),
               DataColumn2(
                 label: Center(child: Text('Modify Date')),
@@ -639,60 +730,59 @@ class ProductInventoryState extends State<ProductInventory> {
               ),
               DataColumn2(
                 label: Center(child: Text('Action')),
-                fixedWidth: 50,
+                fixedWidth: 55,
               ),
             ],
             rows: searched ? List<DataRow>.generate(filterProductInventoryList.length, (index) => DataRow(cells: [
               DataCell(Center(child: Text('${index + 1}'))),
-              DataCell(Text(filterProductInventoryList[index].categoryName)),
-              DataCell(Text(filterProductInventoryList[index].modelName)),
+              DataCell(Center(child: Text(filterProductInventoryList[index].categoryName))),
+              DataCell(Center(child: Text(filterProductInventoryList[index].modelName))),
               DataCell(
-                SelectableText(
-                  filterProductInventoryList[index].deviceId,
+                Center(
+                  child: SelectableText(
+                      filterProductInventoryList[index].deviceId, style: const TextStyle(fontSize: 12)
+                  ),
                 ),
               ),
               DataCell(Center(child: Text(filterProductInventoryList[index].dateOfManufacturing))),
               DataCell(Center(child: Text('${filterProductInventoryList[index].warrantyMonths}'))),
               DataCell(
-                  Center(
-                    child: widget.userType == 1? Row(
-                      children: [
-                        CircleAvatar(radius: 5,
-                          backgroundColor:
-                          filterProductInventoryList[index].productStatus==1? Colors.pink:
-                          filterProductInventoryList[index].productStatus==2? Colors.blue:
-                          filterProductInventoryList[index].productStatus==3? Colors.purple:
-                          filterProductInventoryList[index].productStatus==4? Colors.yellow:
-                          filterProductInventoryList[index].productStatus==5? Colors.deepOrangeAccent:
-                          Colors.green,
-                        ),
-                        const SizedBox(width: 5,),
-                        filterProductInventoryList[index].productStatus==1? const Text('In-Stock'):
-                        filterProductInventoryList[index].productStatus==2? const Text('Stock'):
-                        filterProductInventoryList[index].productStatus==3? const Text('Sold-Out'):
-                        //filterProductInventoryList[index].productStatus==4? const Text('Pending'):
-                        //filterProductInventoryList[index].productStatus==5? const Text('Installed'):
-                        const Text('Active'),
-                      ],
-                    ):
-                    Row(
-                      children: [
-                        CircleAvatar(radius: 5,
-                          backgroundColor:
-                          filterProductInventoryList[index].productStatus==1? Colors.pink:
-                          filterProductInventoryList[index].productStatus==2? Colors.purple:
-                          filterProductInventoryList[index].productStatus==3? Colors.yellow:
-                          //filterProductInventoryList[index].productStatus==4? Colors.deepOrangeAccent:
-                          Colors.green,
-                        ),
-                        const SizedBox(width: 5,),
-                        filterProductInventoryList[index].productStatus==2? const Text('In-Stock'):
-                        filterProductInventoryList[index].productStatus==3? const Text('Sold-Out'):
-                        //filterProductInventoryList[index].productStatus==4? const Text('Pending'):
-                        //filterProductInventoryList[index].productStatus==5? const Text('Installed'):
-                        const Text('Active'),
-                      ],
-                    ),
+                  widget.userType == 1? Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircleAvatar(radius: 5,
+                        backgroundColor:
+                        filterProductInventoryList[index].productStatus==1? Colors.pink:
+                        filterProductInventoryList[index].productStatus==2? Colors.blue:
+                        filterProductInventoryList[index].productStatus==3? Colors.purple:
+                        filterProductInventoryList[index].productStatus==4? Colors.yellow:
+                        filterProductInventoryList[index].productStatus==5? Colors.deepOrangeAccent:
+                        Colors.green,
+                      ),
+                      const SizedBox(width: 5,),
+                      filterProductInventoryList[index].productStatus==1? const Text('In-Stock'):
+                      filterProductInventoryList[index].productStatus==2? const Text('Stock'):
+                      filterProductInventoryList[index].productStatus==3? const Text('Sold-Out'):
+                      const Text('Active'),
+                    ],
+                  ):
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircleAvatar(radius: 5,
+                        backgroundColor:
+                        filterProductInventoryList[index].productStatus==1? Colors.pink:
+                        filterProductInventoryList[index].productStatus==2? Colors.purple:
+                        filterProductInventoryList[index].productStatus==3? Colors.yellow:
+                        Colors.green,
+                      ),
+                      const SizedBox(width: 5,),
+                      filterProductInventoryList[index].productStatus==2? const Text('In-Stock'):
+                      filterProductInventoryList[index].productStatus==3? const Text('Sold-Out'):
+                      const Text('Active'),
+                    ],
                   )
               ),
               DataCell(Center(child: widget.userName==filterProductInventoryList[index].latestBuyer? Text('-'):Text(filterProductInventoryList[index].latestBuyer))),
@@ -705,60 +795,58 @@ class ProductInventoryState extends State<ProductInventory> {
               DataCell(Center(child: IconButton(tooltip:'replace product',onPressed: () {
                 _displayReplaceProductDialog(context, filterProductInventoryList[index].categoryId, filterProductInventoryList[index].categoryName,
                     filterProductInventoryList[index].modelName, filterProductInventoryList[index].modelId, filterProductInventoryList[index].deviceId,
-                    filterProductInventoryList[index].warrantyMonths, filterProductInventoryList[index].productId, filterProductInventoryList[index].buyerId);
+                    filterProductInventoryList[index].warrantyMonths, filterProductInventoryList[index].productId, filterProductInventoryList[index].buyerId,filterProductInventoryList[index].modelId);
               }, icon: const Icon(Icons.repeat),)))
             ])):
             List<DataRow>.generate(productInventoryList.length, (index) => DataRow(cells: [
               DataCell(Center(child: Text('${index + 1}', style: const TextStyle(fontSize: 12),))),
-              DataCell(Text(productInventoryList[index].categoryName, style: const TextStyle(fontSize: 12))),
-              DataCell(Text(productInventoryList[index].modelName, style: const TextStyle(fontSize: 12))),
-              DataCell(Text(productInventoryList[index].deviceId, style: const TextStyle(fontSize: 12))),
+              DataCell(Center(child: Text(productInventoryList[index].categoryName, style: const TextStyle(fontSize: 12)))),
+              DataCell(Center(child: Text(productInventoryList[index].modelName, style: const TextStyle(fontSize: 12)))),
+              DataCell(Center(child: SelectableText(productInventoryList[index].deviceId, style: const TextStyle(fontSize: 12),))),
               DataCell(Center(child: Text(productInventoryList[index].dateOfManufacturing, style: const TextStyle(fontSize: 12)))),
               DataCell(Center(child: Text('${productInventoryList[index].warrantyMonths}', style: const TextStyle(fontSize: 12)))),
               DataCell(
-                Center(
-                  child: widget.userType == 1? Row(
-                    children: [
-                      CircleAvatar(radius: 5,
-                        backgroundColor:
-                        productInventoryList[index].productStatus==1? Colors.pink:
-                        productInventoryList[index].productStatus==2? Colors.blue:
-                        productInventoryList[index].productStatus==3? Colors.purple:
-                        //productInventoryList[index].productStatus==4? Colors.yellow:
-                        //productInventoryList[index].productStatus==5? Colors.deepOrangeAccent:
-                        Colors.green,
-                      ),
-                      const SizedBox(width: 5,),
-                      productInventoryList[index].productStatus==1? const Text('In-Stock', style: const TextStyle(fontSize: 12)):
-                      productInventoryList[index].productStatus==2? const Text('Stock', style: const TextStyle(fontSize: 12)):
-                      productInventoryList[index].productStatus==3? const Text('Sold-Out', style: const TextStyle(fontSize: 12)):
-                      //productInventoryList[index].productStatus==4? const Text('Pending', style: const TextStyle(fontSize: 12)):
-                      //productInventoryList[index].productStatus==5? const Text('Installed', style: const TextStyle(fontSize: 12)):
-                      const Text('Active', style: TextStyle(fontSize: 12)),
-                    ],
-                  ):
-                  Row(
-                    children: [
-                      CircleAvatar(radius: 5,
-                        backgroundColor:
-                        productInventoryList[index].productStatus==1? Colors.pink:
-                        productInventoryList[index].productStatus==2? Colors.purple:
-                        productInventoryList[index].productStatus==3? Colors.yellow:
-                        //productInventoryList[index].productStatus==4? Colors.deepOrangeAccent:
-                        Colors.green,
-                      ),
-                      const SizedBox(width: 5,),
-                      productInventoryList[index].productStatus==2? const Text('In-Stock', style: const TextStyle(fontSize: 12)):
-                      productInventoryList[index].productStatus==3? const Text('Sold-Out', style: const TextStyle(fontSize: 12)):
-                      //productInventoryList[index].productStatus==4? const Text('Pending', style: const TextStyle(fontSize: 12)):
-                      //productInventoryList[index].productStatus==5? const Text('Installed', style: const TextStyle(fontSize: 12)):
-                      const Text('Active', style: const TextStyle(fontSize: 12)),
-                    ],
-                  ),
+                widget.userType == 1? Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircleAvatar(radius: 5,
+                      backgroundColor:
+                      productInventoryList[index].productStatus==1? Colors.pink:
+                      productInventoryList[index].productStatus==2? Colors.blue:
+                      productInventoryList[index].productStatus==3? Colors.purple:
+                      //productInventoryList[index].productStatus==4? Colors.yellow:
+                      //productInventoryList[index].productStatus==5? Colors.deepOrangeAccent:
+                      Colors.green,
+                    ),
+                    const SizedBox(width: 5,),
+                    productInventoryList[index].productStatus==1? const Text('In-Stock', style: const TextStyle(fontSize: 12)):
+                    productInventoryList[index].productStatus==2? const Text('Stock', style: const TextStyle(fontSize: 12)):
+                    productInventoryList[index].productStatus==3? const Text('Sold-Out', style: const TextStyle(fontSize: 12)):
+                    const Text('Active', style: TextStyle(fontSize: 12)),
+                  ],
+                ):
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircleAvatar(radius: 5,
+                      backgroundColor:
+                      productInventoryList[index].productStatus==1? Colors.pink:
+                      productInventoryList[index].productStatus==2? Colors.purple:
+                      productInventoryList[index].productStatus==3? Colors.yellow:
+                      //productInventoryList[index].productStatus==4? Colors.deepOrangeAccent:
+                      Colors.green,
+                    ),
+                    const SizedBox(width: 5,),
+                    productInventoryList[index].productStatus==2? const Text('In-Stock', style: const TextStyle(fontSize: 12)):
+                    productInventoryList[index].productStatus==3? const Text('Sold-Out', style: const TextStyle(fontSize: 12)):
+                    const Text('Active', style: const TextStyle(fontSize: 12)),
+                  ],
                 ),
               ),
               DataCell(Center(child: widget.userName==productInventoryList[index].latestBuyer? Text('-'):Text(productInventoryList[index].latestBuyer, style: const TextStyle(fontSize: 12)))),
-              const DataCell(Center(child: Text('25-09-2023', style: const TextStyle(fontSize: 12)))),
+              const DataCell(Center(child: Text('25-09-2023', style: TextStyle(fontSize: 12)))),
               widget.userType == 1 ? DataCell(Center(child: IconButton(tooltip:'Edit product', onPressed: () {
                 getModelByActiveList(context, productInventoryList[index].categoryId, productInventoryList[index].categoryName,
                     productInventoryList[index].modelName, productInventoryList[index].modelId, productInventoryList[index].deviceId,
@@ -767,7 +855,8 @@ class ProductInventoryState extends State<ProductInventory> {
               DataCell(Center(child: IconButton(tooltip:'replace product',onPressed: () {
                 _displayReplaceProductDialog(context, productInventoryList[index].categoryId, productInventoryList[index].categoryName,
                     productInventoryList[index].modelName, productInventoryList[index].modelId, productInventoryList[index].deviceId,
-                    productInventoryList[index].warrantyMonths, productInventoryList[index].productId, productInventoryList[index].buyerId);
+                    productInventoryList[index].warrantyMonths, productInventoryList[index].productId, productInventoryList[index].buyerId,
+                    productInventoryList[index].modelId);
               }, icon: const Icon(Icons.repeat),)))
             ])),
           ),
@@ -797,7 +886,7 @@ class ProductInventoryState extends State<ProductInventory> {
             minWidth: 1000,
             dataRowHeight: 35.0,
             headingRowHeight: 35,
-            headingRowColor: MaterialStateProperty.all<Color>(primaryColorDark.withOpacity(0.1)),
+            headingRowColor: WidgetStateProperty.all<Color>(primaryColorDark.withOpacity(0.1)),
             //border: TableBorder.all(color: Colors.grey),
             columns: const [
               DataColumn2(
@@ -1086,114 +1175,201 @@ class ProductInventoryState extends State<ProductInventory> {
         });
   }
 
-  Future<void> _displayReplaceProductDialog(BuildContext context, int catId, String catName, String mdlName, int mdlId, String imeiNo, int warranty, int productId, int customerId) async
+  Future<void> _displayReplaceProductDialog(BuildContext context, int catId, String catName, String mdlName, int mdlId, String imeiNo, int warranty, int productId, int customerId, int modelId) async
   {
-    final TextEditingController dropdownCatList = TextEditingController();
-    TextEditingController txtEdControllerMdlName = TextEditingController();
-    TextEditingController txtEdControllerIMEi = TextEditingController();
+    String selectedOption = 'Option 1';
 
     return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Replace Product           '),
-            content: Stack(
-              clipBehavior: Clip.none,
-              children: <Widget>[
-                SizedBox(
-                  height: 320,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('FROM'),
-                      const Divider(),
-                      Text('Category : $catName'),
-                      const SizedBox(height: 5,),
-                      Text('Model : $mdlName'),
-                      const SizedBox(height: 5,),
-                      Text('IMEI No : $imeiNo'),
-                      const Divider(),
-                      const Text('TO'),
-                      const SizedBox(height: 5,),
-                      DropdownMenu<StockModel>(
-                        controller: dropdownCatList,
-                        hintText: 'IMEi Number',
-                        width: 270,
-                        //label: const Text('Category'),
-                        dropdownMenuEntries: ddCategoryList,
-                        inputDecorationTheme: const InputDecorationTheme(
-                          filled: false,
-                          contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                          border: OutlineInputBorder(),
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Product Replace From'),
+              content: SizedBox(
+                height: 300,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SegmentedButton<String>(
+                      segments: const [
+                        ButtonSegment(
+                          value: 'Option 1',
+                          label: Text('My Stock'),
+                          icon: Icon(Icons.looks_one),
                         ),
-                        onSelected: (StockModel? item) {
-                          setState(() {
-                            txtEdControllerMdlName.text = item!.categoryName;
-                            txtEdControllerIMEi.text = item.model;
-                            rplImeiNo =  item.imeiNo;
-                          });
-                        },
-                      ),
-                      TextField(
-                        enabled: false,
-                        controller: txtEdControllerMdlName,
-                        decoration: const InputDecoration(
-                          labelText: 'Category',
+                        ButtonSegment(
+                          value: 'Option 2',
+                          label: Text('Other device'),
+                          icon: Icon(Icons.looks_two),
                         ),
+                      ],
+                      selected: <String>{selectedOption},
+                      onSelectionChanged: (newSelection) {
+                        setState(() {
+                          selectedOption = newSelection.first;
+                        });
+                      },
+                    ),
+                    SizedBox(
+                      height: 250,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 16,),
+                          Column(
+                            children: [
+                              selectedOption=='Option 1'?SizedBox(
+                                child: DropdownButtonFormField<StockModel>(
+                                  value: selectedStock,
+                                  hint: const Text("Select your stock"),
+                                  decoration: InputDecoration(
+                                    contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 5),
+                                    filled: true,
+                                    fillColor: Colors.teal.shade50,
+                                  ),
+                                  isExpanded: true, // Ensure dropdown expands to fit content
+                                  items: stockEntries,
+                                  onChanged: (StockModel? newValue) {
+                                    setState(() {
+                                      selectedStock = newValue;
+                                    });
+                                  },
+                                ),
+                              ):
+                              Row(
+                                children: [
+                                  SizedBox(
+                                    width: 200,
+                                    child: TextFormField(
+                                      maxLength: 12,
+                                      controller: imeiController,
+                                      decoration: InputDecoration(
+                                        counterText: '',
+                                        labelText: 'Device ID',
+                                        hintText: 'Please enter New device id',
+                                        border: const OutlineInputBorder(),
+                                        filled: true,
+                                        fillColor: Colors.teal.shade50,
+                                        contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                                      ),
+                                      onChanged: (value) {
+                                        if (value.trim().isEmpty){
+                                          setState(() {
+                                            imeiController.text = value;
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10,),
+                                  TextButton(
+                                    onPressed: () async {
+                                      if (imeiController.text.trim().isEmpty) {
+                                        _showSnackBar('Please enter new device id');
+                                      } else {
+                                        setState(() {
+                                        });
+                                        final body = {
+                                          "deviceId": imeiController.text,
+                                        };
+                                        final response = await HttpService().postRequest("getProductForReplace", body);
+                                        if (response.statusCode == 200) {
+                                          print(response.body);
+                                          if (jsonDecode(response.body)["code"] == 200) {
+                                            var decodedJson = jsonDecode(response.body);
+                                            String userName = decodedJson['data'][0]['userName'];
+                                            print(userName);
+                                          } else {
+                                            _showSnackBar(jsonDecode(response.body)["message"]);
+                                          }
+
+                                        } else {
+                                          throw Exception('Failed to load data');
+                                        }
+                                      }
+                                    },
+                                    child: const Text('verify'),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          imeiController.text.trim().isNotEmpty
+                              ? Container(
+                            width: 250,
+                            child: Column(
+                              children: [
+                                Text('data'),
+                              ],
+                            ),
+                          )
+                              : const SizedBox(),
+                          SizedBox(height: 16,),
+                          const Text('TO'),
+                          const Divider(),
+                          Text('Category : $catName'),
+                          const SizedBox(height: 5),
+                          Text('Model : $mdlName'),
+                          const SizedBox(height: 5),
+                          Text('IMEI No : $imeiNo'),
+                        ],
                       ),
-                      TextField(
-                        enabled: false,
-                        controller: txtEdControllerIMEi,
-                        decoration: const InputDecoration(
-                          labelText: 'Model',
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                MaterialButton(
+                  color: Colors.red,
+                  textColor: Colors.white,
+                  child: const Text('Cancel'),
+                  onPressed: () async {
+                    Navigator.pop(context);
+                  },
+                ),
+                MaterialButton(
+                  color: Colors.green,
+                  textColor: Colors.white,
+                  child: const Text('Replace'),
+                  onPressed: () async {
+
+                    if(selectedOption == 'Option 1' && selectedStock != null){
+                      final body = {
+                        "userId": customerId,
+                        "oldDeviceId": imeiNo,
+                        "newDeviceId": selectedStock?.imeiNo,
+                        "oldModelId": modelId,
+                        "newModelId": selectedStock?.modelId,
+                        'modifyUser': widget.userId,
+                      };
+                      print(body);
+                      final response = await HttpService().postRequest("replaceProduct", body);
+                      if (response.statusCode == 200) {
+                        if (jsonDecode(response.body)["code"] == 200) {
+                          loadData(currentSet);
+                          _showSnackBar(jsonDecode(response.body)["message"]);
+                        } else {
+                          _showSnackBar(jsonDecode(response.body)["message"]);
+                        }
+                        if (mounted) {
+                          selectedStock = null;
+                          Navigator.pop(context);
+                        }
+                      } else {
+                        throw Exception('Failed to load data');
+                      }
+                    }else{
+                      _showSnackBar('Please select your stock to replace');
+                    }
+                  },
                 ),
               ],
-            ),
-            actions: <Widget>[
-              MaterialButton(
-                color: Colors.red,
-                textColor: Colors.white,
-                child: const Text('Cancel'),
-                onPressed: () async {
-                  Navigator.pop(context);
-                },
-              ),
-              MaterialButton(
-                color: Colors.green,
-                textColor: Colors.white,
-                child: const Text('Replace'),
-                onPressed: () async {
-                  final body = {"userId": customerId, "oldDeviceId": imeiNo, "newDeviceId": rplImeiNo, 'modifyUser': widget.userId};
-                  final response = await HttpService().postRequest("replaceProduct", body);
-                  if (response.statusCode == 200){
-                    if(jsonDecode(response.body)["code"]==200){
-                      loadData(currentSet);
-                      _showSnackBar(jsonDecode(response.body)["message"]);
-                    }else{
-                      _showSnackBar(jsonDecode(response.body)["message"]);
-                    }
-
-                    if(mounted){
-                      Navigator.pop(context);
-                    }
-
-                  } else {
-                    throw Exception('Failed to load data');
-                  }
-
-                  setState(() {
-                    //codeDialog = valueText;
-                    //Navigator.pop(context);
-                  });
-                },
-              ),
-            ],
-          );
-        });
+            );
+          },
+        );
+      },
+    );
   }
 
   Future<void> getModelByActiveList(BuildContext context, int catId, String catName, String mdlName, int mdlId, String imeiNo, int warranty, int productId) async
