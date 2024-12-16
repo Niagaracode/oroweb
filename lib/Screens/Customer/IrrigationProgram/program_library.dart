@@ -417,7 +417,7 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                               });
                               await saveProgramDetails(programItem, dataToMqtt);
                               await Future.delayed(const Duration(seconds: 2), () async{
-                                await irrigationProgramMainProvider.programLibraryData(widget.userID, widget.controllerId,);
+                                await irrigationProgramMainProvider.programLibraryData(widget.customerId, widget.controllerId,);
                               });
                             } catch (error) {
                               showSnackBar(message: 'Failed to update because of $error', context: context);
@@ -875,13 +875,13 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
   void deleteProgram(Program program, String active) {
     irrigationProgramMainProvider
         .userProgramReset(
-        widget.userID,
+        widget.customerId,
         widget.controllerId,
         program.programId,
         widget.deviceId, program.serialNumber, program.defaultProgramName, program.programName, active)
         .then((String message) {
       ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: message));
-    }).then((value) => irrigationProgramMainProvider.programLibraryData(widget.userID, widget.controllerId))
+    }).then((value) => irrigationProgramMainProvider.programLibraryData(widget.customerId, widget.controllerId))
         .catchError((error) {
       ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: error));
     });
@@ -962,7 +962,7 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                                 "2801" : "${program.serialNumber},${program.priority == irrigationProgramMainProvider.priorityList[0] ? 1 : 0}"
                               },
                               {
-                                "2802" : widget.userID
+                                "2802" : widget.customerId
                               }
                             ]
                           };
@@ -990,7 +990,7 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                             });
                             await saveProgramDetails(program, dataToMqtt);
                             await Future.delayed(const Duration(seconds: 2), () async{
-                              await irrigationProgramMainProvider.programLibraryData(widget.userID, widget.controllerId);
+                              await irrigationProgramMainProvider.programLibraryData(widget.customerId, widget.controllerId);
                             });
                           } catch (error) {
                             showSnackBar(message: 'Failed to update because of $error', context: dialogContext);
@@ -1054,14 +1054,14 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
   Future<void> saveProgramDetails(Program program, hardwareData) async{
     irrigationProgramMainProvider
         .updateUserProgramDetails(
-        widget.userID,
+        widget.customerId,
         widget.controllerId,
         program.serialNumber,
         program.programId,
         program.programName,
         program.priority,
         program.defaultProgramName,
-        controllerReadStatus, hardwareData)
+        controllerReadStatus, hardwareData, widget.userID)
         .then((value) => ScaffoldMessenger.of(context)
         .showSnackBar(CustomSnackBar(message: value)));
   }

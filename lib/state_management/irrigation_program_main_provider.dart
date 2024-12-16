@@ -2627,6 +2627,8 @@ class IrrigationProgramProvider extends ChangeNotifier {
         "modifyUser": userId,
       };
 
+      print("userData --> $userData");
+
       var getUserProgramName = await httpService.putRequest(active == "inactive" ? "inactiveUserProgram" : active == "active" ? "activeUserProgram" : 'resetUserProgram', userData);
       if (getUserProgramName.statusCode == 200) {
         final responseJson = getUserProgramName.body;
@@ -2747,13 +2749,13 @@ class IrrigationProgramProvider extends ChangeNotifier {
 
   //TODO: UPDATE PROGRAM DETAILS
   Future<String> updateUserProgramDetails(
-      int userId, int controllerId, int serialNumber, int programId, String programName, String priority, defaultProgramName, String controllerReadStatus, hardwareData) async {
+      int customerId, int controllerId, int serialNumber, int programId, String programName, String priority, defaultProgramName, String controllerReadStatus, hardwareData, int userId) async {
     try {
       Map<String, dynamic> userData = {
-        "userId": userId,
+        "userId": customerId,
         "controllerId": controllerId,
         "serialNumber": serialNumber,
-        "createUser": userId,
+        "createUser": customerId,
         "programId": programId,
         "programName": programName,
         "priority": priority,
