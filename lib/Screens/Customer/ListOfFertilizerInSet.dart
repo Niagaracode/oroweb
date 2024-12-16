@@ -534,11 +534,6 @@ class _ListOfFertilizerInSetState extends State<ListOfFertilizerInSet> with Tick
                     InkWell(
                       onTap: (){
                         Navigator.pop(context);
-                        Future.delayed(Duration(seconds: 1),(){
-                          if(widget.doingAdd == true){
-                            fertSetPvd.editIsShow(widget.recipeIndex,false);
-                          }
-                        });
 
                       },
                       child: Container(

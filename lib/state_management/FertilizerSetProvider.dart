@@ -62,30 +62,31 @@ class FertilizerSetProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  void getDuplicate(int index){
-    duplicate = {};
-    duplicate = {
-      'sNo' : listOfRecipe[selectedSite]['recipe'][index]['sNo'],
-      'id' : listOfRecipe[selectedSite]['recipe'][index]['id'],
-      'name' : listOfRecipe[selectedSite]['recipe'][index]['name'],
-      'location' : listOfRecipe[selectedSite]['recipe'][index]['location'],
-      'select' : listOfRecipe[selectedSite]['recipe'][index]['select'],
-      if(listOfRecipe[selectedSite]['ec'].isNotEmpty)
-        'ecActive' : listOfRecipe[selectedSite]['recipe'][index]['ecActive'],
-      if(listOfRecipe[selectedSite]['ec'].isNotEmpty)
-        'Ec' : listOfRecipe[selectedSite]['recipe'][index]['Ec'],
-      if(listOfRecipe[selectedSite]['ph'].isNotEmpty)
-        'phActive' : listOfRecipe[selectedSite]['recipe'][index]['phActive'],
-      if(listOfRecipe[selectedSite]['ph'].isNotEmpty)
-        'Ph' : listOfRecipe[selectedSite]['recipe'][index]['Ph'],
-    };
-    var getFertilizer = [];
-    for(var i in listOfRecipe[selectedSite]['recipe'][index]['fertilizer']){
-      getFertilizer.add(i);
-    }
-    duplicate['fertilizer'] = getFertilizer;
-    notifyListeners();
-  }
+  // void getDuplicate(int index){
+  //   print('listOfRecipe :: $listOfRecipe');
+  //   duplicate = {};
+  //   duplicate = {
+  //     'sNo' : listOfRecipe[selectedSite]['recipe'][index]['sNo'],
+  //     'id' : listOfRecipe[selectedSite]['recipe'][index]['id'],
+  //     'name' : listOfRecipe[selectedSite]['recipe'][index]['name'],
+  //     'location' : listOfRecipe[selectedSite]['recipe'][index]['location'],
+  //     'select' : listOfRecipe[selectedSite]['recipe'][index]['select'],
+  //     if(listOfRecipe[selectedSite]['ec'].isNotEmpty)
+  //       'ecActive' : listOfRecipe[selectedSite]['recipe'][index]['ecActive'],
+  //     if(listOfRecipe[selectedSite]['ec'].isNotEmpty)
+  //       'Ec' : listOfRecipe[selectedSite]['recipe'][index]['Ec'],
+  //     if(listOfRecipe[selectedSite]['ph'].isNotEmpty)
+  //       'phActive' : listOfRecipe[selectedSite]['recipe'][index]['phActive'],
+  //     if(listOfRecipe[selectedSite]['ph'].isNotEmpty)
+  //       'Ph' : listOfRecipe[selectedSite]['recipe'][index]['Ph'],
+  //   };
+  //   var getFertilizer = [];
+  //   for(var i in listOfRecipe[selectedSite]['recipe'][index]['fertilizer']){
+  //     getFertilizer.add(i);
+  //   }
+  //   duplicate['fertilizer'] = getFertilizer;
+  //   notifyListeners();
+  // }
 
   void addDuplicateRecipe(int index){
     listOfRecipe[selectedSite]['recipe'][index] = duplicate;
@@ -93,6 +94,7 @@ class FertilizerSetProvider extends ChangeNotifier{
   }
 
   void addRecipe(){
+    print('listOfRecipe :: $listOfRecipe');
     listOfRecipe[selectedSite]['recipe'].add({
       'sNo' : editAutoIncrement(),
       'id' : 'CFESE${listOfRecipe[selectedSite]['recipe'].length + 1}',
@@ -204,6 +206,19 @@ class FertilizerSetProvider extends ChangeNotifier{
             }
           }
           print('after filter : ${listOfRecipe[site]}');
+        }
+      }
+      for(var site in data['data']['default']['fertilization']){
+        for(var siteInListOfRecipe in listOfRecipe){
+          if(site['sNo'] == siteInListOfRecipe['sNo']){
+            for(var fert in site['fertilizer']){
+              bool exists = (siteInListOfRecipe['fertilizer'] as List<dynamic>)
+                  .any((e) => e['sNo'] == fert['sNo']);
+              if(!exists){
+                siteInListOfRecipe['fertilizer'].add(fert);
+              }
+            }
+          }
         }
       }
       //   adding the new site
