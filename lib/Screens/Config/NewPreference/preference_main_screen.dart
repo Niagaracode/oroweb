@@ -441,8 +441,8 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
       if(preferenceProvider.passwordValidationCode != 200 && isToGem) {
         MQTTManager().publish(jsonEncode(payloadForSlave), "AppToFirmware/${preferenceProvider.generalData!.deviceId}");
       }
-      bool isAnyOtherChanged = preferenceProvider.individualPumpSetting!.any((pump) => pump.settingList.any((setting) => setting != pump.settingList[3] && setting.changed))
-          || preferenceProvider.commonPumpSettings!.any((pump) => pump.settingList.any((setting) => setting.changed));
+      bool isAnyOtherChanged = preferenceProvider.individualPumpSetting!.any((pump) => pump.settingList.any((setting) => setting != pump.settingList[3] && (setting.changed || !setting.changed)))
+          || preferenceProvider.commonPumpSettings!.any((pump) => pump.settingList.any((setting) => (setting.changed || !setting.changed)));
 
       if(preferenceProvider.commonPumpSettings!.isNotEmpty && isAnyOtherChanged) {
         for (var i = 0; i < payloadForGem.length; i++) {
