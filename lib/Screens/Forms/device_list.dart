@@ -1225,6 +1225,7 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
                                             "products": updatedInterface,
                                             "createUser": widget.userID,
                                             "controllerId": customerSiteList[siteIndex].master[mstIndex].controllerId,
+                                            "categoryId": customerSiteList[siteIndex].master[mstIndex].categoryId,
                                             "hardware": jsonDecode(payLoadFinal),
                                           };
                                           final response = await HttpService().putRequest("updateUserDeviceNodeList", body);
