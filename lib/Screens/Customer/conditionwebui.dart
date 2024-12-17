@@ -1726,7 +1726,8 @@ class _ConditionWebUIState extends State<ConditionWebUI>
     Map<String, dynamic> finaljson = {
       "program": programJson,
       "moisture": moistureJson,
-      "level": levelJson
+      "level": levelJson,
+      "controllerReadStatus": "0"
     };
     String Mqttsenddata = toMqttFormat(conditionLibrary);
     Map<String, dynamic> payLoadFinal = {
@@ -1748,6 +1749,9 @@ class _ConditionWebUIState extends State<ConditionWebUI>
           context: context,
           mqttPayloadProvider: mqttPayloadProvider,
           acknowledgedFunction: () async {
+            setState(() {
+              finaljson["controllerReadStatus"] = "1";
+            });
             final response = await HttpService()
                 .postRequest("createUserPlanningConditionLibrary", body);
             final jsonDataresponse = json.decode(response.body);

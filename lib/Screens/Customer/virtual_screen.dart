@@ -999,6 +999,7 @@ class _VirtualMeterScreenState extends State<VirtualMeterScreen>
   updateconditions() async {
     if (jsondata['waterMeter'].length > 0) {
       initializeData();
+      jsondata['controllerReadStatus'] = "0";
       var mqttpaylod = toMqttformat(jsondata['virtualWaterMeter']);
       Map<String, dynamic> payLoadFinal = {
         "1500": [
@@ -1024,6 +1025,9 @@ class _VirtualMeterScreenState extends State<VirtualMeterScreen>
               context: context,
               mqttPayloadProvider: mqttPayloadProvider,
               acknowledgedFunction: () async{
+                setState(() {
+                  jsondata['controllerReadStatus'] = "1";
+                });
                 final response = await HttpService()
                     .postRequest("createUserPlanningVirtualWaterMeter", body);
                 final jsonDataResponse = json.decode(response.body);

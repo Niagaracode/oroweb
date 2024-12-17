@@ -17,13 +17,44 @@ class Watersource {
     this.data,
   });
 
-  factory Watersource.fromJson(Map<String, dynamic> json) => Watersource(
-    code: json["code"],
-    message: json["message"],
-    data: json["data"] == null
-        ? []
-        : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
-  );
+  // factory Watersource.fromJson(Map<String, dynamic> json) => Watersource(
+  //   code: json["code"],
+  //   message: json["message"],
+  //   data: json["data"] == null
+  //       ? []
+  //       : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
+  // );
+
+
+  factory Watersource.fromJson(Map<String, dynamic> json) {
+    // Check if the 'data' is a list or a map
+    print("runtimeType${json["data"].runtimeType}");
+    if (json["data"] is List) {
+      print("runtimeType list");
+      // Old format, where 'data' is a list
+      return Watersource(
+        code: json["code"],
+        message: json["message"],
+        data: json["data"] == null
+            ? []
+            : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
+      );
+    } else if (json["data"] is Map) {
+      print("runtimeType map");
+      // New format, where 'data' contains a 'backwash' field (which is a list)
+      return Watersource(
+        code: json["code"],
+        message: json["message"],
+        data: json["data"]["waterSource"] == null
+            ? []
+            : List<Datum>.from(json["data"]["waterSource"]!.map((x) => Datum.fromJson(x))),
+      );
+    } else {
+      throw Exception("Unexpected JSON format");
+    }
+  }
+
+
 
   Map<String, dynamic> toJson() => {
     "code": code,
