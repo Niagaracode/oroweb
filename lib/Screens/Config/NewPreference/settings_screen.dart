@@ -592,6 +592,8 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                                       title: settingList[categoryIndex].setting[settingIndex].title,
                                       widgetType: widget.viewSettings
                                           ? 6
+                                          : (settingList[categoryIndex].setting[settingIndex].title == "SENSOR HEIGHT" || settingList[categoryIndex].setting[settingIndex].title == "PRESSURE MAXIMUM VALUE")
+                                          ? 7
                                           : settingList[categoryIndex].setting[settingIndex].widgetTypeId,
                                       inputFormatters: [
                                         FilteringTextInputFormatter.deny(RegExp('[^0-9.]')),
