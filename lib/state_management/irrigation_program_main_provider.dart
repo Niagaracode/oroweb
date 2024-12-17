@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../Models/IrrigationModel/sequence_model.dart';
+import '../constants/MQTTManager.dart';
 import '../constants/data_convertion.dart';
 import '../constants/http_service.dart';
 
@@ -18,8 +19,15 @@ class IrrigationProgramProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  int _selectedIndex = 0;
+  int get selectedIndex => _selectedIndex;
+  void updateBottomNavigation(int index) {
+    _selectedIndex = index;
+    notifyListeners();
+  }
+
   void clearDispose() {
-    // // print("invoked");
+    // // // print("invoked");
     irrigationLine?.sequence = [];
     currentIndex = 0;
     addNext = false;
@@ -46,6 +54,7 @@ class IrrigationProgramProvider extends ChangeNotifier {
         final convertedJson = jsonDecode(responseJson);
         Future.delayed(Duration.zero,() {
           _irrigationLine = SequenceModel.fromJson(convertedJson);
+          updateGroup(valveGroup: _irrigationLine!.defaultData.group);
         }).then((value) {
           if(irrigationLine!.sequence.isEmpty) {
             addNewSequence(serialNumber: serialNumber, zoneSno: 1);
@@ -75,6 +84,32 @@ class IrrigationProgramProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateGroup({required List<Line> valveGroup}) {
+    irrigationLine!.defaultData.group = valveGroup;
+    for (var i = 0; i < irrigationLine!.sequence.length; i++) {
+      if (irrigationLine!.sequence[i]['selectedGroup'].isNotEmpty) {
+        irrigationLine!.sequence[i]['selectedGroup'].forEach((group) {
+          for (var j = 0; j < valveGroup.length; j++) {
+            if (valveGroup[j].id == group) {
+              for (var l = 0; l < valveGroup[j].valve.length; l++) {
+                bool valveExistsInSequence = irrigationLine!.sequence[i]['valve'].any((e) => e['id'] == valveGroup[j].valve[l].id) ?? false;
+
+                if (!valveExistsInSequence) {
+                  irrigationLine!.sequence[i]['valve'].add(valveGroup[j].valve[l].toJson());
+                }
+              }
+
+              irrigationLine!.sequence[i]['valve'].removeWhere((e) {
+                return !valveGroup[j].valve.any((valve) => valve.id == e['id']);
+              });
+            }
+          }
+        });
+      }
+    }
+    notifyListeners();
+  }
+
   List<String> deleteSelection = ["Select", "Select all", "Unselect all"];
   String selectedOption = "Unselect all";
 
@@ -91,11 +126,6 @@ class IrrigationProgramProvider extends ChangeNotifier {
           _irrigationLine!.sequence[i]['name'] = 'Sequence ${serialNumber == 0 ? serialNumberCreation : serialNumber}.${i+1}';
         }
       }
-      // for(var i = 0; i < _irrigationLine!.sequence.length; i++) {
-      //   // _irrigationLine!.sequence[i]['sNo'] = "${serialNumber == 0 ? serialNumberCreation : serialNumber}.${i+1}";
-      //   // _irrigationLine!.sequence[i]['id'] = "SEQ${serialNumber == 0 ? serialNumberCreation : serialNumber}.${i+1}";
-      //   _irrigationLine!.sequence[i]['name'] = "Sequence ${serialNumber == 0 ? serialNumberCreation : serialNumber}.${i+1}";
-      // }
       if(selectedOption == deleteSelection[1] || _irrigationLine!.sequence.isEmpty) {
         assigningCurrentIndex(0);
       } else if(selectedOption == deleteSelection[0]) {
@@ -103,6 +133,7 @@ class IrrigationProgramProvider extends ChangeNotifier {
       }
       selectedOption = deleteSelection[2];
     });
+    print("invoked");
     notifyListeners();
   }
 
@@ -135,37 +166,6 @@ class IrrigationProgramProvider extends ChangeNotifier {
   void updateAddNext({serialNumber, indexToShow}) {
     addNextSequence(serialNumber: serialNumber, zoneSno: irrigationLine!.sequence.length+1, indexToInsert: indexToShow);
     assigningCurrentIndex(indexToShow);
-    for(var i = 0; i < _irrigationLine!.sequence.length; i++) {
-      if(_irrigationLine!.sequence[i]['name'].contains('Sequence')) {
-        _irrigationLine!.sequence[i]['name'] = 'Sequence ${serialNumber == 0 ? serialNumberCreation : serialNumber}.${i+1}';
-      }
-    }
-    notifyListeners();
-  }
-
-  void updateGroup({required List<Line> valveGroup}) {
-    irrigationLine!.defaultData.group = valveGroup;
-    for (var i = 0; i < irrigationLine!.sequence.length; i++) {
-      if (irrigationLine!.sequence[i]['selectedGroup'].isNotEmpty) {
-        irrigationLine!.sequence[i]['selectedGroup'].forEach((group) {
-          for (var j = 0; j < valveGroup.length; j++) {
-            if (valveGroup[j].id == group) {
-              for (var l = 0; l < valveGroup[j].valve.length; l++) {
-                bool valveExistsInSequence = irrigationLine!.sequence[i]['valve'].any((e) => e['id'] == valveGroup[j].valve[l].id) ?? false;
-
-                if (!valveExistsInSequence) {
-                  irrigationLine!.sequence[i]['valve'].add(valveGroup[j].valve[l].toJson());
-                }
-              }
-
-              irrigationLine!.sequence[i]['valve'].removeWhere((e) {
-                return !valveGroup[j].valve.any((valve) => valve.id == e['id']);
-              });
-            }
-          }
-        });
-      }
-    }
     notifyListeners();
   }
 
@@ -266,6 +266,7 @@ class IrrigationProgramProvider extends ChangeNotifier {
     required String groupId,
   }) {
     List<Map<String, dynamic>> valvesToAdd = [];
+
     for (var i = 0; i < valves.length; i++) {
       bool valveExists = checkValveContainment2(
         valves: valves,
@@ -296,6 +297,7 @@ class IrrigationProgramProvider extends ChangeNotifier {
         }
       }
     }
+
     if (isGroup) {
       if(!(irrigationLine!.sequence[sequenceIndex]['selectedGroup'].contains(groupId))) {
         irrigationLine!.sequence[sequenceIndex]['selectedGroup'].add(groupId);
@@ -313,9 +315,11 @@ class IrrigationProgramProvider extends ChangeNotifier {
         }
       }
     }
+
+    print(irrigationLine!.sequence[sequenceIndex]['selectedGroup']);
+    print(irrigationLine!.sequence[sequenceIndex]['valve']);
     notifyListeners();
   }
-
 
   void reorderSelectedValves(int oldIndex, int newIndex) {
     if (newIndex > oldIndex) {
@@ -393,7 +397,7 @@ class IrrigationProgramProvider extends ChangeNotifier {
     } else {
       final selectedRtcKey = sampleScheduleModel!.scheduleByDays.rtc.keys.toList()[selectedRtc];
       sampleScheduleModel!.scheduleByDays.rtc[selectedRtcKey][property] = newTime;
-      // // print(sampleScheduleModel!.scheduleAsRunList.rtc[selectedRtcKey]['maxTime']);
+      // print(sampleScheduleModel!.scheduleAsRunList.rtc[selectedRtcKey]['maxTime']);
     }
     notifyListeners();
   }
@@ -415,12 +419,10 @@ class IrrigationProgramProvider extends ChangeNotifier {
   void updateDate(newDate, dateType) {
     if(selectedScheduleType == scheduleTypes[1]) {
       sampleScheduleModel!.scheduleAsRunList.schedule[dateType] = newDate.toString();
-      // // print(sampleScheduleModel!.scheduleAsRunList.schedule[dateType]);
+      // print(sampleScheduleModel!.scheduleAsRunList.schedule[dateType]);
     } else if(selectedScheduleType == scheduleTypes[2]) {
       sampleScheduleModel!.scheduleByDays.schedule[dateType] = newDate.toString();
     }
-    print("newDate ==> $newDate");
-    print("new date in the model ==> ${sampleScheduleModel!.scheduleAsRunList.schedule[dateType]}");
     notifyListeners();
   }
 
@@ -478,7 +480,7 @@ class IrrigationProgramProvider extends ChangeNotifier {
         }
       }
     }
-    // // print(type);
+    // print(type);
     notifyListeners();
   }
 
@@ -557,6 +559,7 @@ class IrrigationProgramProvider extends ChangeNotifier {
   SampleConditions? _sampleConditions;
   SampleConditions? get sampleConditions => _sampleConditions;
   bool conditionsLibraryIsNotEmpty = false;
+
   Future<void> getUserProgramCondition(int userId, int controllerId, int serialNumber) async {
     try {
       var userData = {
@@ -1969,9 +1972,7 @@ class IrrigationProgramProvider extends ChangeNotifier {
       var nominalFlowRate = [];
       var sno = [];
       for(var val in sequenceData[selectedGroup]['valve']){
-        // // print('constantSetting : ${constantSetting}');
         for(var i = 0;i < constantSetting['valve'].length;i++){
-          // // print('came');
           for(var j = 0;j < constantSetting['valve'][i]['valve'].length;j++){
             if(!sno.contains(constantSetting['valve'][i]['valve'][j]['sNo'])){
               if('${val['sNo']}' == '${constantSetting['valve'][i]['valve'][j]['sNo']}'){
@@ -2300,10 +2301,12 @@ class IrrigationProgramProvider extends ChangeNotifier {
         var fertilizerGapInLiters = literForOneSeconds * diff;
         var userInput = value != '' ? double.parse(value) : 0;
         var howMany1000In_fertilizerGapInLiters = fertilizerGapInLiters/1000;
+        print('fertilizerGapInLiters :::: $fertilizerGapInLiters');
+        print('howMany1000In_fertilizerGapInLiters :::: $howMany1000In_fertilizerGapInLiters');
         var injectorPer1000L = howMany1000In_fertilizerGapInLiters * userInput;
         var flowRate = getFlowRate();
         var maxFertilizerLimitInLiters = (diff * flowRate).toInt();
-        // print('howMany1000In_fertilizerGapInLiters=> ${howMany1000In_fertilizerGapInLiters}  fertilizerGapInLiters => ${fertilizerGapInLiters} injectorPer1000L => ${injectorPer1000L}  maxFertilizerLimitInLiters => ${maxFertilizerLimitInLiters}');
+        print('howMany1000In_fertilizerGapInLiters=> ${howMany1000In_fertilizerGapInLiters}  fertilizerGapInLiters => ${fertilizerGapInLiters} injectorPer1000L => ${injectorPer1000L}  maxFertilizerLimitInLiters => ${maxFertilizerLimitInLiters}');
         if(editingSelectedFertilizer['method'] == 'Pro.quant per 1000L'){
           if(injectorPer1000L > maxFertilizerLimitInLiters){
             editingSelectedFertilizer['quantityValue'] = '${(maxFertilizerLimitInLiters~/howMany1000In_fertilizerGapInLiters)}';
@@ -2405,11 +2408,13 @@ class IrrigationProgramProvider extends ChangeNotifier {
 
     for (var index = 0; index < irrigationLine!.sequence.length; index++) {
       for (var val in irrigationLine!.sequence[index]['valve']) {
-        for (var i = 0; i < constantSetting['valve'].length; i++) {
-          for (var j = 0; j < constantSetting['valve'][i]['valve'].length; j++) {
-            if ('${val['sNo']}' == '${constantSetting['valve'][i]['valve'][j]['sNo']}') {
-              if (constantSetting['valve'][i]['valve'][j]['nominalFlow'] != '') {
-                valveFlowRate.add(constantSetting['valve'][i]['valve'][j]['nominalFlow']);
+        if(constantSetting['valve'] != null) {
+          for (var i = 0; i < constantSetting['valve'].length; i++) {
+            for (var j = 0; j < constantSetting['valve'][i]['valve'].length; j++) {
+              if ('${val['sNo']}' == '${constantSetting['valve'][i]['valve'][j]['sNo']}') {
+                if (constantSetting['valve'][i]['valve'][j]['nominalFlow'] != '') {
+                  valveFlowRate.add(constantSetting['valve'][i]['valve'][j]['nominalFlow']);
+                }
               }
             }
           }
@@ -2417,28 +2422,33 @@ class IrrigationProgramProvider extends ChangeNotifier {
       }
     }
 
-    if (constantSetting['pump'].any((element) => element['pumpStation'] == true)) {
+    if (constantSetting['pump'] != null && constantSetting['pump'].any((element) => element['pumpStation'] == true)) {
       pumpStationCanEnable = true;
     }
 
-    for (var index = 0; index < constantSetting['pump'].length; index++) {
-      var selectedHeadUnits = selectionModel!.data.headUnits!.where((element) => element.selected == true).toList().map((e) => e.id).toList().join('_');
-      if (constantSetting['pump'][index]['location'].toString().contains(selectedHeadUnits)) {
-        // print('Matching pump location: ${constantSetting['pump'][index]['location']} with selectedHeadUnits: $selectedHeadUnits');
-        if (constantSetting['pump'][index]['pumpStation'] == true) {
-          // print("Adding pump station range: ${constantSetting['pump'][index]['range']}");
-          pumpStationFlowRate.add(constantSetting['pump'][index]['range']);
+    if(constantSetting['pump'] != null) {
+      for (var index = 0; index < constantSetting['pump'].length; index++) {
+        var selectedHeadUnits = selectionModel!.data.headUnits!.where((element) => element.selected == true).toList().map((e) => e.id).toList().join('_');
+        if (constantSetting['pump'][index]['location'].toString().contains(selectedHeadUnits)) {
+          print('Matching pump location: ${constantSetting['pump'][index]['location']} with selectedHeadUnits: $selectedHeadUnits');
+          if (constantSetting['pump'][index]['pumpStation'] == true) {
+            print("Adding pump station range: ${constantSetting['pump'][index]['range']}");
+            pumpStationFlowRate.add(constantSetting['pump'][index]['range']);
+          }
         }
       }
     }
 
-    totalValveFlowRate = valveFlowRate.map((flowRate) => int.parse(flowRate)).reduce((a, b) => a + b);
+    if(valveFlowRate.isNotEmpty) {
+      totalValveFlowRate = valveFlowRate.map((flowRate) => int.parse(flowRate)).reduce((a, b) => a + b);
+    }
+
     if (pumpStationFlowRate.isNotEmpty) {
       pumpStationValveFlowRate = pumpStationFlowRate.map((flowRate) => int.parse(flowRate)).reduce((a, b) => a + b);
     }
 
-    // print('Total valve flow rate: $totalValveFlowRate');
-    // print('Total pump station valve flow rate: $pumpStationValveFlowRate');
+    print('Total valve flow rate: $totalValveFlowRate');
+    print('Total pump station valve flow rate: $pumpStationValveFlowRate');
 
     Future.delayed(Duration.zero, () {
       notifyListeners();
@@ -2491,7 +2501,6 @@ class IrrigationProgramProvider extends ChangeNotifier {
       if(getUserProgramAlarm.statusCode == 200) {
         final responseJson = getUserProgramAlarm.body;
         final convertedJson = jsonDecode(responseJson);
-        // print("convertedJson ==> $convertedJson");
         _newAlarmList = NewAlarmList.fromJson(convertedJson);
       } else {
         log("HTTP Request failed or received an unexpected response.");
@@ -2540,8 +2549,8 @@ class IrrigationProgramProvider extends ChangeNotifier {
         if(_programLibrary != null) {
           programCount = _programLibrary!.program.isEmpty ? 1 : _programLibrary!.program.length + 1;
           serialNumberCreation = _programLibrary!.program.length + 1;
-          priority = _programDetails!.priority != "" ? _programDetails!.priority : "None";
         }
+        priority = _programDetails!.priority != "" ? _programDetails!.priority : "Low";
         // if(_programDetails != null) {
         programName = serialNumber == 0
             ? "Program $programCount"
@@ -2560,9 +2569,8 @@ class IrrigationProgramProvider extends ChangeNotifier {
       } else {
         log("HTTP Request failed or received an unexpected response.");
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       log('Error: $e');
-      log('stackTrace: $stackTrace');
       rethrow;
     }
   }
@@ -2578,9 +2586,9 @@ class IrrigationProgramProvider extends ChangeNotifier {
 
   void updateSelectedFilterType(int newIndex) {
     _selectedFilterType = newIndex;
-    // // print("_selectedFilterType ==> $_selectedFilterType");
     notifyListeners();
   }
+
   Future<String> programLibraryData(int userId, int controllerId) async {
     try {
       var userData = {
@@ -2594,7 +2602,7 @@ class IrrigationProgramProvider extends ChangeNotifier {
         final responseJson = getUserProgramName.body;
         final convertedJson = jsonDecode(responseJson);
         _programLibrary = ProgramLibrary.fromJson(convertedJson);
-        // // print("program library data => ${convertedJson['data']['program'].length}");
+        // print("program library data => ${convertedJson['data']['program'].length}");
         priority = _programDetails?.priority != "" ? _programDetails?.priority ?? "None" : "None";
         agitatorCountIsNotZero = convertedJson['data']['agitatorCount'] != 0 ? true : false;
         conditionsLibraryIsNotEmpty = convertedJson['data']['conditionLibraryCount'] != 0 ? true : false;
@@ -2606,15 +2614,14 @@ class IrrigationProgramProvider extends ChangeNotifier {
         throw Exception("HTTP Request failed or received an unexpected response.");
       }
       // return getUserProgramName.statusCode;
-    } catch (e, stackTrace) {
+    } catch (e) {
       log('Error: $e');
-      log('stackTrace: $stackTrace');
       rethrow;
     }
   }
 
   //TODO: PROGRAM RESET
-  Future<String> userProgramReset(int userId, int controllerId, int programId, deviceId, serialNumber, String defaultProgramName, String programName, String active) async {
+  Future<String> userProgramReset(int userId, int controllerId, int programId, deviceId, serialNumber, String defaultProgramName, String programName, String active, String controllerReadStatus) async {
     try {
       var userData = {
         "userId": userId,
@@ -2625,6 +2632,7 @@ class IrrigationProgramProvider extends ChangeNotifier {
         "serialNumber": serialNumber,
         "programName": programName,
         "modifyUser": userId,
+        "controllerReadStatus": controllerReadStatus,
       };
 
       print("userData --> $userData");
@@ -2720,21 +2728,21 @@ class IrrigationProgramProvider extends ChangeNotifier {
     Icons.preview,
   ];
 
-  Tuple<List<String>, List<IconData>> getLabelAndIcon({required int sno, String? programType, required bool conditionLibrary}) {
+  Tuple<List<String>, List<IconData>> getLabelAndIcon({required int sno, String? programType, bool? conditionLibrary}) {
     List<String> labels = [];
     List<IconData> icons = [];
 
     final irrigationProgram = sno == 0
         ? selectedProgramType == "Irrigation Program"
         : programType == "Irrigation Program";
-    // // // print(irrigationProgram);
+    // // print(irrigationProgram);
     if (irrigationProgram) {
       commonLabels = commonLabels.map((label) => label == "Agitator" ? "Water & Fert" : label).toList();
       commonIcons = commonIcons.map((icon) => icon == Icons.air ? Icons.local_florist_rounded : icon).toList();
-      labels = (conditionLibrary)
+      labels = (conditionLibrary ?? false)
           ? commonLabels
           : commonLabels.where((element) => !["Conditions"].contains(element)).toList();
-      icons = (conditionLibrary)
+      icons = (conditionLibrary ?? false)
           ? commonIcons
           : commonIcons.where((element) => ![Icons.fact_check].contains(element)).toList();
     } else {
@@ -2745,7 +2753,6 @@ class IrrigationProgramProvider extends ChangeNotifier {
     }
     return Tuple(labels, icons);
   }
-
 
   //TODO: UPDATE PROGRAM DETAILS
   Future<String> updateUserProgramDetails(
@@ -3085,6 +3092,7 @@ class IrrigationProgramProvider extends ChangeNotifier {
   //     ]
   //   };
   // }
+
   dynamic dataToMqtt(serialNumber, programType) {
     final scheduleType = selectedScheduleType;
     final schedule = scheduleType == scheduleTypes[1]
@@ -3114,6 +3122,8 @@ class IrrigationProgramProvider extends ChangeNotifier {
         });
       });
     }).toList();
+    print("programType in the dataToMqtt ==> $programType");
+    print("programType in the dataToMqtt 2 ==> ${_selectionModel!.data.headUnits?.where((element) => element.selected == true).map((e) => e.id).toList().join("_")}");
     return {
       "2500": [
         {
@@ -3251,26 +3261,10 @@ class IrrigationProgramProvider extends ChangeNotifier {
             (conditionList.map((value) => value ?? '0').toList().join("_")),/*Conditions*/
             newAlarmList!.alarmList.map((e) => e.value == true ? 1 : 0).toList().join('_'),/*AlarmOnOff*/
             '${isChangeOverMode ? 1 : 0}',/*PumpChangeOverFlag*/
-            // '${programType == "Irrigation Program"
-            //     ? selectionModel!.data.irrigationPump!.any((pump) => pump.selected == true) ? selectionModel!.data.headUnits!.where((element) {
-            //   return selectionModel!.data.irrigationPump!.where((pump) => pump.selected == true).any((pump) => pump.location!.contains(element.id.toString()));
-            // }).toList().map((e) => e.id).toList().join("_") : selectionModel!.data.headUnits!.where((headUnit) {
-            //   return irrigationLine!.sequence.any((sequenceItem) {
-            //     return sequenceItem['valve'].any((valve) {
-            //       return valve['location'] == headUnit.id.toString();
-            //     });
-            //   });
-            // }).toList().map((e) => e.id).toList().join("_")
-            //     : _irrigationLine?.sequence.map((e) {
-            //   List valveSerialNumbers = e['valve'].map((valve) => valve['hid']).toList();
-            //   return valveSerialNumbers.join('_');
-            // }).toList().join("+")}',/*IrrigationLine*/
             '${programType == "Irrigation Program"
-                ? selectionModel!.data.irrigationPump!.any((pump) => pump.selected == true)
-                ? selectionModel!.data.headUnits!.where((element) {
+                ? selectionModel!.data.irrigationPump!.any((pump) => pump.selected == true) ? selectionModel!.data.headUnits!.where((element) {
               return selectionModel!.data.irrigationPump!.where((pump) => pump.selected == true).any((pump) => pump.location!.contains(element.id.toString()));
-            }).toList().map((e) => e.id).toList().join("_")
-                : selectionModel!.data.headUnits!.where((headUnit) {
+            }).toList().map((e) => e.id).toList().join("_") : selectionModel!.data.headUnits!.where((headUnit) {
               return irrigationLine!.sequence.any((sequenceItem) {
                 return sequenceItem['valve'].any((valve) {
                   return valve['location'] == headUnit.id.toString();
@@ -3278,8 +3272,8 @@ class IrrigationProgramProvider extends ChangeNotifier {
               });
             }).toList().map((e) => e.id).toList().join("_")
                 : _irrigationLine?.sequence.map((e) {
-              List agitatorLocation = e['valve'].map((valve) => valve['location']).toSet().toList();
-              return agitatorLocation.join('_');
+              List valveSerialNumbers = e['valve'].map((valve) => valve['hid']).toList();
+              return valveSerialNumbers.join('_');
             }).toList().join("+")}',/*IrrigationLine*/
             '${programType == "Irrigation Program"
                 ? _selectionModel!.data.headUnits?.where((element) => element.selected == true).map((e) => e.id).toList().join("_")

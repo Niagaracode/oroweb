@@ -1107,10 +1107,10 @@ class ProgramDetails {
         programName: json['data']['programName'],
         defaultProgramName: json['data']['defaultProgramName'],
         programType: json['data']['programType'],
-        priority: json['data']['priority'],
+        priority: json['data']['priority'] == "" ? "Low" : json['data']['priority'],
         completionOption: json['data']['incompleteRestart'] == "1" ? true : false,
         delayBetweenZones: json["data"]["delayBetweenZones"],
-        adjustPercentage: json["data"]["adjustPercentage"],
+        adjustPercentage: json["data"]["adjustPercentage"] == "0" ? "100" : json["data"]["adjustPercentage"],
         controllerReadStatus: json['data']['controllerReadStatus'] ?? "0"
     );
   }
