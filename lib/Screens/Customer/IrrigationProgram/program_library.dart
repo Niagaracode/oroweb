@@ -364,33 +364,35 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                       ),
                       const SizedBox(width: 10,),
                       buildIconActionWidget(
-                          icon: programItem.active == "1" ? Icons.remove_circle : Icons.check_circle,
+                          icon: programItem.active == "1" ? Icons.remove_circle : Icons.add_circle,
                           iconColor: programItem.active == "1" ? const Color(0xfffd847c) : const Color(0xff10b637),
                           containerColor: programItem.active == "1" ? const Color(0xffFFDEDC) : const Color(0xffd2f3df),
                           toolTip: programItem.active == "1" ? "Inactive program" : "Active program",
-                          onTap: () => showDeleteConfirmationDialog(programItem, programItem.active == "1" ? "inactive" : "active")
+                          onTap: () => showConfirmationDialog(programItem, programItem.active == "1" ? "inactive" : "active")
                       ),
                       const SizedBox(width: 10,),
-                      buildIconActionWidget(
-                          icon: Icons.edit,
-                          iconColor: const Color(0xffFFB27D),
-                          containerColor: const Color(0xffFFF0E5),
-                          toolTip: "Edit",
-                          onTap: () {
-                            // print(index);
-                            print(programItem.programName);
-                            print(programItem.defaultProgramName);
-                            showEditItemDialog(programItem, index, programLibraryData);
-                          }
-                      ),
-                      const SizedBox(width: 10,),
+                      if(programItem.active == "1")
+                        buildIconActionWidget(
+                            icon: Icons.edit,
+                            iconColor: const Color(0xffFFB27D),
+                            containerColor: const Color(0xffFFF0E5),
+                            toolTip: "Edit",
+                            onTap: () {
+                              // print(index);
+                              print(programItem.programName);
+                              print(programItem.defaultProgramName);
+                              showEditItemDialog(programItem, index, programLibraryData);
+                            }
+                        ),
+                      if(programItem.active == "1")
+                        const SizedBox(width: 10,),
                       buildIconActionWidget(
                         icon: programItem.active == "1" ? Icons.send : Icons.delete,
                         iconColor: programItem.active == "1" ? programItem.controllerReadStatus == "1" ? const Color(
                             0xff10b637) : const Color(0xfffbcd38) : const Color(0xfffd847c),
                         containerColor: programItem.active == "1" ? programItem.controllerReadStatus == "1" ? const Color(
                             0xffd2f3df) : const Color(0xffFFDEDC) : const Color(0xffFFDEDC),
-                        toolTip: "Send",
+                        toolTip: programItem.active == "1" ? "Send" : "Delete",
                         onTap: () async{
                           if(programItem.active == "1") {
                             Map<String, dynamic> dataToMqtt = programItem.hardwareData;
@@ -416,15 +418,15 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                                 }
                               });
                               await saveProgramDetails(programItem, dataToMqtt);
-                              await Future.delayed(const Duration(seconds: 2), () async{
-                                await irrigationProgramMainProvider.programLibraryData(widget.userID, widget.controllerId,);
+                              await Future.delayed(const Duration(seconds: 1), () async{
+                                await irrigationProgramMainProvider.programLibraryData(widget.customerId, widget.controllerId,);
                               });
                             } catch (error) {
                               showSnackBar(message: 'Failed to update because of $error', context: context);
                               print("Error: $error");
                             }
                           } else {
-                            showDeleteConfirmationDialog(programItem, "delete");
+                            showConfirmationDialog(programItem, "delete");
                           }
                         },
                       ),
@@ -445,16 +447,13 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                InkWell(
-                  onTap: () => navigateToIrrigationProgram(programItem),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(programItem.programName.isNotEmpty ? programItem.programName : programItem.defaultProgramName,
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor, fontSize: 16),),
-                      Text(programItem.programType, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 11),),
-                    ],
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(programItem.programName.isNotEmpty ? programItem.programName : programItem.defaultProgramName,
+                      style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor, fontSize: 16),),
+                    Text(programItem.programType, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 11),),
+                  ],
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -576,9 +575,9 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                                   children: [
                                     buildRtcWidget(title: "RTC No", dataString: '${index+1}'),
                                     const SizedBox(width: 10,),
-                                    buildRtcWidget(title: "On time", dataString: rtcType['rtc${index+1}']['onTime']),
+                                    buildRtcWidget(title: "Start time", dataString: rtcType['rtc${index+1}']['onTime']),
                                     const SizedBox(width: 10,),
-                                    buildRtcWidget(title: "Interval", dataString: rtcType['rtc${index+1}']['interval']),
+                                    buildRtcWidget(title: "Cycle Interval", dataString: rtcType['rtc${index+1}']['interval']),
                                     const SizedBox(width: 10,),
                                     buildRtcWidget(title: "Cycles", dataString: rtcType['rtc${index+1}']['noOfCycles']),
                                     const SizedBox(width: 10,),
@@ -801,7 +800,7 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
     });
   }
 
-  void showDeleteConfirmationDialog(Program program,String toMove) {
+  void showConfirmationDialog(Program program,String toMove) {
     showAdaptiveDialog(
         context: context,
         builder: (BuildContext dialogContext) {
@@ -814,40 +813,64 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                   child: const Text('No'),
                 ),
                 TextButton(
-                  onPressed: () {
-                    if(irrigationProgramMainProvider.programLibrary!.program.any((element) => element.programName.isNotEmpty && element.active == "0")) {
-                      irrigationProgramMainProvider.updateSelectedFilterType(0);
-                    }
+                  onPressed: () async{
                     if(toMove == "active" || toMove == "inactive") {
-                      deleteProgram(program, toMove);
-                    } else {
-                      if(program.hardwareData.isEmpty) {
-                        deleteProgram(program, toMove);
-                      } else {
-                        Map<String, dynamic> deleteProgramToHardware = {
-                          "3800": [{
-                            "3801": "${program.serialNumber};"
-                          }]
-                        };
-                        validatePayloadSent(
-                            dialogContext: dialogContext,
+                      Map<String, dynamic> dataToMqtt = program.hardwareData;
+                      Map<String, dynamic> deleteProgramToHardware = {
+                        "3800": [{
+                          "3801": "${program.serialNumber};"
+                        }]
+                      };
+                      try {
+                        Navigator.of(dialogContext).pop();
+                        await validatePayloadSent(
+                            dialogContext: context,
                             context: context,
                             mqttPayloadProvider: mqttPayloadProvider,
-                            acknowledgedFunction: () => deleteProgram(program, toMove),
-                            payload: deleteProgramToHardware,
-                            payloadCode: "3800",
+                            acknowledgedFunction: () {
+                              setState(() {
+                                controllerReadStatus = "1";
+                              });
+                              deleteProgram(program, toMove);
+                              // showSnackBar(message: "${mqttPayloadProvider.messageFromHw['Name']} from controller", context: context);
+                            },
+                            payload: toMove == "active" ? dataToMqtt : deleteProgramToHardware,
+                            payloadCode: toMove == "active" ? "2500" : "3800",
                             deviceId: widget.deviceId
-                        );
+                        ).whenComplete(() async {
+                          if(mqttPayloadProvider.messageFromHw['Code'] != "200") {
+                            setState(() {
+                              controllerReadStatus = "0";
+                            });
+                          }
+                        });
+                        // await saveProgramDetails(program, dataToMqtt);
+                        await Future.delayed(const Duration(seconds: 1), () async{
+                          await irrigationProgramMainProvider.programLibraryData(widget.customerId, widget.controllerId,);
+                        });
+                        if(toMove != "inactive") {
+                          if(irrigationProgramMainProvider.programLibrary!.program.any((element) => element.programName.isNotEmpty)) {
+                            irrigationProgramMainProvider.updateSelectedFilterType(0);
+                          }
+                        }
+                      } catch (error) {
+                        showSnackBar(message: 'Failed to update because of $error', context: context);
+                        print("Error: $error");
                       }
+                    } else {
+                      deleteProgram(program, toMove);
+                      if(irrigationProgramMainProvider.programLibrary!.program.any((element) => element.programName.isNotEmpty && element.active == "0")) {
+                        irrigationProgramMainProvider.updateSelectedFilterType(0);
+                      }
+                      Navigator.of(dialogContext).pop();
                     }
-                    Navigator.of(dialogContext).pop();
                   },
                   child: const Text('Yes'),
                 )
               ]);
         });
   }
-  
+
   void showAlertDialog({required String message, Widget? child}) {
     showAdaptiveDialog(
         context: context,
@@ -875,13 +898,13 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
   void deleteProgram(Program program, String active) {
     irrigationProgramMainProvider
         .userProgramReset(
-        widget.userID,
+        widget.customerId,
         widget.controllerId,
         program.programId,
-        widget.deviceId, program.serialNumber, program.defaultProgramName, program.programName, active)
+        widget.deviceId, program.serialNumber, program.defaultProgramName, program.programName, active, controllerReadStatus)
         .then((String message) {
       ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: message));
-    }).then((value) => irrigationProgramMainProvider.programLibraryData(widget.userID, widget.controllerId))
+    }).then((value) => irrigationProgramMainProvider.programLibraryData(widget.customerId, widget.controllerId))
         .catchError((error) {
       ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: error));
     });
@@ -962,7 +985,7 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                                 "2801" : "${program.serialNumber},${program.priority == irrigationProgramMainProvider.priorityList[0] ? 1 : 0}"
                               },
                               {
-                                "2802" : widget.userID
+                                "2802" : widget.customerId
                               }
                             ]
                           };
@@ -990,7 +1013,7 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                             });
                             await saveProgramDetails(program, dataToMqtt);
                             await Future.delayed(const Duration(seconds: 2), () async{
-                              await irrigationProgramMainProvider.programLibraryData(widget.userID, widget.controllerId);
+                              await irrigationProgramMainProvider.programLibraryData(widget.customerId, widget.controllerId);
                             });
                           } catch (error) {
                             showSnackBar(message: 'Failed to update because of $error', context: dialogContext);
@@ -1054,7 +1077,7 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
   Future<void> saveProgramDetails(Program program, hardwareData) async{
     irrigationProgramMainProvider
         .updateUserProgramDetails(
-        widget.userID,
+        widget.customerId,
         widget.controllerId,
         program.serialNumber,
         program.programId,

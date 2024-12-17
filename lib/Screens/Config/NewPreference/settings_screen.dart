@@ -54,6 +54,10 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
     MdiIcons.toggleSwitch,
     MdiIcons.timerSand,
     MdiIcons.motionSensor,
+    MdiIcons.lightbulbCflOff,
+    MdiIcons.toggleSwitch,
+    MdiIcons.timerSand,
+    MdiIcons.motionSensor,
   ];
 
   final voltageSettingsIcons = [
@@ -66,6 +70,11 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
     MdiIcons.lightbulbGroup,
     MdiIcons.lightbulbGroup,
     MdiIcons.lightbulbMultiple,
+    MdiIcons.lightbulbMultiple,
+    MdiIcons.scaleUnbalanced,
+    MdiIcons.flashTriangle,
+    MdiIcons.stepBackward,
+    MdiIcons.stepBackward,
     MdiIcons.lightbulbMultiple,
     MdiIcons.scaleUnbalanced,
     MdiIcons.flashTriangle,
@@ -89,13 +98,6 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
     MdiIcons.timerSand,
   ];
 
-  final levelSettingsIcons = [
-    MdiIcons.calendar,
-    Icons.directions_run,
-    MdiIcons.skipNextOutline,
-    MdiIcons.skipNextOutline,
-  ];
-
   final currentSettingIcons = [
     MdiIcons.waterAlert,
     MdiIcons.timerSand,
@@ -116,6 +118,11 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
     MdiIcons.lightbulbMultiple,
     MdiIcons.lightbulbMultiple,
     MdiIcons.lightbulbMultiple,
+    MdiIcons.overscan,
+    MdiIcons.overscan,
+    MdiIcons.lightbulbMultiple,
+    MdiIcons.lightbulbMultiple,
+    MdiIcons.lightbulbMultiple,
   ];
 
   final additionalSettingsIcons = [
@@ -124,9 +131,31 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
     MdiIcons.calendar,
     Icons.directions_run,
     MdiIcons.skipNextOutline,
+    MdiIcons.storageTank,
+    MdiIcons.bucket,
+    MdiIcons.calendar,
+    Icons.directions_run,
+    MdiIcons.skipNextOutline,
+  ];
+
+  final levelSettingsIcons = [
+    MdiIcons.storageTank,
+    MdiIcons.bucket,
+    MdiIcons.calendar,
+    Icons.directions_run,
+    MdiIcons.skipNextOutline,
+    MdiIcons.skipNextOutline,
+    MdiIcons.bucket,
+    MdiIcons.calendar,
+    Icons.directions_run,
+    MdiIcons.skipNextOutline,
+    MdiIcons.skipNextOutline,
   ];
 
   final voltageCalibrationIcons = [
+    MdiIcons.alphaRCircleOutline,
+    MdiIcons.alphaYCircleOutline,
+    MdiIcons.alphaBCircleOutline,
     MdiIcons.alphaRCircleOutline,
     MdiIcons.alphaYCircleOutline,
     MdiIcons.alphaBCircleOutline,
@@ -134,6 +163,11 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
 
   final otherCalibrationIcons = [
     MdiIcons.clipboardFlow,
+    Icons.compress,
+    MdiIcons.windowMaximize,
+    MdiIcons.waterCheck,
+    MdiIcons.storeSettings,
+    MdiIcons.carCoolantLevel,
     Icons.compress,
     MdiIcons.windowMaximize,
     MdiIcons.waterCheck,

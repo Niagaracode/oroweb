@@ -268,28 +268,41 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                         });
                       });
                       preferenceProvider.temp.clear();
-                      if(preferenceProvider.commonPumpSettings!.isEmpty || preferenceProvider.commonPumpSettings!.length <= 1) {
+                      if(preferenceProvider.individualPumpSetting!.firstWhere((e) => e.controlGem).settingList[3].changed) {
                         sendFunction();
+                        setState(() {
+                          int index = preferenceProvider.individualPumpSetting!.indexWhere((e) => e.controlGem);
+                          print("index ==> $index");
+                          preferenceProvider.individualPumpSetting![index].settingList[3].changed = false;
+                          print(preferenceProvider.individualPumpSetting![index].settingList[3].changed);
+                          print(preferenceProvider.individualPumpSetting!.map((e) => e.settingList[3].changed));
+                        });
                       } else {
-                        if(preferenceProvider.passwordValidationCode == 200) {
-                          if(preferenceProvider.calibrationSetting!.any((element) => element.settingList.any((e) => e.changed == true))) {
-                            selectedOroPumpList.clear();
-                            if(selectedOroPumpList.isEmpty) {
-                              selectedOroPumpList.addAll(preferenceProvider.calibrationSetting!.where((element) => element.settingList.any((e) => e.changed == true)).toList().map((e) =>e.deviceId).toList());
-                            }
-                            sendFunction();
-                          } else {
-                            selectPumpToSend();
-                          }
+                        if(preferenceProvider.commonPumpSettings!.isEmpty || preferenceProvider.commonPumpSettings!.length <= 1) {
+                          sendFunction();
                         } else {
-                          if(preferenceProvider.commonPumpSettings!.any((element) => element.settingList.any((e) => e.changed == true))) {
-                            selectedOroPumpList.clear();
-                            if(selectedOroPumpList.isEmpty) {
-                              selectedOroPumpList.addAll(preferenceProvider.commonPumpSettings!.where((element) => element.settingList.any((e) => e.changed == true)).toList().map((e) =>e.deviceId).toList());
+                          if(preferenceProvider.passwordValidationCode == 200) {
+                            if(preferenceProvider.calibrationSetting!.any((element) => element.settingList.any((e) => e.changed == true))) {
+                              selectedOroPumpList.clear();
+                              if(selectedOroPumpList.isEmpty) {
+                                selectedOroPumpList.addAll(preferenceProvider.calibrationSetting!.where((element) => element.settingList.any((e) => e.changed == true)).toList().map((e) =>e.deviceId).toList());
+                              }
+                              sendFunction();
+                            } else {
+                              selectPumpToSend();
                             }
-                            sendFunction();
                           } else {
-                            selectPumpToSend();
+                            List common = preferenceProvider.commonPumpSettings!.where((element) => element.settingList.any((e) => e.changed == true)).toList().map((e) =>e.deviceId).toList();
+                            List individual = preferenceProvider.individualPumpSetting!.where((element) => element.settingList.any((e) => e.changed == true)).toList().map((e) =>e.deviceId).toList();
+                            if(preferenceProvider.commonPumpSettings!.any((element) => element.settingList.any((e) => e.changed == true)) || preferenceProvider.individualPumpSetting!.any((element) => element.settingList.any((e) => e.changed == true))) {
+                              selectedOroPumpList.clear();
+                              if(selectedOroPumpList.isEmpty) {
+                                selectedOroPumpList.addAll(common.isNotEmpty ? common : individual);
+                              }
+                              sendFunction();
+                            } else {
+                              selectPumpToSend();
+                            }
                           }
                         }
                       }
@@ -428,8 +441,10 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
       if(preferenceProvider.passwordValidationCode != 200 && isToGem) {
         MQTTManager().publish(jsonEncode(payloadForSlave), "AppToFirmware/${preferenceProvider.generalData!.deviceId}");
       }
+      bool isAnyOtherChanged = preferenceProvider.individualPumpSetting!.any((pump) => pump.settingList.any((setting) => setting != pump.settingList[3] && setting.changed))
+          || preferenceProvider.commonPumpSettings!.any((pump) => pump.settingList.any((setting) => setting.changed));
 
-      if(preferenceProvider.commonPumpSettings!.isNotEmpty) {
+      if(preferenceProvider.commonPumpSettings!.isNotEmpty && isAnyOtherChanged) {
         for (var i = 0; i < payloadForGem.length; i++) {
           var payloadToDecode = isToGem ? payloadForGem[i].split('+')[4] : payloadForGem[i];
           var decodedData = jsonDecode(payloadToDecode);
@@ -444,7 +459,11 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
             int pumpIndex = 0;
             for (var individualPump in preferenceProvider.individualPumpSetting ?? []) {
               if (preferenceProvider.commonPumpSettings![oroPumpIndex].deviceId == individualPump.deviceId) {
-                pumpIndex++;
+                if(individualPump.output != null) {
+                  pumpIndex = int.parse(RegExp(r'\d+').firstMatch(individualPump.output)!.group(0)!);
+                } else {
+                  pumpIndex++;
+                }
                 for (var individualPumpSetting in individualPump.settingList) {
                   switch (individualPumpSetting.type) {
                     case 23:
@@ -530,10 +549,10 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
         for (var settingCategory in commonSetting.settingList) {
           if (!sendAll ? (settingCategory.type == 24 && settingCategory.changed) : settingCategory.type == 24) {
             final payload = jsonEncode({"200": jsonEncode({"sentSms": 'voltageconfig,${getSettingValue(settingCategory)}'})});
-            temp.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+${categoryId}": payload);
+            temp.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+$categoryId": payload);
           } else if (!sendAll ? (settingCategory.type == 26 && settingCategory.changed) : settingCategory.type == 26) {
             final payload = jsonEncode({"100": jsonEncode({"sentSms": 'ctConfig,${getSettingValue(settingCategory)}'})});
-            temp.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+${categoryId}": payload);
+            temp.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+$categoryId": payload);
           }
         }
 
@@ -546,28 +565,32 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
             List<String> delayConfigList = [];
             List<String> rtcConfigList = [];
             List<String> scheduleConfigList = [];
-            pumpIndex++;
+            if(individualPump.output != null) {
+              pumpIndex = int.parse(RegExp(r'\d+').firstMatch(individualPump.output)!.group(0)!);
+            } else {
+              pumpIndex++;
+            }
             for (var individualPumpSetting in individualPump.settingList) {
               switch (individualPumpSetting.type) {
                 case 23:
                   if (!sendAll ? individualPumpSetting.changed : true) {
                     final payload = jsonEncode({"400-$pumpIndex": jsonEncode({"sentSms": 'currentconfig,$pumpIndex,${getSettingValue(individualPumpSetting)}'})});
-                    currentConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+${categoryId}": payload);
+                    currentConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+$categoryId": payload);
                   }
                   break;
                 case 22:
                   if (!sendAll ? individualPumpSetting.changed : true) {
                     final payload = jsonEncode({"300-$pumpIndex": jsonEncode({"sentSms": 'delayconfig,$pumpIndex,${getSettingValue(individualPumpSetting)}'})});
-                    delayConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+${categoryId}": payload);
+                    delayConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+$categoryId": payload);
                     final payload2 = jsonEncode({"500-$pumpIndex": jsonEncode({"sentSms": 'rtcconfig,$pumpIndex,${getRtcValue(individualPumpSetting)}'})});
-                    rtcConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload2+${categoryId}": payload2);
+                    rtcConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload2+$categoryId": payload2);
                   }
                   break;
                 case 25:
                   if (!sendAll ? individualPumpSetting.changed : true) {
                     int index = preferenceProvider.individualPumpSetting!.indexWhere((e) => e.deviceId == commonSetting.deviceId);
                     final payload = jsonEncode({"600-$pumpIndex": jsonEncode({"sentSms": 'scheduleconfig,$pumpIndex,${getSettingValue(individualPumpSetting, controlToOroGem: preferenceProvider.individualPumpSetting![index].controlGem)}'})});
-                    scheduleConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+${categoryId}": payload);
+                    scheduleConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+$categoryId": payload);
                   }
                   break;
               }
@@ -601,10 +624,10 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
         for (var settingCategory in commonSetting.settingList) {
           if (!sendAll ? (settingCategory.type == 24 && settingCategory.controllerReadStatus == "0") : settingCategory.type == 24) {
             final payload = jsonEncode({"200": jsonEncode({"sentSms": 'voltageconfig,${getSettingValue(settingCategory)}'})});
-            temp.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+${categoryId}": payload);
+            temp.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+$categoryId": payload);
           } else if (!sendAll ? (settingCategory.type == 26 && settingCategory.controllerReadStatus == "0") : settingCategory.type == 26) {
             final payload = jsonEncode({"100": jsonEncode({"sentSms": 'ctConfig,${getSettingValue(settingCategory)}'})});
-            temp.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+${categoryId}": payload);
+            temp.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+$categoryId": payload);
           }
         }
 
@@ -615,28 +638,32 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
             List<String> delayConfigList = [];
             List<String> rtcConfigList = [];
             List<String> scheduleConfigList = [];
-            pumpIndex++;
+            if(individualPump.output != null) {
+              pumpIndex = int.parse(RegExp(r'\d+').firstMatch(individualPump.output)!.group(0)!);
+            } else {
+              pumpIndex++;
+            }
             for (var individualPumpSetting in individualPump.settingList) {
               switch (individualPumpSetting.type) {
                 case 23:
                   if (!sendAll ? (individualPumpSetting.controllerReadStatus == "0") : true) {
                     final payload = jsonEncode({"400-$pumpIndex": jsonEncode({"sentSms": 'currentconfig,$pumpIndex,${getSettingValue(individualPumpSetting)}'})});
-                    currentConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+${categoryId}": payload);
+                    currentConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+$categoryId": payload);
                   }
                   break;
                 case 22:
                   if (!sendAll ? (individualPumpSetting.controllerReadStatus == "0") : true) {
                     final payload = jsonEncode({"300-$pumpIndex": jsonEncode({"sentSms": 'delayconfig,$pumpIndex,${getSettingValue(individualPumpSetting)}'})});
-                    delayConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+${categoryId}": payload);
+                    delayConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+$categoryId": payload);
                     final payload2 = jsonEncode({"500-$pumpIndex": jsonEncode({"sentSms": 'rtcconfig,$pumpIndex,${getRtcValue(individualPumpSetting)}'})});
-                    rtcConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload2+${categoryId}": payload2);
+                    rtcConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload2+$categoryId": payload2);
                   }
                   break;
                 case 25:
                   if (!sendAll ? (individualPumpSetting.controllerReadStatus == "0") : true) {
                     int index = preferenceProvider.individualPumpSetting!.indexWhere((e) => e.deviceId == commonSetting.deviceId);
                     final payload = jsonEncode({"600-$pumpIndex": jsonEncode({"sentSms": 'scheduleconfig,$pumpIndex,${getSettingValue(individualPumpSetting, controlToOroGem: preferenceProvider.individualPumpSetting![index].controlGem)}'})});
-                    scheduleConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+${categoryId}": payload);
+                    scheduleConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+$categoryId": payload);
                   }
                   break;
               }
@@ -675,7 +702,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
               "900": jsonEncode({"sentSms": 'calibration,${getSettingValue(settingCategory)}'})
             });
             temp.add(isToGem
-                ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+${categoryId}"
+                ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+$categoryId"
                 : payload);
             // print("payload ==>$payload");
           } else if (settingCategory.type == 28) {
