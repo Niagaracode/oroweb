@@ -219,6 +219,7 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
+                    Icon(CupertinoIcons.info_circle),
                     Padding(
                       padding: EdgeInsets.only(right: 10),
                       child: Text(
