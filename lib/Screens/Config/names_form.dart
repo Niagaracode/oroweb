@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../../Models/names_model.dart';
 import '../../constants/MQTTManager.dart';
 import '../../constants/http_service.dart';
@@ -28,6 +29,7 @@ class Names extends StatefulWidget {
 
 class _NamesState extends State<Names> with TickerProviderStateMixin {
   List<NamesModel> _namesList = <NamesModel>[];
+
 
   @override
   void initState() {
@@ -89,16 +91,25 @@ class MyContainerWithTabs extends StatefulWidget {
   final List<NamesModel> names;
   final int userID, customerID, controllerId;
   final String imeiNo;
-
   @override
   State<MyContainerWithTabs> createState() => _MyContainerWithTabsState();
 }
 
 class _MyContainerWithTabsState extends State<MyContainerWithTabs> {
   final TextEditingController _textController = TextEditingController();
+  late MqttPayloadProvider mqttPayloadProvider;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
+  }
 
   @override
   Widget build(BuildContext context) {
+    mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -150,7 +161,41 @@ class _MyContainerWithTabsState extends State<MyContainerWithTabs> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton.icon(
-                      onPressed: () async {
+                    // onPressed: () async {
+                    //   String Mqttsenddata = toMqttformat(widget.names);
+                    //   List<Map<String, dynamic>> nameListJson = widget
+                    //       .names
+                    //       .map((name) => name.toJson())
+                    //       .toList();
+                    //   Map<String, dynamic> body = {
+                    //     "userId": widget.customerID,
+                    //     "controllerId": widget.controllerId,
+                    //     "userNameList": nameListJson,
+                    //     "hardware": jsonDecode(Mqttsenddata),
+                    //     "createUser": widget.customerID,
+                    //     "controllerReadStatus": "0"
+                    //   };
+                    //   print('body$body');
+                    //   print('\n\n\n\n\n\n Mqttsenddata  ---->$Mqttsenddata');
+                    //
+                    //
+                    //
+                    //
+                    //   final response = await HttpService()
+                    //       .postRequest("createUserName", body);
+                    //   if (response.statusCode == 200) {
+                    //     var data = jsonDecode(response.body);
+                    //     print('data$data');
+                    //     if (data["code"] == 200) {
+                    //       _showSnackBar(data["message"]);
+                    //     } else {
+                    //       _showSnackBar(data["message"]);
+                    //     }
+                    //   }
+                    //    MQTTManager().publish(
+                    //       Mqttsenddata, 'AppToFirmware/${widget.imeiNo}');
+                    // },
+                      onPressed:() async{
                         String Mqttsenddata = toMqttformat(widget.names);
                         List<Map<String, dynamic>> nameListJson = widget
                             .names
@@ -161,24 +206,32 @@ class _MyContainerWithTabsState extends State<MyContainerWithTabs> {
                           "controllerId": widget.controllerId,
                           "userNameList": nameListJson,
                           "hardware": jsonDecode(Mqttsenddata),
-                          "createUser": widget.customerID
+                          "createUser": widget.customerID,
+                          "controllerReadStatus": "0"
                         };
-                        print('body$body');
-                        print('\n\n\n\n\n\n Mqttsenddata  ---->$Mqttsenddata');
-                        final response = await HttpService()
-                            .postRequest("createUserName", body);
-                        if (response.statusCode == 200) {
-                          var data = jsonDecode(response.body);
-                          print('data$data');
-                          if (data["code"] == 200) {
-                            _showSnackBar(data["message"]);
-                          } else {
-                            _showSnackBar(data["message"]);
-                          }
+                        if (MQTTManager().isConnected == true) {
+                          await validatePayloadSent(
+                              dialogContext: context,
+                              context: context,
+                              mqttPayloadProvider: mqttPayloadProvider,
+                              acknowledgedFunction: () async{
+                                setState(() {
+                                  body["controllerReadStatus"] = "1";
+                                });
+                                final response = await HttpService()
+                                    .postRequest("createUserName", body);
+                                final jsonDataResponse = json.decode(response.body);
+                                GlobalSnackBar.show(
+                                    context, jsonDataResponse['message'], response.statusCode);
+                              },
+                              payload: jsonDecode(Mqttsenddata),
+                              payloadCode: '3100',
+                              deviceId: widget.imeiNo
+                          );
+                        } else {
+                          GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
                         }
 
-                        MQTTManager().publish(
-                            Mqttsenddata, 'AppToFirmware/${widget.imeiNo}');
                       },
                       label: Text('Save'),
                       icon: const Icon(

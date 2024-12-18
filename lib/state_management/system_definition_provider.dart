@@ -24,6 +24,7 @@ class SystemDefinitionProvider extends ChangeNotifier{
   List<IrrigationLineSystemData>? get irrigationLineSystemData => _irrigationLineSystemData;
   int _selectedIrrigationLine = 0;
   int get selectedIrrigationLine => _selectedIrrigationLine;
+  String controllerReadStatus = "0";
 
   void updateSelectedProgramCategory(int newIndex) {
     _selectedIrrigationLine = newIndex;
@@ -40,8 +41,15 @@ class SystemDefinitionProvider extends ChangeNotifier{
       if(getUserPlanningSystemDefinition.statusCode == 200) {
         final responseJson = getUserPlanningSystemDefinition.body;
         final convertedJson = jsonDecode(responseJson);
-        List<dynamic> result = convertedJson['data'];
-        _irrigationLineSystemData = result.map((e) => IrrigationLineSystemData.fromJson(e)).toList();
+        if(convertedJson['data'] is List<dynamic>) {
+          List<dynamic> result = convertedJson['data'];
+          _irrigationLineSystemData = result.map((e) => IrrigationLineSystemData.fromJson(e)).toList();
+          controllerReadStatus = "0";
+        } else {
+          Map<String, dynamic> result = convertedJson['data'];
+          controllerReadStatus = convertedJson['data']['controllerReadStatus'];
+          _irrigationLineSystemData = (result['systemDefinition'] as List).map((e) => IrrigationLineSystemData.fromJson(e as Map<String, dynamic>)).toList();
+        }
         if(_irrigationLineSystemData != null && _irrigationLineSystemData!.isNotEmpty) {
           Future.delayed(Duration.zero, () {
             if(_irrigationLineSystemData!.every((element) => element.systemDefinition.irrigationLineOn == true)){

@@ -587,6 +587,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
               isVisible: true,
               minimum: 0,
               labelFormat: '{value}',
+              name: isSingleMethod && chartDataList!.first.method == 1 ? 'timeAxis' : null,
               axisLabelFormatter: (AxisLabelRenderDetails details) {
                 if (isSingleMethod && chartDataList!.first.method == 1) {
                   num quantity = details.value;

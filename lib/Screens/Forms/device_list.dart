@@ -680,7 +680,7 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
                 DataCell(Center(child: Text('${index+1}', style: commonTextStyle,))),
                 DataCell(Row(children: [Text(customerProductList[index].categoryName,style: commonTextStyle,)],)),
                 DataCell(Text(customerProductList[index].model,style: commonTextStyle,)),
-                DataCell(Text(customerProductList[index].deviceId,style: commonTextStyle,)),
+                DataCell(SelectableText(customerProductList[index].deviceId,style: commonTextStyle,)),
                 //DataCell(widget.userType==2 ? Text(widget.customerProductList[index].siteName) : widget.customerProductList[index].buyer == widget.userName? const Text('-') : Text(widget.customerProductList[index].buyer)),
                 DataCell(
                     Center(
@@ -1107,7 +1107,7 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
                                         DataCell(Center(child: Text('${data.serialNumber}', style: commonTextStyle,))),
                                         DataCell(Text(data.categoryName, style: commonTextStyle,)),
                                         DataCell(Text(data.modelName, style: commonTextStyle,)),
-                                        DataCell(Text(data.deviceId, style: commonTextStyle,)),
+                                        DataCell(SelectableText(data.deviceId, style: commonTextStyle,)),
                                         DataCell(Center(child: DropdownButton(
                                           value: data.interface,
                                           style: const TextStyle(fontSize: 12),

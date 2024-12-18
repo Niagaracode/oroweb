@@ -301,7 +301,13 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
         mySiteList[siteIndex].master[masterIndex].categoryId==2) {
       //gem or gem+ controller
       payloadProvider.updateWifiStrength(mySiteList[siteIndex].master[masterIndex].gemLive[0].wifiStrength);
-      payloadProvider.updateLastSync('${mySiteList[siteIndex].master[masterIndex].liveSyncDate} ${mySiteList[siteIndex].master[masterIndex].liveSyncTime}');
+      String liveSyncDate = mySiteList[siteIndex].master[masterIndex].liveSyncDate ?? '';
+      String liveSyncTime = mySiteList[siteIndex].master[masterIndex].liveSyncTime ?? '';
+
+      if (liveSyncDate.isNotEmpty && liveSyncTime.isNotEmpty) {
+        String combinedTime = '$liveSyncDate $liveSyncTime';
+        payloadProvider.updateLastSync(combinedTime);
+      }
 
       List<dynamic> ndlLst = mySiteList[siteIndex].master[masterIndex].gemLive[0].nodeList.map((ndl) => ndl.toJson()).toList();
       payloadProvider.updateNodeList(ndlLst);
@@ -607,10 +613,9 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
               ),
             ),
             Text(
-              'Last sync @ : ${formatDateTime(DateTime.parse(payload.syncDateTime))}',
+              payload.syncDateTime.isNotEmpty? 'Last sync @ : ${formatDateTime(DateTime.parse(payload.syncDateTime))}':'....',
               style: const TextStyle(fontSize: 15, color: Colors.white70),
-            )
-
+            ),
           ],
         ),
         leadingWidth: 75,
@@ -703,9 +708,23 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                           ListTile(
                             leading: const Icon(Icons.info_outline),
                             title: const Text('Controller info'),
-                            onTap: ()  {
+                            onTap: ()  async {
                               Navigator.pop(context);
-                              _showPasswordDialog(context);
+                              final prefs = await SharedPreferences.getInstance();
+                              String userType = (prefs.getString('userType') ?? "");
+                              if(userType=='1'){
+                                if(mounted){
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>  ResetVerssion(userId: widget.customerId, controllerId: mySiteList[siteIndex].master[masterIndex].controllerId,deviceID: mySiteList[siteIndex].master[masterIndex].deviceId),
+                                    ),
+                                  );
+                                }
+                              }else{
+                                _showPasswordDialog(context);
+                              }
+
                             },
                           ),
                           ListTile(
@@ -1197,14 +1216,14 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
         ):
         const SizedBox(),
 
-        payload.nodeAndControllerConnection==false?Container(
+        /* payload.nodeAndControllerConnection==false?Container(
           height: 20.0,
           decoration: const BoxDecoration(
             color: Colors.redAccent,
             borderRadius: BorderRadius.only(topLeft: Radius.circular(0),topRight: Radius.circular(0)),
           ),
           child: Center(
-            child: Text('Some node missing or not liked properly with the Controller'.toUpperCase(),
+            child: Text('Some node missing or not linked properly with the Controller'.toUpperCase(),
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 12.0,
@@ -1212,7 +1231,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
             ),
           ),
         ):
-        const SizedBox(),
+        const SizedBox(),*/
 
         Expanded(
           child: Padding(

@@ -470,64 +470,69 @@ class _SystemDefinitionState extends State<SystemDefinition> {
           : const Center(child: CircularProgressIndicator()),
       floatingActionButton: MaterialButton(
         minWidth: 100,
-        color: Theme.of(context).primaryColor,
+        color: systemDefinitionProvider.controllerReadStatus == "1" ? Theme.of(context).primaryColor : Colors.orangeAccent,
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20)
+            borderRadius: BorderRadius.circular(10)
         ),
-        textColor: Colors.white,
-          onPressed: () async{
-            // print(systemDefinitionProvider.irrigationLineSystemData!.map((e) => e.toMqtt()).toList().join("\n"));
-            Map<String, dynamic> dataToMqtt = {
-              "2200": [
-                {
-                  "2201": systemDefinitionProvider.irrigationLineSystemData!.map((e) => e.toMqtt()).toList().join(";"),
-                },
-                {
-                  "2202": "${widget.userId}"
-                }
-              ]
-            };
+        textColor: systemDefinitionProvider.controllerReadStatus == "1" ? Colors.white : Colors.black,
+        onPressed: () async{
+          // print(systemDefinitionProvider.irrigationLineSystemData!.map((e) => e.toMqtt()).toList().join("\n"));
+          Map<String, dynamic> dataToMqtt = {
+            "2200": [
+              {
+                "2201": systemDefinitionProvider.irrigationLineSystemData!.map((e) => e.toMqtt()).toList().join(";"),
+              },
+              {
+                "2202": "${widget.userId}"
+              }
+            ]
+          };
 
-            Map<String, dynamic> userData = {
-              "userId": widget.userId,
-              "controllerId": widget.controllerId,
-              "createUser": widget.userId,
+          Map<String, dynamic> userData = {
+            "userId": widget.userId,
+            "controllerId": widget.controllerId,
+            "createUser": widget.userId,
+            "systemDefinition" : {
               "systemDefinition" : systemDefinitionProvider.irrigationLineSystemData!.map((e) => e.toJson()).toList(),
-              "hardware": dataToMqtt
-            };
-            // print(dataToMqtt);
-            try {
-              await validatePayloadSent(
-                  dialogContext: context,
-                  context: context,
-                  mqttPayloadProvider: mqttPayloadProvider,
-                  acknowledgedFunction: () {
-                    setState(() {
-                      // userData['controllerReadStatus'] = "1";
-                      // if(userData['controllerReadStatus'] == "0") {
-                      //   userData['hardware'] = {};
-                      // }
-                    });
-                    // showSnackBar(message: "${mqttPayloadProvider.messageFromHw['Name']} from controller", context: context);
-                  },
-                  payload: dataToMqtt,
-                  payloadCode: "2200",
-                  deviceId: widget.deviceId
-              ).whenComplete(() {
-                Future.delayed(const Duration(seconds: 1), () async {
-                  final createUserPlanningSystemDefinition = await httpService.postRequest('createUserPlanningSystemDefinition', userData);
-                  // print(userData['systemDefinition']);
-                  final response = jsonDecode(createUserPlanningSystemDefinition.body);
-                  if(createUserPlanningSystemDefinition.statusCode == 200) {
-                    ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: response['message']));
-                  }
-                });
-              });
-            } catch (error) {
-              ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: 'Failed to update because of $error'));
-              debugPrint("Error: $error");
-            }
-          },
+              "controllerReadStatus" : "1"
+            },
+            "hardware": dataToMqtt
+          };
+          // print(dataToMqtt);
+          try {
+            await validatePayloadSent(
+                dialogContext: context,
+                context: context,
+                mqttPayloadProvider: mqttPayloadProvider,
+                acknowledgedFunction: () {
+                  setState(() {
+                    userData['systemDefinition']['controllerReadStatus'] = "1";
+                    systemDefinitionProvider.controllerReadStatus = "1";
+                    // userData['controllerReadStatus'] = "1";
+                    // if(userData['controllerReadStatus'] == "0") {
+                    //   userData['hardware'] = {};
+                    // }
+                  });
+                  // showSnackBar(message: "${mqttPayloadProvider.messageFromHw['Name']} from controller", context: context);
+                },
+                payload: dataToMqtt,
+                payloadCode: "2200",
+                deviceId: widget.deviceId
+            );
+            await Future.delayed(const Duration(seconds: 1), () async {
+              final createUserPlanningSystemDefinition = await httpService.postRequest('createUserPlanningSystemDefinition', userData);
+              // print(userData['systemDefinition']);
+              final response = jsonDecode(createUserPlanningSystemDefinition.body);
+              if(createUserPlanningSystemDefinition.statusCode == 200) {
+                ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: response['message']));
+              }
+            });
+            // showNavigationDialog(context: context, menuId: widget.menuId);
+          } catch (error) {
+            ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: 'Failed to update because of $error'));
+            debugPrint("Error: $error");
+          }
+        },
         child: const Text("Send"),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
