@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 Filterbackwash filterbackwashFromJson(String str) =>
@@ -10,20 +9,43 @@ class Filterbackwash {
   int? code;
   String? message;
   List<Datum>? data;
+  String? readStatus;
 
   Filterbackwash({
     this.code,
     this.message,
     this.data,
+    this.readStatus,
   });
 
-  factory Filterbackwash.fromJson(Map<String, dynamic> json) => Filterbackwash(
-    code: json["code"],
-    message: json["message"],
-    data: json["data"] == null
-        ? []
-        : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
-  );
+  factory Filterbackwash.fromJson(Map<String, dynamic> json) {
+    // Check if the 'data' is a list or a map
+    print("runtimeType${json["data"].runtimeType}");
+    if (json["data"] is List) {
+      print("runtimeType list");
+      // Old format, where 'data' is a list
+      return Filterbackwash(
+        code: json["code"],
+        message: json["message"],
+        readStatus: json["readStatus"],
+        data: json["data"] == null
+            ? []
+            : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
+      );
+    } else if (json["data"] is Map) {
+      print("runtimeType map");
+      // New format, where 'data' contains a 'backwash' field (which is a list)
+      return Filterbackwash(
+        code: json["code"],
+        message: json["message"],
+        data: json["data"]["filterBackwashing"] == null
+            ? []
+            : List<Datum>.from(json["data"]["filterBackwashing"]!.map((x) => Datum.fromJson(x))),
+      );
+    } else {
+      throw Exception("Unexpected JSON format");
+    }
+  }
 
   Map<String, dynamic> toJson() => {
     "code": code,
@@ -31,6 +53,7 @@ class Filterbackwash {
     "data": data == null
         ? []
         : List<dynamic>.from(data!.map((x) => x.toJson())),
+    "readStatus":readStatus
   };
 }
 

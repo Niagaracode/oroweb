@@ -15,8 +15,13 @@ class FrostProtectionModel {
     this.rainDelay,
   });
 
-  factory FrostProtectionModel.fromJson(Map<String, dynamic> json) =>
-      FrostProtectionModel(
+  factory FrostProtectionModel.fromJson(Map<String, dynamic> json) {
+    // Check if the 'data' is a list or a map
+    print("runtimeType${json["data"].runtimeType}");
+    if (json["data"]["frostProtection"] is List) {
+      print("runtimeType list");
+      // Old format, where 'data' is a list
+      return FrostProtectionModel(
         frostProtection: json['data']["frostProtection"] == null
             ? []
             : List<FrostProtection>.from(json['data']["frostProtection"]!
@@ -26,6 +31,23 @@ class FrostProtectionModel {
             : List<FrostProtection>.from(json['data']["rainDelay"]!
             .map((x) => FrostProtection.fromJson(x))),
       );
+    } else if (json["data"]["frostProtection"] is Map) {
+
+      // New format, where 'data' contains a 'backwash' field (which is a list)
+      return FrostProtectionModel(
+        frostProtection: json['data']["frostProtection"]["frostProtection"] == null
+            ? []
+            : List<FrostProtection>.from(json['data']["frostProtection"]!["frostProtection"]
+            .map((x) => FrostProtection.fromJson(x))),
+        rainDelay: json['data']["rainDelay"]["rainDelay"]  == null
+            ? []
+            : List<FrostProtection>.from(json['data']["rainDelay"]["rainDelay"]!
+            .map((x) => FrostProtection.fromJson(x))),
+      );
+    } else {
+      throw Exception("Unexpected JSON format");
+    }
+  }
 
   Map<String, dynamic> toJson() => {
     "frostProtection": frostProtection == null

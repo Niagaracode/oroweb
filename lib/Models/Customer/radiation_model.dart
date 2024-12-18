@@ -13,11 +13,32 @@ class RqadiationSet {
     this.data,
   });
 
-  factory RqadiationSet.fromJson(Map<String, dynamic> json) => RqadiationSet(
-    data: json["data"] == null
-        ? []
-        : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
-  );
+
+  factory RqadiationSet.fromJson(Map<String, dynamic> json) {
+    // Check if the 'data' is a list or a map
+    print("runtimeType${json["data"].runtimeType}");
+    if (json["data"] is List) {
+      print("runtimeType list");
+      // Old format, where 'data' is a list
+      return RqadiationSet(
+        data: json["data"] == null
+            ? []
+            : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
+
+      );
+    } else if (json["data"] is Map) {
+
+      // New format, where 'data' contains a 'backwash' field (which is a list)
+      return RqadiationSet(
+        data: json["data"]['radiationSet'] == null
+            ? []
+            : List<Datum>.from(json["data"]['radiationSet']!.map((x) => Datum.fromJson(x))),
+      );
+    } else {
+      throw Exception("Unexpected JSON format");
+    }
+  }
+
 
   Map<String, dynamic> toJson() => {
     "data": data == null

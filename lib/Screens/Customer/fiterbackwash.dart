@@ -1033,30 +1033,30 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
         {"901": mqttSendData},
       ]
     };
-    List<Map<String, dynamic>> filterBackWash =
-    _filterbackwash.data!.map((condition) => condition.toJson()).toList();
-    Map<String, Object> body = {
-      "userId": widget.userId,
-      "controllerId": widget.controllerId,
-      "filterBackwash": filterBackWash,
-      "hardware":payLoadFinal,
-      "createUser": widget.userId
-    };
-
     // List<Map<String, dynamic>> filterBackWash =
     // _filterbackwash.data!.map((condition) => condition.toJson()).toList();
-    //
-    // print("filterBackWash------->${filterBackWash}");
-    // Map<String, dynamic> body = {
+    // Map<String, Object> body = {
     //   "userId": widget.userId,
     //   "controllerId": widget.controllerId,
-    //   "filterBackwash": {
-    //     "filterBackwashing": filterBackWash,
-    //     "controllerReadStatus": "0",
-    //   },
-    //   "hardware": payLoadFinal,
+    //   "filterBackwash": filterBackWash,
+    //   "hardware":payLoadFinal,
     //   "createUser": widget.userId
     // };
+
+    List<Map<String, dynamic>> filterBackWash =
+    _filterbackwash.data!.map((condition) => condition.toJson()).toList();
+
+    print("filterBackWash------->${filterBackWash}");
+    Map<String, dynamic> body = {
+      "userId": widget.userId,
+      "controllerId": widget.controllerId,
+      "filterBackwash": {
+        "filterBackwashing": filterBackWash,
+        "controllerReadStatus": "0",
+      },
+      "hardware": payLoadFinal,
+      "createUser": widget.userId
+    };
 
     // if (MQTTManager().isConnected == true) {
     //   MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceID}');
@@ -1073,7 +1073,7 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
         mqttPayloadProvider: mqttPayloadProvider,
         acknowledgedFunction: () async {
           setState(() {
-            // body["filterBackwash"]["controllerReadStatus"] = "1";
+            body["filterBackwash"]["controllerReadStatus"] = "1";
           });
 
           final response = await HttpService()

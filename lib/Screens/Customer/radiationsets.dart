@@ -958,9 +958,11 @@ class _RadiationSetUIState extends State<RadiationSetUI>
     }
   }
 
+
   updateRadiationRet() async {
+
     List<Map<String, dynamic>> radiationSet =
-        _radiationSet.data!.map((condition) => condition.toJson()).toList();
+    _radiationSet.data!.map((condition) => condition.toJson()).toList();
     String mqttSendData = toMqttFormat(_radiationSet.data);
     print('radiationSet:$radiationSet');
     Map<String, dynamic> payLoadFinal = {
@@ -968,20 +970,13 @@ class _RadiationSetUIState extends State<RadiationSetUI>
         {"1901": mqttSendData},
       ]
     };
-    // MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceId}');
-    Map<String, Object> body = {
+    Map<String, dynamic> body = {
       "userId": widget.userId,
       "controllerId": widget.controllerId,
-      "radiationSet": radiationSet,
-      "hardware":payLoadFinal,
+      "radiationSet": {"radiationSet":radiationSet,"controllerReadStatus": "0"},
+      "hardware": payLoadFinal,
       "createUser": widget.userId
     };
-    // final response =
-    //     await HttpService().postRequest("createUserPlanningRadiationSet", body);
-    //
-    // final jsonDataResponse = json.decode(response.body);
-    // GlobalSnackBar.show(
-    //     context, jsonDataResponse['message'], response.statusCode);
 
     if (MQTTManager().isConnected == true) {
       await validatePayloadSent(
@@ -989,6 +984,9 @@ class _RadiationSetUIState extends State<RadiationSetUI>
           context: context,
           mqttPayloadProvider: mqttPayloadProvider,
           acknowledgedFunction: () async{
+            setState(() {
+              body["radiationSet"]["controllerReadStatus"] = "1";
+            });
             final response = await HttpService()
                 .postRequest("createUserPlanningRadiationSet", body);
             final jsonDataResponse = json.decode(response.body);

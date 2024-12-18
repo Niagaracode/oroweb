@@ -38,11 +38,13 @@ class MyGroupScreenState extends State<MyGroupScreen> with ChangeNotifier {
   List<Group>? groupNamesNew = [];
   final ScrollController _controller = ScrollController();
   final ScrollController _controller2 = ScrollController();
+  late MqttPayloadProvider mqttPayloadProvider;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: true);
 
     if (mounted) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -158,6 +160,7 @@ class MyGroupScreenState extends State<MyGroupScreen> with ChangeNotifier {
 
   @override
   Widget build(BuildContext context) {
+    mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: true);
     var groupSelect = Provider.of<SelectedGroupProvider>(context, listen: true);
     if (_groupedName.data == null) {
       return const Center(
@@ -343,7 +346,7 @@ class MyGroupScreenState extends State<MyGroupScreen> with ChangeNotifier {
                   Map<String, dynamic> body = {
                     "userId": widget.userId,
                     "controllerId": widget.controllerId,
-                    "group": group['group'],
+                    "group": {"namedGroup":group['group'],"controllerReadStatus" : "0"},
                     "hardware":payLoadFinal,
                     "createUser": widget.userId
                   };
@@ -376,7 +379,7 @@ class MyGroupScreenState extends State<MyGroupScreen> with ChangeNotifier {
                   Map<String, dynamic> body = {
                     "userId": widget.userId,
                     "controllerId": widget.controllerId,
-                    "group": group['group'],
+                    "group": {"namedGroup":group['group'],"controllerReadStatus" : "0"},
                     "createUser": widget.userId
                   };
                   // final response = await HttpService()
@@ -386,19 +389,39 @@ class MyGroupScreenState extends State<MyGroupScreen> with ChangeNotifier {
                   //     response.statusCode);
                   String mqttDendData = toMqttFormat(_groupedName.data!.group);
                   List<Line> line = [];
-                  setState(() {
-                    for(var i = 0; i < body['group']!.length; i++) {
-                      if(body['group'][i]['valve'].isNotEmpty) {
-                        line.add(Line.fromJson(body['group'][i]));
-                      }
-                    }
-                    Provider.of<IrrigationProgramProvider>(context, listen: false).updateGroup(valveGroup: line);
-                  });
                   Map<String, dynamic> payLoadFinal = {
                     "1300": [
                       {"1301": mqttDendData},
                     ]
                   };
+                  setState(() async {
+
+                    if (MQTTManager().isConnected == true) {
+                      await validatePayloadSent(
+                          dialogContext: context,
+                          context: context,
+                          mqttPayloadProvider: mqttPayloadProvider,
+                          acknowledgedFunction: () async {
+                            setState(() {
+                              body["group"]["controllerReadStatus"] = "1";
+                            });
+                            final response = await HttpService().postRequest(
+                                "createUserPlanningNamedGroup", body);
+                            final jsonDataResponse = json.decode(response.body);
+                            // MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceID}');
+                            GlobalSnackBar.show(
+                                context,
+                                jsonDataResponse['message'],
+                                response.statusCode);
+                          },
+                          payload: payLoadFinal,
+                          payloadCode: '1300',
+                          deviceId: widget.imeiNo);
+                    } else {
+                      GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
+                    }
+                  });
+
                   final response = await HttpService().postRequest("createUserPlanningNamedGroup", body);
                   final jsonDataResponse = json.decode(response.body);
                   GlobalSnackBar.show(context, jsonDataResponse['message'], response.statusCode);

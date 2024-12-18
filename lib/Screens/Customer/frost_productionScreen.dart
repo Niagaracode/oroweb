@@ -717,9 +717,9 @@ class _ConditionUIState extends State<FrostMobUI>
         .toList();
     String key = "";
     String action = "";
-    List<Map<String, dynamic>> value = [];
+    Map<String, dynamic> value = {};
     _currentSelection == 0 ? key = "frostProtection" : key = "rainDelay";
-    _currentSelection == 0 ? value = frostProtection : value = rainDelay;
+    _currentSelection == 0 ? value = {"frostProtection": frostProtection,"controllerReadStatus": "1"} : value = {"rainDelay": rainDelay,"controllerReadStatus": "1"};
     _currentSelection == 0 ? action = "createUserPlanningFrostProtection" : action =  "createUserPlanningRainDelay";
     Map<String, Object> body = {
       "userId": widget.userId,

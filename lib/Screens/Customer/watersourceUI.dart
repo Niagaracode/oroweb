@@ -168,7 +168,7 @@ class _watersourceUIState extends State<watersourceUI>
           floatingActionButton: FloatingActionButton(
             onPressed: () async {
               setState(() {
-                updateradiationset();
+                updateRadiationSet();
               });
             },
             tooltip: 'Send',
@@ -608,25 +608,24 @@ class _watersourceUIState extends State<watersourceUI>
     }
   }
 
-  updateradiationset() async {
-    List<Map<String, dynamic>> watersource =
-    _watersource.data!.map((condition) => condition.toJson()).toList();
-    String Mqttsenddata = toMqttformat(_watersource.data);
+  updateRadiationSet() async {
 
-    Map<String, dynamic> payLoadFinal =  {
+    List<Map<String, dynamic>> waterSource =
+    _watersource.data!.map((condition) => condition.toJson()).toList();
+    String mqttSendData = toMqttformat(_watersource.data);
+
+    Map<String, dynamic> payLoadFinal = {
       "1600": [
-        {"1601": Mqttsenddata},
+        {"1601": mqttSendData},
       ]
     };
-    Map<String, Object> body = {
+    Map<String, dynamic> body = {
       "userId": widget.userId,
       "controllerId": widget.controllerId,
-      "waterSource": watersource,
+      "waterSource": {"waterSource": waterSource,"controllerReadStatus": "0"},
       "hardware": payLoadFinal,
       "createUser": widget.userId
     };
-    print(body);
-
 
 
     if (MQTTManager().isConnected == true) {
@@ -635,6 +634,9 @@ class _watersourceUIState extends State<watersourceUI>
           context: context,
           mqttPayloadProvider: mqttPayloadProvider,
           acknowledgedFunction: () async{
+            setState(() {
+              body["waterSource"]["controllerReadStatus"] = "1";
+            });
             final response = await HttpService()
                 .postRequest("createUserPlanningWaterSource", body);
             final jsonDataResponse = json.decode(response.body);
@@ -648,9 +650,8 @@ class _watersourceUIState extends State<watersourceUI>
     } else {
       GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
     }
-
-
   }
+
 
   String toMqttformat(
       List<Datum>? data,
