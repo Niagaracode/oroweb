@@ -268,41 +268,30 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                         });
                       });
                       preferenceProvider.temp.clear();
-                      if(preferenceProvider.individualPumpSetting!.firstWhere((e) => e.controlGem).settingList[3].changed) {
+                      if(preferenceProvider.commonPumpSettings!.isEmpty || preferenceProvider.commonPumpSettings!.length <= 1) {
                         sendFunction();
-                        setState(() {
-                          int index = preferenceProvider.individualPumpSetting!.indexWhere((e) => e.controlGem);
-                          print("index ==> $index");
-                          preferenceProvider.individualPumpSetting![index].settingList[3].changed = false;
-                          print(preferenceProvider.individualPumpSetting![index].settingList[3].changed);
-                          print(preferenceProvider.individualPumpSetting!.map((e) => e.settingList[3].changed));
-                        });
                       } else {
-                        if(preferenceProvider.commonPumpSettings!.isEmpty || preferenceProvider.commonPumpSettings!.length <= 1) {
-                          sendFunction();
-                        } else {
-                          if(preferenceProvider.passwordValidationCode == 200) {
-                            if(preferenceProvider.calibrationSetting!.any((element) => element.settingList.any((e) => e.changed == true))) {
-                              selectedOroPumpList.clear();
-                              if(selectedOroPumpList.isEmpty) {
-                                selectedOroPumpList.addAll(preferenceProvider.calibrationSetting!.where((element) => element.settingList.any((e) => e.changed == true)).toList().map((e) =>e.deviceId).toList());
-                              }
-                              sendFunction();
-                            } else {
-                              selectPumpToSend();
+                        if(preferenceProvider.passwordValidationCode == 200) {
+                          if(preferenceProvider.calibrationSetting!.any((element) => element.settingList.any((e) => e.changed == true))) {
+                            selectedOroPumpList.clear();
+                            if(selectedOroPumpList.isEmpty) {
+                              selectedOroPumpList.addAll(preferenceProvider.calibrationSetting!.where((element) => element.settingList.any((e) => e.changed == true)).toList().map((e) =>e.deviceId).toList());
                             }
+                            sendFunction();
                           } else {
-                            List common = preferenceProvider.commonPumpSettings!.where((element) => element.settingList.any((e) => e.changed == true)).toList().map((e) =>e.deviceId).toList();
-                            List individual = preferenceProvider.individualPumpSetting!.where((element) => element.settingList.any((e) => e.changed == true)).toList().map((e) =>e.deviceId).toList();
-                            if(preferenceProvider.commonPumpSettings!.any((element) => element.settingList.any((e) => e.changed == true)) || preferenceProvider.individualPumpSetting!.any((element) => element.settingList.any((e) => e.changed == true))) {
-                              selectedOroPumpList.clear();
-                              if(selectedOroPumpList.isEmpty) {
-                                selectedOroPumpList.addAll(common.isNotEmpty ? common : individual);
-                              }
-                              sendFunction();
-                            } else {
-                              selectPumpToSend();
+                            selectPumpToSend();
+                          }
+                        } else {
+                          List common = preferenceProvider.commonPumpSettings!.where((element) => element.settingList.any((e) => e.changed == true)).toList().map((e) =>e.deviceId).toList();
+                          List individual = preferenceProvider.individualPumpSetting!.where((element) => element.settingList.any((e) => e.changed == true)).toList().map((e) =>e.deviceId).toList();
+                          if(preferenceProvider.commonPumpSettings!.any((element) => element.settingList.any((e) => e.changed == true)) || preferenceProvider.individualPumpSetting!.any((element) => element.settingList.any((e) => e.changed == true))) {
+                            selectedOroPumpList.clear();
+                            if(selectedOroPumpList.isEmpty) {
+                              selectedOroPumpList.addAll(common.isNotEmpty ? common : individual);
                             }
+                            sendFunction();
+                          } else {
+                            selectPumpToSend();
                           }
                         }
                       }
