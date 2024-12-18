@@ -144,198 +144,6 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> with TickerProv
                                   ),
                                 ),
                                 const SizedBox(width: 20,),
-                                if(scheduleViewProvider.convertedList.isNotEmpty
-                                    && (scheduleViewProvider.selectedStatusList.isNotEmpty ? ((scheduleViewProvider.selectedStatusList.length == 1 ? scheduleViewProvider.selectedStatusList[0] == "Pending" : false)
-                                        && scheduleViewProvider.selectedProgramList.length == 1) : false))
-                                MaterialButton(
-                                  color: Theme.of(context).primaryColor,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5)
-                                  ),
-                                  onPressed: (){
-                                    scheduleViewProvider.changeToValue = "";
-                                    scheduleViewProvider.selectedRtc = "";
-                                    scheduleViewProvider.selectedCycle = "";
-                                    showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return StatefulBuilder(
-                                              builder: (context, StateSetter stateSetter) {
-                                                return AlertDialog(
-                                                  content: Column(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    children: [
-                                                        buildPopUpMenuButton(
-                                                            context: context,
-                                                            dataList: scheduleViewProvider.convertedList
-                                                                .where((element) => element["ProgramCategory"] == scheduleViewProvider.programCategories[scheduleViewProvider.selectedProgramCategory]
-                                                                && (element["Status"] == 0 || element["Status"] == 4)
-                                                                && (element['ProgramName'] == scheduleViewProvider.selectedProgramList[0]))
-                                                                .map((e) => e['RtcNumber'].toString()).toSet()
-                                                                .toList(),
-                                                            onSelected: (newValue){
-                                                              stateSetter(() {
-                                                                scheduleViewProvider.selectedRtc = newValue;
-                                                                scheduleViewProvider.changeToValue = '';
-                                                                scheduleViewProvider.selectedCycle = '';
-                                                                scheduleViewProvider.selectedZone = '';
-                                                              });
-                                                            },
-                                                            offset: const Offset(0, 50),
-                                                            child: Container(
-                                                              padding: const EdgeInsets.all(8),
-                                                              decoration: BoxDecoration(gradient: linearGradientLeading, borderRadius: BorderRadius.circular(5)),
-                                                              child: Row(
-                                                                children: [
-                                                                  const Text("Select RTC", style: TextStyle(color: Colors.white),),
-                                                                  const SizedBox(width: 10,),
-                                                                  Text(scheduleViewProvider.selectedRtc, style: const TextStyle(color: Colors.white)),
-                                                                ],
-                                                              ),
-                                                            )
-                                                        ),
-                                                      const SizedBox(height: 20,),
-                                                      if(scheduleViewProvider.convertedList.isNotEmpty
-                                                          && (scheduleViewProvider.selectedStatusList.isNotEmpty ? ((scheduleViewProvider.selectedStatusList.length == 1 ? scheduleViewProvider.selectedStatusList[0] == "Pending" : false)
-                                                              && scheduleViewProvider.selectedProgramList.length == 1 && scheduleViewProvider.selectedRtc.isNotEmpty) : false))
-                                                        buildPopUpMenuButton(
-                                                            context: context,
-                                                            dataList: scheduleViewProvider.convertedList
-                                                                .where((element) => element["ProgramCategory"] == scheduleViewProvider.programCategories[scheduleViewProvider.selectedProgramCategory]
-                                                                && (element["Status"] == 0 || element["Status"] == 4)
-                                                                && (element['ProgramName'] == scheduleViewProvider.selectedProgramList[0]) && (element['RtcNumber'] == int.parse(scheduleViewProvider.selectedRtc)))
-                                                                .map((e) => e['CycleNumber'].toString()).toSet()
-                                                                .toList(),
-                                                            onSelected: (newValue){
-                                                              stateSetter(() {
-                                                                scheduleViewProvider.selectedCycle = newValue;
-                                                                scheduleViewProvider.changeToValue = '';
-                                                                scheduleViewProvider.selectedZone = '';
-                                                              });
-                                                            },
-                                                            offset: const Offset(0, 50),
-                                                            child: Container(
-                                                              padding: const EdgeInsets.all(8),
-                                                              decoration: BoxDecoration(gradient: linearGradientLeading, borderRadius: BorderRadius.circular(5)),
-                                                              child: Row(
-                                                                children: [
-                                                                  const Text("Select Cycle", style: TextStyle(color: Colors.white),),
-                                                                  const SizedBox(width: 10,),
-                                                                  Text(scheduleViewProvider.selectedCycle, style: const TextStyle(color: Colors.white)),
-                                                                ],
-                                                              ),
-                                                            )
-                                                        ),
-                                                      const SizedBox(height: 20,),
-                                                      if(scheduleViewProvider.convertedList.isNotEmpty
-                                                          && (scheduleViewProvider.selectedStatusList.isNotEmpty ? ((scheduleViewProvider.selectedStatusList.length == 1 ? scheduleViewProvider.selectedStatusList[0] == "Pending" : false)
-                                                              && scheduleViewProvider.selectedProgramList.length == 1 && scheduleViewProvider.selectedRtc.isNotEmpty && scheduleViewProvider.selectedCycle.isNotEmpty) : false))
-                                                        buildPopUpMenuButton(
-                                                            context: context,
-                                                            dataList: scheduleViewProvider.convertedList
-                                                                .where((element) => element["ProgramCategory"] == scheduleViewProvider.programCategories[scheduleViewProvider.selectedProgramCategory]
-                                                                && (element["Status"] == 0 || element["Status"] == 4)
-                                                                && (element['ProgramName'] == scheduleViewProvider.selectedProgramList[0])
-                                                                && (element['RtcNumber'] == int.parse(scheduleViewProvider.selectedRtc))
-                                                                && (element['CycleNumber'] == int.parse(scheduleViewProvider.selectedCycle)))
-                                                                .map((e) => e['ZoneName'].toString())
-                                                                .toList(),
-                                                            onSelected: (newValue){
-                                                              stateSetter(() {
-                                                                scheduleViewProvider.convertedList.forEach((element) {
-                                                                  try {
-                                                                    if(element['ZoneName'] == newValue){
-                                                                      scheduleViewProvider.changeToValue = element['ScheduleOrder'].toString();
-                                                                      scheduleViewProvider.selectedZone = newValue;
-                                                                    }
-                                                                  } catch(error, stackTrace) {
-                                                                    print("Error : $error");
-                                                                    print("Stack Trace : $stackTrace");
-                                                                  }
-                                                                });
-                                                              });
-                                                            },
-                                                            offset: const Offset(0, 50),
-                                                            child: Container(
-                                                              padding: const EdgeInsets.all(8),
-                                                              decoration: BoxDecoration(gradient: linearGradientLeading, borderRadius: BorderRadius.circular(5)),
-                                                              child: Row(
-                                                                children: [
-                                                                  const Text("Select schedule", style: TextStyle(color: Colors.white),),
-                                                                  const SizedBox(width: 10,),
-                                                                  Text(scheduleViewProvider.selectedZone, style: const TextStyle(color: Colors.white)),
-                                                                ],
-                                                              ),
-                                                            )
-                                                        ),
-                                                    ],
-                                                  ),
-                                                  actions: [
-                                                    TextButton(
-                                                        onPressed: (){
-                                                          stateSetter(() {
-                                                            // int changeToIndex = scheduleViewProvider.convertedList.indexWhere((element) => element["ScheduleOrder"].toString() == scheduleViewProvider.changeToValue);
-                                                            int startIndex = scheduleViewProvider.convertedList.indexWhere((element) =>
-                                                            element["ProgramCategory"] == scheduleViewProvider.programCategories[scheduleViewProvider.selectedProgramCategory] &&
-                                                                (element["Status"] == 0 || element["Status"] == 4) &&
-                                                                (element['ProgramName'] == scheduleViewProvider.selectedProgramList[0]) &&
-                                                                (element['RtcNumber'] == int.parse(scheduleViewProvider.selectedRtc)) &&
-                                                                (element['CycleNumber'] == int.parse(scheduleViewProvider.selectedCycle))
-                                                            );
-                                                            int lastIndex = scheduleViewProvider.convertedList.lastIndexWhere((element) =>
-                                                            element["ProgramCategory"] == scheduleViewProvider.programCategories[scheduleViewProvider.selectedProgramCategory] &&
-                                                                (element["Status"] == 0 || element["Status"] == 4) &&
-                                                                (element['ProgramName'] == scheduleViewProvider.selectedProgramList[0]) &&
-                                                                (element['RtcNumber'] == int.parse(scheduleViewProvider.selectedRtc)) &&
-                                                                (element['CycleNumber'] == int.parse(scheduleViewProvider.selectedCycle))
-                                                            );
-                                                            int changeToIndex = scheduleViewProvider.convertedList.indexWhere((element) => element["ScheduleOrder"].toString() == scheduleViewProvider.changeToValue);
-                                                            List temp = [];
-                                                            scheduleViewProvider.convertedList.forEach((element) {
-                                                              temp.add(element);
-                                                            });
-                                                            List temp2 = [
-                                                              ...temp.sublist(startIndex, lastIndex+1)
-                                                            ];
-                                                            int startIndex2 = temp.indexOf(temp2[0]);
-                                                            int changeIndex = temp2.indexOf(temp[changeToIndex]);
-                                                            List head = temp.sublist(0, startIndex2);
-                                                            List tail = temp.sublist(startIndex2 + temp2.length);
-                                                            List temp3 = [
-                                                              ...temp2.sublist(changeIndex),
-                                                              ...temp2.sublist(0, changeIndex)
-                                                            ];
-                                                            scheduleViewProvider.convertedList = [...head, ...temp3, ...tail];
-                                                          });
-                                                          Navigator.of(context).pop();
-                                                          scheduleViewProvider.changeToValue = "";
-                                                          scheduleViewProvider.selectedRtc = "";
-                                                          scheduleViewProvider.selectedCycle = "";
-                                                          scheduleViewProvider.selectedZone = "";
-                                                        },
-                                                        child: const Text("Save")
-                                                    ),
-                                                    TextButton(
-                                                        onPressed: (){
-                                                          stateSetter(() {
-                                                            scheduleViewProvider.changeToValue = "";
-                                                            scheduleViewProvider.selectedRtc = "";
-                                                            scheduleViewProvider.selectedCycle = "";
-                                                            scheduleViewProvider.selectedZone = "";
-                                                          });
-                                                          Navigator.of(context).pop();
-                                                        },
-                                                        child: const Text("Cancel")
-                                                    )
-                                                  ],
-                                                );
-                                              }
-                                          );
-                                        }
-                                    );
-                                  },
-                                  child: const Text("Change to", style: TextStyle(color: Colors.white),),
-                                )
                               ],
                             ),
                             Row(
@@ -412,20 +220,67 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> with TickerProv
                                     }
                                 ),
                                 const SizedBox(width: 10,),
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.info, color: Theme.of(context).primaryColor,),
-                                    const SizedBox(width: 10,),
-                                    Text(
-                                      scheduleViewProvider.isFetchingCompleted ? scheduleViewProvider.scheduleGotFromMqtt ? "Fetched from mqtt" : "Fetched from http" : "Can not fetch",
-                                      style: TextStyle(
-                                          color: scheduleViewProvider.isFetchingCompleted
-                                              ? scheduleViewProvider.scheduleGotFromMqtt
-                                              ? Theme.of(context).primaryColor : const Color(0xffFDC748) : Colors.red,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
+                                buildActionButton(
+                                    context: context,
+                                    key: "icon",
+                                    // buttonColor: const Color(0xffFDC748),
+                                    borderRadius: BorderRadius.circular(5),
+                                    icon: Icons.info,
+                                    label: "Info",
+                                    onPressed: () {
+                                      showAdaptiveDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+
+                                          return StatefulBuilder(
+                                            builder: (BuildContext context, StateSetter stateSetter) {
+                                              return AlertDialog(
+                                                title: Text('Color indications', style: TextStyle(color: Theme.of(context).primaryColor),),
+                                                content: Container(
+                                                  height: 300,
+                                                  child: SingleChildScrollView(
+                                                    child: Column(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        for (var i = 0; i < 12; i++)
+                                                          Container(
+                                                            margin: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                                                            child: Row(
+                                                              children: [
+                                                                CircleAvatar(
+                                                                  backgroundColor: scheduleViewProvider.getStatusInfo(i.toString()).color,
+                                                                  radius: 10,
+                                                                ),
+                                                                SizedBox(width: 10,),
+                                                                Text("${i != 12 ? scheduleViewProvider.getStatusInfo(i.toString()).statusString : "Auto skipped"}", style: TextStyle(fontWeight: FontWeight.w400),)
+                                                              ],
+                                                            ),
+                                                          )
+                                                        // ListTile(
+                                                        //   title: Text(''),
+                                                        //   leading: CircleAvatar(
+                                                        //     backgroundColor: scheduleViewProvider.legend[i],
+                                                        //     radius: 15,
+                                                        //   ),
+                                                        // )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context).pop();
+                                                    },
+                                                    child: const Text("OK"),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                        },
+                                      );
+                                    }
                                 ),
                               ],
                             ),
