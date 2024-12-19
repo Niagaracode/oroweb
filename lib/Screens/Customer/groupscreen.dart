@@ -44,7 +44,7 @@ class MyGroupScreenState extends State<MyGroupScreen> with ChangeNotifier {
   void initState() {
     // TODO: implement initState
     super.initState();
-    mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: true);
+    mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
 
     if (mounted) {
       WidgetsBinding.instance.addPostFrameCallback((_) {

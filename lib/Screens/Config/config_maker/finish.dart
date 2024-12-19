@@ -69,7 +69,7 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
                             },
                             child: Text('Send',style: TextStyle(color: Colors.white),),
                           )
-        
+
                         ],
                       ),
                     )
@@ -141,6 +141,7 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
                         if(configPvd.wantToSendData == 0)
                           InkWell(
                             onTap: (){
+                              configPvd.editSkipAll(false);
                               payloadFunction(configPvd: configPvd, payloadProvider: payloadProvider, payloadFromStart: true);
                             },
                             child: Container(
@@ -182,6 +183,21 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
                               color: myTheme.primaryColor,
                               child: const Center(
                                 child: Text('Skip',style: TextStyle(color: Colors.white,fontSize: 16),
+                                ),
+                              ),
+                            ),
+                          ),
+                        if(configPvd.wantToSendData == 1)
+                          InkWell(
+                            onTap: (){
+                              configPvd.editSkipAll(true);
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 5),
+                              padding: const EdgeInsets.symmetric(vertical: 3),
+                              color: myTheme.primaryColor,
+                              child: const Center(
+                                child: Text('Skip All',style: TextStyle(color: Colors.white,fontSize: 16),
                                 ),
                               ),
                             ),
@@ -516,7 +532,15 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
                 'name' : 'ORO PUMP PLUS - pump config',
                 'displayMac' : oroPumpPlus['deviceId']
               };
+              print('before :: $tankPayLoad');
+              int balance = 27 - tankPayLoad.split(',').length;
+              for(var i = 0;i < balance;i++){
+                tankPayLoad += ',0';
+              }
+              print('after :: $tankPayLoad');
               var actualTankPayload = convert.jsonEncode({"sentSms":"tankconfig,$tankPayLoad"});
+
+
               var gemTankPayload = convert.jsonEncode({
                 '5900' : [
                   {
@@ -540,6 +564,7 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
               };
             }
           }
+
         }catch(e){
           if (kDebugMode) {
             print('Error on OroPumpPlus Payload Conversion Failed => \n'
@@ -551,23 +576,24 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
 
       }
     }
+    print('newPayload :: $newPayload');
   }
 
-  void sendSeperatePayload({required newPayloadKey,required payloadProvider,required configPvd})async{
+  void  sendSeperatePayload({required newPayloadKey,required payloadProvider,required configPvd})async{
     bool individualStatus = false;
     configPvd.editWantToSendData(1);
     MQTTManager().publish(newPayload[newPayloadKey]['payload'],'AppToFirmware/${newPayload[newPayloadKey]['macAddress']}');
-    delayLoop : for(var i = 0;i < 60;i++){
+    delayLoop : for(var i = 0;i < 40;i++){
       print('waiting response for ${newPayload[newPayloadKey]['macAddress']} sec :: ${i+1}');
       await Future.delayed(const Duration(seconds: 1));
       print('reply : ${payloadProvider.messageFromHw}');
       print('npKey : $newPayloadKey');
       print('payload : ${newPayload[newPayloadKey]['payload']}');
-      configPvd.editMessageWhenSendingData('waiting reply from $newPayloadKey ${i+1}/60');
-      if(i % 14 == 0){
-        print('\n\nAgain send payload after 25 seconds.....\n\n');
-        MQTTManager().publish(newPayload[newPayloadKey]['payload'],'AppToFirmware/${newPayload[newPayloadKey]['macAddress']}');
-      }
+      configPvd.editMessageWhenSendingData('waiting reply from $newPayloadKey ${i+1}/40');
+      // if(i % 14 == 0){
+      //   print('\n\nAgain send payload after 25 seconds.....\n\n');
+      //   MQTTManager().publish(newPayload[newPayloadKey]['payload'],'AppToFirmware/${newPayload[newPayloadKey]['macAddress']}');
+      // }
       if(newPayloadKey.contains('-')){
         print('1111111111111111111111 ${newPayload[newPayloadKey]['checkingCode']} --- ${newPayloadKey.split('-')[0]}');
         if(payloadProvider.messageFromHw != null){
@@ -616,7 +642,241 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
     HttpMqttStatus status = HttpMqttStatus.success;
     configPvd.editWantToSendData(1);
     // //Todo Gem Payload Conversion
-
+    // if([1,2].contains(configPvd.categoryId)){
+    //   try{
+    //     newPayload[widget.imeiNo] = {
+    //       'payload' : convert.jsonEncode(configPvd.sendData()),
+    //       'code' : '400',
+    //       'message' : '',
+    //       'macAddress' : widget.imeiNo,
+    //       'checkingCode' : '200',
+    //     };
+    //   }catch(e){
+    //     if (kDebugMode) {
+    //       print('Error on gem Payload Conversion Failed => \n'
+    //           ' ${e.toString()}\n'
+    //           '------------------------------------------------------------------------------------------');
+    //     }
+    //     status = HttpMqttStatus.payloadConversionFailed;
+    //   }
+    //
+    // }
+    // //Todo OroPump Payload Conversion
+    // if(status == HttpMqttStatus.success){
+    //   if(configPvd.serverData['referenceNo'].containsKey('3')){
+    //     try{
+    //       for(var oroPump in configPvd.serverData['referenceNo']['3']){
+    //         var pumpCount = 0;
+    //         String masterSlave = '';
+    //         for(var pump in configPvd.sourcePumpUpdated){
+    //           if(pump['deleted'] == false){
+    //             if(pump['rtu'] == 'ORO Pump'){
+    //               if(pump['rfNo'] == oroPump['referenceNumber'].toString()){
+    //                 masterSlave += '${masterSlave.isNotEmpty ? ',' : ''}${1}';
+    //                 pumpCount += 1;
+    //               }
+    //             }
+    //           }
+    //         }
+    //         for(var pump in configPvd.irrigationPumpUpdated){
+    //           if(pump['deleted'] == false){
+    //             if(pump['rtu'] == 'ORO Pump'){
+    //               if(pump['rfNo'] == oroPump['referenceNumber'].toString()){
+    //                 masterSlave += '${masterSlave.isNotEmpty ? ',' : ''}${2}';
+    //                 pumpCount += 1;
+    //               }
+    //             }
+    //           }
+    //         }
+    //         if(pumpCount != 0){
+    //           var actualPumpPayload = convert.jsonEncode({"sentSms":"pumpconfig,$pumpCount,${oroPump['referenceNumber']},$masterSlave"});
+    //           var gemPumpPayload = convert.jsonEncode({
+    //             '5900' : [
+    //               {
+    //                 '5901' : '${oroPump['serialNumber']}+'
+    //                     '${oroPump['referenceNumber']}+'
+    //                     '${oroPump['deviceId']}+'
+    //                     '${oroPump['interfaceTypeId']}+'
+    //                     '${convert.jsonEncode({'700' : actualPumpPayload})}+'
+    //                     '${3}'
+    //               }
+    //             ]
+    //           });
+    //           // newPayload['${oroPump['deviceId']}${[1,2].contains(configPvd.categoryId) ? '-pumpconfig' : ''}'] = {
+    //           newPayload['${oroPump['deviceId']}-pumpconfig'] = {
+    //             'payload' : [1,2].contains(configPvd.categoryId) ? gemPumpPayload : actualPumpPayload,
+    //             'code' : '400',
+    //             'message' : '',
+    //             'macAddress' : [1,2].contains(configPvd.categoryId) ? widget.imeiNo : '${oroPump['deviceId']}',
+    //             'checkingCode' : '700',
+    //           };
+    //         }
+    //       }
+    //     }catch(e){
+    //       if (kDebugMode) {
+    //         print('Error on OroPump Payload Conversion Failed => \n'
+    //             ' ${e.toString()}\n'
+    //             '------------------------------------------------------------------------------------------');
+    //         status = HttpMqttStatus.payloadConversionFailed;
+    //       }
+    //     }
+    //
+    //   }
+    // }
+    // //Todo OroPumpPlus Payload Conversion
+    // if(status == HttpMqttStatus.success){
+    //   if(configPvd.serverData['referenceNo'].containsKey('4')){
+    //     try{
+    //       for(var oroPumpPlus in configPvd.serverData['referenceNo']['4']){
+    //         int pumpCount = 0;
+    //         String masterSlave = '';
+    //         String tankPayLoad = '';
+    //         for(var pump in configPvd.sourcePumpUpdated){
+    //           if(pump['deleted'] == false){
+    //             if(pump['rtu'] == (configPvd.categoryId == 3 ? 'ORO Pump' : 'O-Pump-Plus')){
+    //               int tankPin = 0;
+    //               int sumpPin = 0;
+    //               int highTankPin = 0;
+    //               int lowTankPin = 0;
+    //               int highSumpPin = 0;
+    //               int lowSumpPin = 0;
+    //               int levelSensor = 0;
+    //               int pressureSensor = 0;
+    //               int waterMeter = 0;
+    //               if(pump['rfNo'] == oroPumpPlus['referenceNumber'].toString()){
+    //                 masterSlave += '${masterSlave.isNotEmpty ? ',' : ''}${1}';
+    //                 pumpCount += 1;
+    //                 if(pump['TopTankHigh'].isNotEmpty){
+    //                   highTankPin = pump['TopTankHigh']['input'] == '-' ? 0 : int.parse(pump['TopTankHigh']['input'].split('-')[1]);
+    //                   tankPin += 1;
+    //                 }
+    //                 if(pump['TopTankLow'].isNotEmpty){
+    //                   lowTankPin = pump['TopTankLow']['input'] == '-' ? 0 : int.parse(pump['TopTankLow']['input'].split('-')[1]);
+    //                   tankPin += 1;
+    //                 }
+    //                 if(pump['SumpTankHigh'].isNotEmpty){
+    //                   highSumpPin = pump['SumpTankHigh']['input'] == '-' ? 0 : int.parse(pump['SumpTankHigh']['input'].split('-')[1]);
+    //                   sumpPin += 1;
+    //                 }
+    //                 if(pump['SumpTankLow'].isNotEmpty){
+    //                   lowSumpPin = pump['SumpTankLow']['input'] == '-' ? 0 : int.parse(pump['SumpTankLow']['input'].split('-')[1]);
+    //                   sumpPin += 1;
+    //                 }
+    //                 if(pump['levelSensor'].isNotEmpty){
+    //                   levelSensor = 1;
+    //                 }
+    //                 if(pump['pressureSensor'].isNotEmpty){
+    //                   pressureSensor = 1;
+    //                 }
+    //                 if(pump['waterMeter'].isNotEmpty){
+    //                   waterMeter = 1;
+    //                 }
+    //
+    //                 tankPayLoad += '${tankPayLoad.isNotEmpty ? ',' : ''}$sumpPin,$lowSumpPin,$highSumpPin,$tankPin,$lowTankPin,$highTankPin,$levelSensor,$waterMeter,$pressureSensor';
+    //               }
+    //             }
+    //           }
+    //         }
+    //         for(var pump in configPvd.irrigationPumpUpdated){
+    //           if(pump['deleted'] == false){
+    //             if(pump['rtu'] == (configPvd.categoryId == 3 ? 'ORO Pump' : 'O-Pump-Plus')){
+    //               var tankPin = 0;
+    //               var sumpPin = 0;
+    //               var highTankPin = 0;
+    //               var lowTankPin = 0;
+    //               var highSumpPin = 0;
+    //               var lowSumpPin = 0;
+    //               var levelSensor = 0;
+    //               var pressureSensor = 0;
+    //               var waterMeter = 0;
+    //               if(pump['rfNo'] == oroPumpPlus['referenceNumber'].toString()){
+    //                 masterSlave += '${masterSlave.isNotEmpty ? ',' : ''}${2}';
+    //                 pumpCount += 1;
+    //                 if(pump['TopTankHigh'].isNotEmpty){
+    //                   highTankPin = pump['TopTankHigh']['input'] == '-' ? 0 : int.parse(pump['TopTankHigh']['input'].split('-')[1]);
+    //                   tankPin += 1;
+    //                 }
+    //                 if(pump['TopTankLow'].isNotEmpty){
+    //                   lowTankPin = pump['TopTankLow']['input'] == '-' ? 0 : int.parse(pump['TopTankLow']['input'].split('-')[1]);
+    //                   tankPin += 1;
+    //                 }
+    //                 if(pump['SumpTankHigh'].isNotEmpty){
+    //                   highSumpPin = pump['SumpTankHigh']['input'] == '-' ? 0 : int.parse(pump['SumpTankHigh']['input'].split('-')[1]);
+    //                   sumpPin += 1;
+    //                 }
+    //                 if(pump['SumpTankLow'].isNotEmpty){
+    //                   lowSumpPin = pump['SumpTankLow']['input'] == '-' ? 0 : int.parse(pump['SumpTankLow']['input'].split('-')[1]);
+    //                   sumpPin += 1;
+    //                 }
+    //                 if(pump['levelSensor'].isNotEmpty){
+    //                   levelSensor = 1;
+    //                 }
+    //                 if(pump['pressureSensor'].isNotEmpty){
+    //                   pressureSensor = 1;
+    //                 }
+    //                 if(pump['waterMeter'].isNotEmpty){
+    //                   waterMeter = 1;
+    //                 }
+    //                 tankPayLoad += '${tankPayLoad.isNotEmpty ? ',' : ''}$sumpPin,$lowSumpPin,$highSumpPin,$tankPin,$lowTankPin,$highTankPin,$levelSensor,$waterMeter,$pressureSensor';
+    //               }
+    //             }
+    //           }
+    //         }
+    //         if(pumpCount != 0){
+    //           var actualPumpPayload = convert.jsonEncode({"sentSms":"pumpconfig,$pumpCount,${oroPumpPlus['referenceNumber']},$masterSlave"});
+    //           var gemPumpPayload = convert.jsonEncode({
+    //             '5900' : [
+    //               {
+    //                 '5901' : '${oroPumpPlus['serialNumber']}+'
+    //                     '${oroPumpPlus['referenceNumber']}+'
+    //                     '${oroPumpPlus['deviceId']}+'
+    //                     '${oroPumpPlus['interfaceTypeId']}+'
+    //                     '${convert.jsonEncode({'700' : actualPumpPayload})}+'
+    //                     '${4}'
+    //               }
+    //             ]
+    //           });
+    //           // newPayload['${oroPumpPlus['deviceId']}${[1,2].contains(configPvd.categoryId) ? '-pumpconfig' : ''}'] = {
+    //           newPayload['${oroPumpPlus['deviceId']}-pumpconfig'] = {
+    //             'payload' : [1,2].contains(configPvd.categoryId) ? gemPumpPayload : actualPumpPayload,
+    //             'code' : '400',
+    //             'message' : '',
+    //             'macAddress' : [1,2].contains(configPvd.categoryId) ? widget.imeiNo : '${oroPumpPlus['deviceId']}',
+    //             'checkingCode' : '700',
+    //           };
+    //           var actualTankPayload = convert.jsonEncode({"sentSms":"tankconfig,$tankPayLoad"});
+    //           var gemTankPayload = convert.jsonEncode({
+    //             '5900' : [
+    //               {
+    //                 '5901' : '${oroPumpPlus['serialNumber']}+'
+    //                     '${oroPumpPlus['referenceNumber']}+'
+    //                     '${oroPumpPlus['deviceId']}+'
+    //                     '${oroPumpPlus['interfaceTypeId']}+'
+    //                     '${convert.jsonEncode({'800' : actualTankPayload})}+'
+    //                     '${4}'
+    //               }
+    //             ]
+    //           });
+    //           newPayload['${oroPumpPlus['deviceId']}-tankconfig'] = {
+    //             'payload' : [1,2].contains(configPvd.categoryId) ? gemTankPayload : actualTankPayload,
+    //             'code' : '400',
+    //             'message' : '',
+    //             'macAddress' : [1,2].contains(configPvd.categoryId) ? widget.imeiNo : '${oroPumpPlus['deviceId']}',
+    //             'checkingCode' : '800',
+    //           };
+    //         }
+    //       }
+    //     }catch(e){
+    //       if (kDebugMode) {
+    //         print('Error on OroPumpPlus Payload Conversion Failed => \n'
+    //             ' ${e.toString()}\n'
+    //             '------------------------------------------------------------------------------------------');
+    //         status = HttpMqttStatus.payloadConversionFailed;
+    //       }
+    //     }
+    //
+    //   }
+    // }
     //Todo Sending To Mqtt
     if(status == HttpMqttStatus.success){
       keyLoop : for(var npKey in newPayload.keys){
@@ -625,7 +885,12 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
           if (kDebugMode) {
             print('Sending to :: ${'AppToFirmware/${newPayload[npKey]['macAddress']}'}');
           }
+
           print('newPayload => $newPayload');
+          print('skipAll => ${configPvd.skipAll}');
+          if(configPvd.skipAll){
+            break;
+          }
           bool skipPayload = false;
           if(payloadFromStart == false){
             if(configPvd.serverData['configMaker']['hardware'][npKey] != null){
@@ -638,7 +903,7 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
             configPvd.editMessageWhenSendingData('Sending Data to $npKey');
             print('sending to mqtt...');
             MQTTManager().publish(newPayload[npKey]['payload'],'AppToFirmware/${newPayload[npKey]['macAddress']}');
-            delayLoop : for(var i = 0;i < 60;i++){
+            delayLoop : for(var i = 0;i < 40;i++){
               if(i == 0){
                 configPvd.editSkip(false);
               }
@@ -647,7 +912,7 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
               print('reply : ${payloadProvider.messageFromHw}');
               print('npKey : $npKey');
               print('payload : ${newPayload[npKey]['payload']}');
-              configPvd.editMessageWhenSendingData('waiting reply from $npKey ${i+1}/60');
+              configPvd.editMessageWhenSendingData('waiting reply from $npKey ${i+1}/40');
               if(npKey.contains('-')){
                 print('1111111111111111111111 ${newPayload[npKey]['checkingCode']} --- ${npKey.split('-')[0]}');
                 if(payloadProvider.messageFromHw != null){
@@ -677,7 +942,8 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
                 }
               }
               print('skip ::::::::: ${configPvd.skip}');
-              if(configPvd.skip == true){
+              print('skipAll ::::::::: ${configPvd.skipAll}');
+              if(configPvd.skip == true || configPvd.skipAll == true){
                 break delayLoop;
               }
             }
@@ -800,14 +1066,6 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
           'oPump' : configPvd.oPump,
           'oPumpPlus' : configPvd.oPumpPlus,
           'oExtend' : configPvd.oExtend,
-          'rtuForLine' : configPvd.rtuForLine,
-          'rtuPlusForLine' : configPvd.rtuPlusForLine,
-          'OroExtendForLine' : configPvd.OroExtendForLine,
-          'switchForLine' : configPvd.switchForLine,
-          'OroSmartRtuForLine' : configPvd.OroSmartRtuForLine,
-          'OroSmartRtuPlusForLine' : configPvd.OroSmartRtuPlusForLine,
-          'OroSenseForLine' : configPvd.OroSenseForLine,
-          'OroLevelForLine' : configPvd.OroLevelForLine,
           'waterSource' : configPvd.waterSource,
           'weatherStation' : configPvd.weatherStation,
           'central_dosing_site_list' : configPvd.central_dosing_site_list,

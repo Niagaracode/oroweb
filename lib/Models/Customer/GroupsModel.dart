@@ -42,9 +42,9 @@ class Data {
     line: json["line"] == null
         ? []
         : List<Group>.from(json["line"]!.map((x) => Group.fromJson(x))),
-    group: json["group"] == null
+    group: json["group"]["namedGroup"] == null
         ? []
-        : List<Group>.from(json["group"]!.map((x) => Group.fromJson(x))),
+        : List<Group>.from(json["group"]["namedGroup"]!.map((x) => Group.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
