@@ -1175,6 +1175,8 @@ class ChartData {
         var valveFlowRate = totalFlowRate * 0.00027778;
 
         // Calculate flow rate in liters
+        // print(seconds);
+        return seconds;
         var flowRateInTimePeriod = valveFlowRate * seconds;
         return flowRateInTimePeriod.round();
       } else {

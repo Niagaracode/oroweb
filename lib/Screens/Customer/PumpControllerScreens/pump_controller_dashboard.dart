@@ -56,7 +56,9 @@ class _PumpControllerDashboardState extends State<PumpControllerDashboard> with 
   late MqttPayloadProvider mqttPayloadProvider;
   // late PumpControllerProvider pumpControllerProvider;
   late AnimationController _controller;
+  late AnimationController _controller2;
   late Animation<double> _animation;
+  late Animation<double> _animation2;
   String _formattedTime = "00:00:00";
   Map<int, String> segments = {};
   int selectedIndex = 0;
@@ -70,16 +72,19 @@ class _PumpControllerDashboardState extends State<PumpControllerDashboard> with 
       duration: const Duration(seconds: 1),
       vsync: this,
     );
+    _controller2 = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      reverseDuration: const Duration(milliseconds: 500),
+      vsync: this,
+    )..repeat(reverse: true);
     _animation = Tween<double>(
       begin: 0,
       end: 2 * pi,
     ).animate(_controller);
-    // getLive();
     getPumpControllerData();
+    _animation2 = Tween<double>(begin: 1.0, end: 0.0).animate(_controller2);
     _controller.addListener(() {setState(() {});});
     _controller.repeat();
-    // _startTime = DateTime.now();
-    // _startTimer();
     super.initState();
   }
 
@@ -87,6 +92,7 @@ class _PumpControllerDashboardState extends State<PumpControllerDashboard> with 
   void dispose() {
     // TODO: implement dispose
     _controller.dispose();
+    _controller2.dispose();
     super.dispose();
   }
 
@@ -179,18 +185,23 @@ class _PumpControllerDashboardState extends State<PumpControllerDashboard> with 
                 ),
               ),
               trailing: IntrinsicWidth(
-                child: (mqttPayloadProvider.dataModel!.pumps[0].reasonCode == 30 || mqttPayloadProvider.dataModel!.pumps[0].reasonCode == 31) ?
+                child: ([30, 31].contains(mqttPayloadProvider.dataModel!.pumps[0].reasonCode)) ?
                 Container(
                   decoration: BoxDecoration(
                       color: mqttPayloadProvider.dataModel!.pumps[0].reasonCode == 30 ? Colors.red : Colors.green,
                       borderRadius: BorderRadius.circular(5)
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 5,),
-                  child: Row(
-                    children: [
-                      Icon(mqttPayloadProvider.dataModel!.pumps[0].reasonCode == 30 ? Icons.warning : Icons.done, color: Colors.white,),
-                      Text("${mqttPayloadProvider.dataModel!.pumps[0].reasonCode == 30 ? "Power off" : "Power on"}", style: const TextStyle(color: Colors.white),)
-                    ],
+                  child: FadeTransition(
+                    opacity: mqttPayloadProvider.dataModel!.pumps[0].reasonCode == 30
+                        ? _animation2
+                        : const AlwaysStoppedAnimation(1.0),
+                    child: Row(
+                      children: [
+                        Icon(mqttPayloadProvider.dataModel!.pumps[0].reasonCode == 30 ? Icons.warning : Icons.done, color: Colors.white,),
+                        Text(mqttPayloadProvider.dataModel!.pumps[0].reasonCode == 30 ? "Power off" : "Power on", style: const TextStyle(color: Colors.white),)
+                      ],
+                    ),
                   ),
                 ) :
                 Container(
@@ -882,8 +893,8 @@ class _PumpControllerDashboardState extends State<PumpControllerDashboard> with 
               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
               child: Column(
                 children: [
-                  Text("${footer2.split(':')[0]}".toUpperCase(), style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                  Text("${footer2.split(':')[1]}", style: const TextStyle(color: Colors.black)),
+                  Text(footer2.split(':')[0].toUpperCase(), style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                  Text(footer2.split(':')[1], style: const TextStyle(color: Colors.black)),
                 ],
               ),
             )

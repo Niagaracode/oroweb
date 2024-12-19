@@ -596,7 +596,9 @@ class _PreviewScreenState extends State<PreviewScreen> {
                   }
 
                   double timeInSeconds = quantity / maxFlowRate;
-                  double timeInMinutes = timeInSeconds / 60;
+                  double timeInMinutes = quantity / 60;
+                  // print("timeInSeconds ==> $timeInSeconds");
+                  // print("timeInMinutes ==> $timeInMinutes");
                   return ChartAxisLabel('${timeInMinutes.toStringAsFixed(1)}m', const TextStyle(color: Colors.black));
                 } else if (isSingleMethod) {
                   return ChartAxisLabel('${details.value}L', const TextStyle(color: Colors.black));
