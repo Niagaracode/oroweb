@@ -15,6 +15,7 @@ import '../../constants/theme.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 
+
 class WeatherScreen extends StatefulWidget {
   WeatherScreen(
       {Key? key,
@@ -85,12 +86,32 @@ class _WeatherScreenState extends State<WeatherScreen> {
     if (_mqttPayloadProvider.weatherModelinstance.data == null) {
       return const Center(child: CircularProgressIndicator());
     } else if (_mqttPayloadProvider.weatherModelinstance.data!.isEmpty) {
-      return const Center(child: Text('Currently No Weather Data Available'));
+      return  Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Center(
+              child: Text('Currently No Weather Data Available')),
+          TextButton.icon(onPressed: (){
+            // Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen(userId: customer.userId, fromDealer: true)));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewExample(userid: widget.userId,controllerid: widget.controllerId,)));
+          }, label: Text('Click To Open External Weather Data')),
+        ],
+      );
     } else if (_mqttPayloadProvider.weatherModelinstance.data![0] == null ||
         _mqttPayloadProvider
             .weatherModelinstance.data![0].WeatherSensorlist!.isEmpty) {
-      return const Center(
-          child: Text('Currently No Weather Data Available...')); //http
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Center(
+              child: Text('Currently No Weather Data Available...')),
+          TextButton.icon(onPressed: (){
+            // Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen(userId: customer.userId, fromDealer: true)));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewExample(userid: widget.userId,controllerid: widget.controllerId,)));
+          }, label: Text('Click To Open External Weather Data')),
+
+        ],
+      ); //http
     } else {
       return DefaultTabController(
         length: _mqttPayloadProvider
@@ -138,7 +159,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                       SizedBox(width: 40,
                         child: TextButton.icon(onPressed: (){
                           // Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen(userId: customer.userId, fromDealer: true)));
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewExample()));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewExample(userid: widget.userId,controllerid: widget.controllerId,)));
                         }, label: Icon(Icons.devices_other)),
                       )
                     ],
