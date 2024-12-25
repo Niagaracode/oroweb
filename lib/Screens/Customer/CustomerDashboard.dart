@@ -140,7 +140,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
         print(e);
       }
 
-      if(widget.siteData.master[widget.masterInx].irrigationLine[widget.lineIdx].sNo==0){
+      if(widget.siteData.master[widget.masterInx].irrigationLine[widget.lineIdx].sNo==0 || widget.siteData.master[widget.masterInx].irrigationLine.length==1){
         return Column(
           children: [
             provider.liveSync? stoppedAnimation(): const SizedBox(),

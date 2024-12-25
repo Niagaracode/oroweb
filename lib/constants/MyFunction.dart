@@ -14,7 +14,7 @@ class MyFunction {
 
   Future<String?> getParameter(String key) async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(key);
+    return (prefs.getString(key) ?? "");
   }
 
   void clearMQTTPayload(context){

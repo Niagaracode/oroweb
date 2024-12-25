@@ -90,7 +90,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Center(
-              child: Text('Currently No Weather Data Available')),
+              child: Text('Currently No ORO Weather Data Available')),
           TextButton.icon(onPressed: (){
             // Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen(userId: customer.userId, fromDealer: true)));
             Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewExample(userid: widget.userId,controllerid: widget.controllerId,)));
@@ -104,7 +104,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Center(
-              child: Text('Currently No Weather Data Available...')),
+              child: Text('Currently No ORO Weather Data Available...')),
           TextButton.icon(onPressed: (){
             // Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen(userId: customer.userId, fromDealer: true)));
             Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewExample(userid: widget.userId,controllerid: widget.controllerId,)));

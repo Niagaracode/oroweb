@@ -323,7 +323,9 @@ class PumpData {
   String onDelayCompleted;
   String onDelayLeft;
   String program;
-
+  String icEnergy;
+  String pwrFactor;
+  String pwr;
 
   PumpData({
     required this.sNo,
@@ -349,6 +351,9 @@ class PumpData {
     required this.onDelayCompleted,
     required this.onDelayLeft,
     required this.program,
+    required this.icEnergy,
+    required this.pwrFactor,
+    required this.pwr,
   });
 
   factory PumpData.fromJson(Map<String, dynamic> json) {
@@ -397,6 +402,9 @@ class PumpData {
       onDelayCompleted: json['OnDelayCompleted'] ?? '',
       onDelayLeft: json['OnDelayLeft'] ?? '',
       program: json['Program'] ?? '',
+      icEnergy: json.containsKey('E') ? json['E'] ?? '' : '',
+      pwrFactor: json.containsKey('PF') ? json['PF'] ?? '': '',
+      pwr: json.containsKey('P') ? json['P'] ?? '' : '',
     );
   }
 
@@ -425,6 +433,9 @@ class PumpData {
       'OnDelayCompleted': onDelayCompleted,
       'OnDelayLeft': onDelayLeft,
       'Program': program,
+      'E': icEnergy,
+      'PF': pwrFactor,
+      'P': pwr,
     };
   }
 }

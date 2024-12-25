@@ -20,11 +20,11 @@ import '../../constants/snack_bar.dart';
 import '../../constants/theme.dart';
 import '../../state_management/MqttPayloadProvider.dart';
 import '../../state_management/overall_use.dart';
-import '../UserChat/user_chat.dart';
 import '../product_inventory.dart';
 import 'AccountManagement.dart';
 import 'CustomerDashboard.dart';
 import 'Dashboard/AllNodeListAndDetails.dart';
+import 'Dashboard/AppInfo.dart';
 import 'Dashboard/ControllerLogs.dart';
 import 'Dashboard/ControllerSettings.dart';
 import 'Dashboard/NodeHourlyLog/NodeHrsLog.dart';
@@ -485,11 +485,15 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
             Container(width: 1, height: 20, color: Colors.white54,),
             const SizedBox(width: 5,),
             mySiteList.length>1? DropdownButton(
+              isExpanded: false,
               underline: Container(),
               items: (mySiteList ?? []).map((site) {
                 return DropdownMenuItem(
                   value: site.groupName,
-                  child: Text(site.groupName, style: const TextStyle(color: Colors.white, fontSize: 17),),
+                  child: Text(
+                    site.groupName,
+                    style: const TextStyle(color: Colors.white, fontSize: 17),
+                  ),
                 );
               }).toList(),
               onChanged: (newSiteName) {
@@ -516,12 +520,13 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
               iconDisabledColor: Colors.white,
               focusColor: Colors.transparent,
             ):
-            Text(mySiteList[siteIndex].groupName, style: const TextStyle(fontSize: 17),),
+            Text(mySiteList[siteIndex].groupName, style: const TextStyle(fontSize: 17),overflow: TextOverflow.ellipsis,),
 
             const SizedBox(width: 15,),
             Container(width: 1,height: 20, color: Colors.white54,),
             const SizedBox(width: 5,),
             mySiteList[siteIndex].master.length>1? DropdownButton(
+              isExpanded: false,
               underline: Container(),
               items: (mySiteList[siteIndex].master ?? []).map((master) {
                 return DropdownMenuItem(
@@ -633,7 +638,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              mySiteList[siteIndex].master[masterIndex].irrigationLine.length>1 && payload.currentSchedule.isNotEmpty?
+              payload.currentSchedule.isNotEmpty?
               CircleAvatar(
                 radius: 15,
                 backgroundImage: const AssetImage('assets/GifFile/water_drop_ani.gif'),
@@ -682,6 +687,67 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
               ):
               const SizedBox(),
 
+
+              mySiteList[siteIndex].master[masterIndex].irrigationLine.length==1 &&
+                  payload.payloadIrrLine[0].irrigationPauseFlag !=2 ? Padding(
+                padding: const EdgeInsets.all(8),
+                child: TextButton(
+                  onPressed: () {
+                    int prFlag = 0;
+                    List<dynamic> records = payload.payloadIrrLine;
+                    int sNoToCheck = payload.payloadIrrLine[0].sNo;
+                    var record = records.firstWhere(
+                          (record) => record['S_No'] == sNoToCheck,
+                      orElse: () => null,
+                    );
+                    if (record != null) {
+                      bool isIrrigationPauseFlagZero = record['IrrigationPauseFlag'] == 0;
+                      if (isIrrigationPauseFlagZero) {
+                        prFlag = 1;
+                      } else {
+                        prFlag = 0;
+                      }
+                      String payLoadFinal = jsonEncode({
+                        "4900": [{
+                          "4901": "$sNoToCheck, $prFlag",
+                        }
+                        ]
+                      });
+                      MQTTManager().publish(payLoadFinal, 'AppToFirmware/${mySiteList[siteIndex].master[masterIndex].deviceId}');
+                      if(payload.payloadIrrLine[0].irrigationPauseFlag == 1){
+                        sentToServer('Resumed the Irrigation line', payLoadFinal);
+                      }else{
+                        sentToServer('Paused the Irrigation line', payLoadFinal);
+                      }
+                    } else {
+                      const GlobalSnackBar(code: 200, message: 'Controller connection lost...');
+                    }
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all<Color>(payload.payloadIrrLine[0].irrigationPauseFlag == 1 ? Colors.green : Colors.orange),
+                    shape: WidgetStateProperty.all<OutlinedBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      payload.payloadIrrLine[0].irrigationPauseFlag == 1
+                          ? const Icon(Icons.play_arrow_outlined, color: Colors.white)
+                          : const Icon(Icons.pause, color: Colors.white),
+                      const SizedBox(width: 5),
+                      Text(
+                        payload.payloadIrrLine[0].irrigationPauseFlag == 1 ? 'RESUME THE LINE' : 'PAUSE THE LINE',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ):
+              const SizedBox(),
+
               const SizedBox(width: 10),
               const IconButton(color: Colors.transparent, onPressed: null, icon: CircleAvatar(
                 radius: 17,
@@ -700,9 +766,14 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                           ListTile(
                             leading: const Icon(Icons.info_outline),
                             title: const Text('App info'),
-                            onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder:(context) => UserChatScreen(userId: widget.userId, dealerId: 0, userName: widget.customerName)));
+                            onTap: ()  {
                               Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>  const AppInfoScreen(),
+                                ),
+                              );
                             },
                           ),
                           ListTile(
@@ -809,13 +880,6 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                                   builder: (context) => AccountManagement(userID: widget.customerId, callback: callbackFunction),
                                 ),
                               );
-
-                              /*showModalBottomSheet(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AccountManagement(userID: widget.customerId, callback: callbackFunction);
-                                },
-                              );*/
                             },
                           ),
                           const SizedBox(height: 10),

@@ -81,6 +81,7 @@ dependencies:
   calendar_view: ^1.2.0
   device_info_plus: ^10.1.0
   pretty_gauge: ^1.0.1
+  webview_flutter_plus: ^0.2.4
 
 dev_dependencies:
   flutter_test:

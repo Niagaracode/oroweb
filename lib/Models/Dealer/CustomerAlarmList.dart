@@ -53,6 +53,7 @@ class CriticalAlarm {
   String alarmSet;
   String alarmActual;
   int status;
+  String alarmRaisedDT;
 
   CriticalAlarm({
     required this.sNo,
@@ -61,6 +62,7 @@ class CriticalAlarm {
     required this.alarmSet,
     required this.alarmActual,
     required this.status,
+    required this.alarmRaisedDT,
   });
 
   factory CriticalAlarm.fromJson(Map<String, dynamic> json) {
@@ -71,6 +73,7 @@ class CriticalAlarm {
       alarmSet: json['AlarmSet'],
       alarmActual: json['AlarmActual'],
       status: json['Status'],
+      alarmRaisedDT: '${json['Date']} ${json['AlarmRaisedTime']}',
     );
   }
 
@@ -82,6 +85,7 @@ class CriticalAlarm {
       'AlarmSet': alarmSet,
       'AlarmActual': alarmActual,
       'Status': status,
+      'alarmRaisedDT': alarmRaisedDT,
     };
   }
 }
@@ -91,11 +95,13 @@ class CriticalAlarmFinal {
   String dvcName;
   String location;
   String message;
+  String date;
 
   CriticalAlarmFinal({
     required this.fmName,
     required this.dvcName,
     required this.location,
     required this.message,
+    required this.date,
   });
 }

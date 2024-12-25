@@ -6,9 +6,11 @@ import 'package:chat_bubbles/bubbles/bubble_special_one.dart';
 import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:oro_irrigation_new/Models/Customer/Dashboard/SentAndReceivedModel.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../../../constants/MyFunction.dart';
 import '../../../constants/http_service.dart';
 
 class SentAndReceived extends StatefulWidget {
@@ -40,8 +42,15 @@ class _SentAndReceivedState extends State<SentAndReceived> {
   void initState() {
     super.initState();
     logFlag = 0;
-    visibleLoading = true;
+    fetchUserType();
     getLogs(widget.controllerId, DateFormat('yyyy-MM-dd').format(_focusedDay));
+  }
+
+  Future<void> fetchUserType() async {
+    String? userType = await MyFunction().getParameter('userType');
+    if(userType.toString()=='1'){
+      hasPayloadViewPermission = true;
+    }
   }
 
   @override
@@ -157,7 +166,18 @@ class _SentAndReceivedState extends State<SentAndReceived> {
     return SizedBox(
       width: screenWidth>600? widget.from=='Gem'? MediaQuery.sizeOf(context).width-512 : MediaQuery.sizeOf(context).width-676: MediaQuery.sizeOf(context).width,
       height: screenWidth>600? widget.from=='Gem'? MediaQuery.sizeOf(context).height-77: MediaQuery.sizeOf(context).height-120 : MediaQuery.sizeOf(context).height-230,
-      child: sentAndReceivedList.isNotEmpty? ListView.builder(
+      child: visibleLoading? Visibility(
+        visible: visibleLoading,
+        child: Container(
+          height: double.infinity,
+          color: Colors.transparent,
+          padding: EdgeInsets.fromLTRB(MediaQuery.sizeOf(context).width/2 - 280, 0, MediaQuery.sizeOf(context).width/2 - 280, 0),
+          child: const LoadingIndicator(
+            indicatorType: Indicator.ballPulse,
+          ),
+        ),
+      ):
+      sentAndReceivedList.isNotEmpty? ListView.builder(
         padding: const EdgeInsets.only(top: 10),
         itemCount: sentAndReceivedList.length,
         itemBuilder: (context, index)
@@ -332,6 +352,24 @@ class _SentAndReceivedState extends State<SentAndReceived> {
     );
   }
 
+  void indicatorViewShow() {
+    if(mounted){
+      setState(() {
+        visibleLoading = true;
+      });
+    }
+  }
+
+  void indicatorViewHide() {
+    if(mounted){
+      Future.delayed(const Duration(milliseconds: 500), () {
+        setState(() {
+          visibleLoading = false;
+        });
+      });
+    }
+  }
+
   String convertTo12hrs(String timeString) {
     DateTime dateTime = DateFormat("HH:mm:ss").parse(timeString);
     String formattedTime = DateFormat("h:mm a").format(dateTime);
@@ -340,23 +378,25 @@ class _SentAndReceivedState extends State<SentAndReceived> {
 
 
   Future<void> getLogs(int controllerId, String date) async {
+    indicatorViewShow();
     try {
       sentAndReceivedList.clear();
       Map<String, Object> body = {"userId": widget.customerID, "controllerId": controllerId, "fromDate":date, "toDate":date};
       final response = await HttpService().postRequest("getUserSentAndReceivedMessageStatus", body);
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
-        print(response.body);
         if(jsonResponse['code']==200){
           sentAndReceivedList = [
             ...jsonResponse['data'].map((programJson) => SentAndReceivedModel.fromJson(programJson)).toList(),
           ];
-          setState(() {});
+          indicatorViewHide();
         }else{
+          indicatorViewHide();
         }
       }
     } catch (e) {
       print('Error: $e');
+      indicatorViewHide();
     }
   }
 

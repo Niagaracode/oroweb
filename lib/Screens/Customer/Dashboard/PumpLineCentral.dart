@@ -343,12 +343,18 @@ class DisplaySourcePump extends StatefulWidget {
 class _DisplaySourcePumpState extends State<DisplaySourcePump> {
 
   Timer? timer;
+  final ValueNotifier<int> _popoverUpdateNotifier = ValueNotifier<int>(0);
+
+  static const excludedReasons = [
+    '3', '4', '5', '6', '21', '22', '23', '24',
+    '25', '26', '27', '28', '29', '30', '31'
+  ];
 
   @override
   void initState() {
     super.initState();
-    for (var ip in widget.spList) {
-      if (ip.onDelayLeft != '00:00:00') {
+    for (var sp in widget.spList) {
+      if (sp.onDelayLeft != '00:00:00' || sp.setValue != '00:00:00') {
         updatePumpOnDelayTime();
       }else{
         timer?.cancel();
@@ -356,52 +362,58 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
     }
   }
 
+  void updatePumpOnDelayTime() {
+    timer?.cancel();
+    timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
+      setState(() {
+        for (var sp in widget.spList) {
+          if (sp.onDelayLeft != '00:00:00') {
+            sp.onDelayLeft = decrementTime(sp.onDelayLeft);
+          }
+          if (isTimeFormat(sp.setValue) && sp.setValue != '00:00:00') {
+            sp.setValue = decrementTime(sp.setValue);
+            if (sp.status == 1) {
+              sp.actualValue = decrementTime(sp.actualValue);
+            }
+          }
+        }
+      });
+    });
+  }
+
+  String decrementTime(String time) {
+    List<String> parts = time.split(':');
+    int hours = int.parse(parts[0]);
+    int minutes = int.parse(parts[1]);
+    int seconds = int.parse(parts[2]);
+
+    if (seconds > 0) {
+      seconds--;
+    } else {
+      if (minutes > 0) {
+        minutes--;
+        seconds = 59;
+      } else {
+        if (hours > 0) {
+          hours--;
+          minutes = 59;
+          seconds = 59;
+        }
+      }
+    }
+
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  bool isTimeFormat(String value) {
+    final timeRegExp = RegExp(r'^([0-1]?\d|2[0-3]):[0-5]\d:[0-5]\d$');
+    return timeRegExp.hasMatch(value);
+  }
+
   @override
   void dispose() {
     timer?.cancel();
     super.dispose();
-  }
-
-  void updatePumpOnDelayTime() {
-    timer?.cancel();
-    timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
-      try{
-        for (var sp in widget.spList) {
-          if (sp.onDelayLeft!='00:00:00') {
-            List<String> parts = sp.onDelayLeft.split(':');
-            int hours = int.parse(parts[0]);
-            int minutes = int.parse(parts[1]);
-            int seconds = int.parse(parts[2]);
-
-            if (seconds > 0) {
-              seconds--;
-            } else {
-              if (minutes > 0) {
-                minutes--;
-                seconds = 59;
-              } else {
-                if (hours > 0) {
-                  hours--;
-                  minutes = 59;
-                  seconds = 59;
-                }
-              }
-            }
-
-            String updatedDurationQtyLeft = '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-            if (sp.onDelayLeft != '00:00:00') {
-              setState(() {
-                sp.onDelayLeft = updatedDurationQtyLeft;
-              });
-            }
-          }
-        }
-      }
-      catch(e){
-        print(e);
-      }
-    });
-
   }
 
 
@@ -428,11 +440,17 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                         final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
                         final position = button.localToGlobal(Offset.zero, ancestor: overlay);
 
+                        //_popoverUpdateNotifier.value++;
+
                         bool voltKeyExists = filteredPumps[index].voltage.isNotEmpty;
                         int signalStrength = voltKeyExists? int.parse(filteredPumps[index].signalStrength):0;
                         int batteryVolt = voltKeyExists? int.parse(filteredPumps[index].battery):0;
                         List<String> voltages = voltKeyExists? filteredPumps[index].voltage.split(','):[];
                         List<String> currents = voltKeyExists? filteredPumps[index].current.split(','):[];
+
+                        List<String> icEnergy = voltKeyExists? filteredPumps[index].icEnergy.split(','):[];
+                        List<String> icPwrFactor = voltKeyExists? filteredPumps[index].pwrFactor.split(','):[];
+                        List<String> icPwr = voltKeyExists? filteredPumps[index].pwr.split(','):[];
 
                         List<dynamic> pumpLevel = voltKeyExists? filteredPumps[index].level:[];
 
@@ -462,59 +480,359 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
 
                         showPopover(
                           context: context,
-                          bodyBuilder: (context) => voltKeyExists && pumpLevel.isNotEmpty?
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: 412,
-                                height: 35,
-                                color: Colors.teal.shade50,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const SizedBox(width: 8,),
-                                    Text('Version: ${filteredPumps[index].version}'),
-                                    const Spacer(),
-                                    Icon(signalStrength == 0 ? Icons.wifi_off :
-                                    signalStrength >= 1 && signalStrength <= 20 ?
-                                    Icons.network_wifi_1_bar_outlined :
-                                    signalStrength >= 21 && signalStrength <= 40 ?
-                                    Icons.network_wifi_2_bar_outlined :
-                                    signalStrength >= 41 && signalStrength <= 60 ?
-                                    Icons.network_wifi_3_bar_outlined :
-                                    signalStrength >= 61 && signalStrength <= 80 ?
-                                    Icons.network_wifi_3_bar_outlined :
-                                    Icons.wifi, color: Colors.black,),
-                                    const SizedBox(width: 5,),
-                                    Text('$signalStrength%'),
+                          bodyBuilder: (context) {
+                            MqttPayloadProvider provider = Provider.of<MqttPayloadProvider>(context, listen: true);
+                            Future.delayed(const Duration(seconds: 2));
+                            _popoverUpdateNotifier.value++;
 
-                                    const SizedBox(width: 5,),
-                                    batteryVolt==0?const Icon(Icons.battery_0_bar):
-                                    batteryVolt>0&&batteryVolt<=10?const Icon(Icons.battery_1_bar_rounded):
-                                    batteryVolt>10&&batteryVolt<=30?const Icon(Icons.battery_2_bar_rounded):
-                                    batteryVolt>30&&batteryVolt<=50?const Icon(Icons.battery_3_bar_rounded):
-                                    batteryVolt>50&&batteryVolt<=70?const Icon(Icons.battery_4_bar_rounded):
-                                    batteryVolt>70&&batteryVolt<=90?const Icon(Icons.battery_5_bar_rounded):
-                                    const Icon(Icons.battery_6_bar_rounded),
-                                    Text('$batteryVolt%'),
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ValueListenableBuilder<int>(
+                                  valueListenable: _popoverUpdateNotifier,
+                                  builder: (BuildContext context, int value, Widget? child) {
 
-                                    const SizedBox(width: 8,),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 5,),
-                              SizedBox(
-                                width: 412,
-                                child: Row(
-                                  children: [
-                                    SizedBox(
-                                      width: 352,
-                                      child: Column(
+                                    return Material(
+                                      child: voltKeyExists && pumpLevel.isNotEmpty?
+                                      Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment: MainAxisAlignment.start,
                                         children: [
                                           Container(
-                                            width: 340,
+                                            width: 412,
+                                            height: 35,
+                                            color: Colors.teal.shade50,
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const SizedBox(width: 8,),
+                                                Text('Version: ${filteredPumps[index].version}'),
+                                                const Spacer(),
+                                                Icon(signalStrength == 0 ? Icons.wifi_off :
+                                                signalStrength >= 1 && signalStrength <= 20 ?
+                                                Icons.network_wifi_1_bar_outlined :
+                                                signalStrength >= 21 && signalStrength <= 40 ?
+                                                Icons.network_wifi_2_bar_outlined :
+                                                signalStrength >= 41 && signalStrength <= 60 ?
+                                                Icons.network_wifi_3_bar_outlined :
+                                                signalStrength >= 61 && signalStrength <= 80 ?
+                                                Icons.network_wifi_3_bar_outlined :
+                                                Icons.wifi, color: Colors.black,),
+                                                const SizedBox(width: 5,),
+                                                Text('$signalStrength%'),
+
+                                                const SizedBox(width: 5,),
+                                                batteryVolt==0?const Icon(Icons.battery_0_bar):
+                                                batteryVolt>0&&batteryVolt<=10?const Icon(Icons.battery_1_bar_rounded):
+                                                batteryVolt>10&&batteryVolt<=30?const Icon(Icons.battery_2_bar_rounded):
+                                                batteryVolt>30&&batteryVolt<=50?const Icon(Icons.battery_3_bar_rounded):
+                                                batteryVolt>50&&batteryVolt<=70?const Icon(Icons.battery_4_bar_rounded):
+                                                batteryVolt>70&&batteryVolt<=90?const Icon(Icons.battery_5_bar_rounded):
+                                                const Icon(Icons.battery_6_bar_rounded),
+                                                Text('$batteryVolt%'),
+
+                                                const SizedBox(width: 8,),
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(height: 5,),
+                                          SizedBox(
+                                            width: 412,
+                                            child: Row(
+                                              children: [
+                                                SizedBox(
+                                                  width: 352,
+                                                  child: Column(
+                                                    children: [
+                                                      Container(
+                                                        width: 340,
+                                                        height: 25,
+                                                        color: Colors.transparent,
+                                                        child: Row(
+                                                          children: [
+                                                            const SizedBox(width:100, child: Text('Phase', style: TextStyle(color: Colors.black54),),),
+                                                            const Spacer(),
+                                                            CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>0? Colors.green: null,),
+                                                            const VerticalDivider(color: Colors.transparent,),
+                                                            CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>1? Colors.green: null,),
+                                                            const VerticalDivider(color: Colors.transparent,),
+                                                            CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>2? Colors.green: null,),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      const Padding(
+                                                        padding: EdgeInsets.only(left: 8),
+                                                        child: Divider(height: 6,color: Colors.black12),
+                                                      ),
+                                                      Container(
+                                                        width: 340,
+                                                        height: 25,
+                                                        color: Colors.transparent,
+                                                        child: Row(
+                                                          children: [
+                                                            const SizedBox(width:80, child: Text('Voltage', style: TextStyle(color: Colors.black54),),),
+                                                            const Padding(
+                                                              padding: EdgeInsets.only(bottom: 2,top: 2),
+                                                              child: VerticalDivider(color: Colors.red, thickness: 1.5,),
+                                                            ),
+                                                            SizedBox(width: 70, child: Text('RY : ${voltages[0]}'),),
+                                                            const Padding(
+                                                              padding: EdgeInsets.only(bottom: 2,top: 2),
+                                                              child: VerticalDivider(color: Colors.yellow,thickness: 1.5,),
+                                                            ),
+                                                            SizedBox(width: 70, child: Text('YB : ${voltages[1]}'),),
+                                                            const Padding(
+                                                              padding: EdgeInsets.only(bottom: 2,top: 2),
+                                                              child: VerticalDivider(color: Colors.blue,thickness: 1.5,),
+                                                            ),
+                                                            SizedBox(width: 70, child: Text('BR : ${voltages[2]}'),),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      const Padding(
+                                                        padding: EdgeInsets.only(left: 8),
+                                                        child: Divider(height: 6,color: Colors.black12),
+                                                      ),
+                                                      Container(
+                                                        width: 340,
+                                                        height: 25,
+                                                        color: Colors.transparent,
+                                                        child: Row(
+                                                          children: [
+                                                            const SizedBox(width:80, child: Text('Current', style: TextStyle(color: Colors.black54),),),
+                                                            const Padding(
+                                                              padding: EdgeInsets.only(bottom: 2,top: 2),
+                                                              child: VerticalDivider(color: Colors.transparent,),
+                                                            ),
+                                                            SizedBox(width: 60, child: Center(child: Text('CY : ${columns[0]}')),),
+                                                            const Padding(
+                                                              padding: EdgeInsets.only(bottom: 2,top: 2),
+                                                              child: VerticalDivider(color: Colors.transparent,),
+                                                            ),
+                                                            SizedBox(width: 65, child: Center(child: Text('CB : ${columns[1]}')),),
+                                                            const Padding(
+                                                              padding: EdgeInsets.only(bottom: 2,top: 2),
+                                                              child: VerticalDivider(color: Colors.transparent,),
+                                                            ),
+                                                            SizedBox(width: 65, child: Center(child: Text('CR : ${columns[2]}')),),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      const Padding(
+                                                        padding: EdgeInsets.only(left: 8),
+                                                        child: Divider(height: 6,color: Colors.black12),
+                                                      ),
+                                                      Row(
+                                                        mainAxisAlignment: MainAxisAlignment.end,
+                                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                                        children: [
+                                                          MaterialButton(
+                                                            color: Colors.green,
+                                                            textColor: Colors.white,
+                                                            onPressed: () {
+                                                              if(getPermissionStatusBySNo(context, 4)){
+                                                                String payload = '${filteredPumps[index].sNo},1,1';
+                                                                String payLoadFinal = jsonEncode({
+                                                                  "6200": [{"6201": payload}]
+                                                                });
+                                                                MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceId}');
+                                                                sentUserOperationToServer('${pump.swName?? pump.name} Start Manually', payLoadFinal);
+                                                                showSnakeBar('Pump of comment sent successfully');
+                                                                Navigator.pop(context);
+                                                              }else{
+                                                                Navigator.pop(context);
+                                                                GlobalSnackBar.show(context, 'Permission denied', 400);
+                                                              }
+                                                            },
+                                                            child: const Text('Start Manually',
+                                                              style: TextStyle(color: Colors.white),
+                                                            ),
+                                                          ),
+                                                          const SizedBox(width: 16,),
+                                                          MaterialButton(
+                                                            color: Colors.redAccent,
+                                                            textColor: Colors.white,
+                                                            onPressed: () {
+                                                              if(getPermissionStatusBySNo(context, 4)){
+                                                                String payload = '${filteredPumps[index].sNo},0,1';
+                                                                String payLoadFinal = jsonEncode({
+                                                                  "6200": [{"6201": payload}]
+                                                                });
+                                                                MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceId}');
+                                                                sentUserOperationToServer('${pump.swName ?? pump.name} Stop Manually', payLoadFinal);
+                                                                showSnakeBar('Pump of comment sent successfully');
+                                                                Navigator.pop(context);
+                                                              }else{
+                                                                Navigator.pop(context);
+                                                                GlobalSnackBar.show(context, 'Permission denied', 400);
+                                                              }
+                                                            },
+                                                            child: const Text('Stop Manually',
+                                                              style: TextStyle(color: Colors.white),
+                                                            ),
+                                                          ),
+                                                          const SizedBox(width: 16,),
+                                                        ],
+                                                      ),
+                                                      const SizedBox(height: 5,),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Container(
+                                                  width: 0.5,
+                                                  height: 125,
+                                                  color: Colors.grey,
+                                                ),
+                                                SizedBox(
+                                                  width: 59,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.all(3.0),
+                                                    child: Column(
+                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                      children: [
+                                                        Text('${getUnitByParameter(context, 'Level Sensor', pumpLevel[0]['Value'])}',style: const TextStyle(fontSize: 10),),
+                                                        const SizedBox(height: 5,),
+                                                        Container(
+                                                          width: 50,
+                                                          height: 75,
+                                                          decoration: BoxDecoration(
+                                                            border: Border.all(color: Colors.grey, width: 1),
+                                                            borderRadius: BorderRadius.circular(8),
+                                                          ),
+                                                          child: Stack(
+                                                            alignment: Alignment.bottomCenter,
+                                                            children: [
+                                                              FractionallySizedBox(
+                                                                heightFactor: pumpLevel[0]['LevelPercent']/75,
+                                                                alignment: Alignment.bottomCenter,
+                                                                child: Container(
+                                                                  decoration: const BoxDecoration(
+                                                                    color: Colors.blue, // Filled color
+                                                                    borderRadius: BorderRadius.vertical(
+                                                                      bottom: Radius.circular(6),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Center(
+                                                                child: Text(
+                                                                  '${(pumpLevel[0]['LevelPercent'] * 75).toStringAsFixed(0)}%',
+                                                                  style: const TextStyle(
+                                                                    color: Colors.black,
+                                                                    fontWeight: FontWeight.bold,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        const SizedBox(height: 5,),
+                                                        Text(pumpLevel[0]['SW_Name'], style: const TextStyle(fontSize: 10),textAlign: TextAlign.center,),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ):
+                                      voltKeyExists?Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            width: voltKeyExists && pumpLevel.isNotEmpty?392:315,
+                                            height: 35,
+                                            color: Colors.teal,
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const SizedBox(width: 8,),
+                                                Text.rich(
+                                                  TextSpan(
+                                                    text: 'Version : ',
+                                                    style: const TextStyle(color: Colors.white54),
+                                                    children: [
+                                                      TextSpan(
+                                                        text: filteredPumps[index].version,
+                                                        style: const TextStyle(
+                                                            fontWeight: FontWeight.bold, color: Colors.white),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                const Spacer(),
+                                                Icon(signalStrength == 0 ? Icons.wifi_off :
+                                                signalStrength >= 1 && signalStrength <= 20 ?
+                                                Icons.network_wifi_1_bar_outlined :
+                                                signalStrength >= 21 && signalStrength <= 40 ?
+                                                Icons.network_wifi_2_bar_outlined :
+                                                signalStrength >= 41 && signalStrength <= 60 ?
+                                                Icons.network_wifi_3_bar_outlined :
+                                                signalStrength >= 61 && signalStrength <= 80 ?
+                                                Icons.network_wifi_3_bar_outlined :
+                                                Icons.wifi, color: signalStrength == 0?Colors.white54:Colors.white,),
+                                                const SizedBox(width: 5,),
+                                                Text('$signalStrength%', style: const TextStyle(color: Colors.white),),
+
+                                                const SizedBox(width: 5,),
+                                                batteryVolt==0?const Icon(Icons.battery_0_bar, color: Colors.white54,):
+                                                batteryVolt>0&&batteryVolt<=10?const Icon(Icons.battery_1_bar_rounded, color: Colors.white,):
+                                                batteryVolt>10&&batteryVolt<=30?const Icon(Icons.battery_2_bar_rounded, color: Colors.white,):
+                                                batteryVolt>30&&batteryVolt<=50?const Icon(Icons.battery_3_bar_rounded, color: Colors.white,):
+                                                batteryVolt>50&&batteryVolt<=70?const Icon(Icons.battery_4_bar_rounded, color: Colors.white,):
+                                                batteryVolt>70&&batteryVolt<=90?const Icon(Icons.battery_5_bar_rounded, color: Colors.white,):
+                                                const Icon(Icons.battery_full, color: Colors.white,),
+                                                Text('$batteryVolt%', style: const TextStyle(color: Colors.white),),
+
+                                                const SizedBox(width: 8,),
+                                              ],
+                                            ),
+                                          ),
+                                          int.parse(filteredPumps[index].reason)>0 ? Container(
+                                            width: 315,
+                                            height: 30,
+                                            color: Colors.green.shade50,
+                                            child: Row(
+                                              children: [
+                                                Expanded(child: Padding(
+                                                  padding: const EdgeInsets.only(left: 5),
+                                                  child: Text(getContentByCode(int.parse(filteredPumps[index].reason)), style: const TextStyle(fontSize: 11, color: Colors.black54)),
+                                                )),
+                                                (!excludedReasons.contains(filteredPumps[index].reason)) ? SizedBox(
+                                                  height:20,
+                                                  child: TextButton(
+                                                    style: TextButton.styleFrom(
+                                                      backgroundColor: Colors.redAccent.shade200,
+                                                      textStyle: const TextStyle(color: Colors.white),
+                                                    ),
+                                                    onPressed: () {
+                                                      if(getPermissionStatusBySNo(context, 4)){
+                                                        String payload = '${filteredPumps[index].sNo},1';
+                                                        String payLoadFinal = jsonEncode({
+                                                          "6300": [{"6301": payload}]
+                                                        });
+                                                        MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceId}');
+                                                        sentUserOperationToServer('${pump.swName ?? pump.name} Reset Manually', payLoadFinal);
+                                                        showSnakeBar('Reset comment sent successfully');
+                                                        Navigator.pop(context);
+                                                      }else{
+                                                        Navigator.pop(context);
+                                                        GlobalSnackBar.show(context, 'Permission denied', 400);
+                                                      }
+                                                    },
+                                                    child: const Text('Reset', style: TextStyle(fontSize: 11, color: Colors.white),),
+                                                  ),
+                                                ):const SizedBox(),
+                                                const SizedBox(width: 5,),
+                                              ],
+                                            ),
+                                          ):
+                                          const SizedBox(),
+                                          Container(
+                                            width: 300,
                                             height: 25,
                                             color: Colors.transparent,
                                             child: Row(
@@ -529,71 +847,399 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                               ],
                                             ),
                                           ),
-                                          const Padding(
-                                            padding: EdgeInsets.only(left: 8),
-                                            child: Divider(height: 6,color: Colors.black12),
-                                          ),
+                                          const SizedBox(height: 5,),
                                           Container(
-                                            width: 340,
+                                            width: 300,
                                             height: 25,
                                             color: Colors.transparent,
                                             child: Row(
                                               children: [
-                                                const SizedBox(width:80, child: Text('Voltage', style: TextStyle(color: Colors.black54),),),
-                                                const Padding(
-                                                  padding: EdgeInsets.only(bottom: 2,top: 2),
-                                                  child: VerticalDivider(color: Colors.red, thickness: 1.5,),
+                                                const SizedBox(width:85, child: Text('Voltage', style: TextStyle(color: Colors.black54),),),
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.red.shade50,
+                                                    border: Border.all(
+                                                      color: Colors.red.shade200,
+                                                      width: 0.7,
+                                                    ),
+                                                    borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                                  ),
+                                                  width: 65,
+                                                  height: 40,
+                                                  child: Center( // Center widget aligns the child in the center
+                                                    child: Text(
+                                                      'RY : ${voltages[0]}',
+                                                      style: const TextStyle(fontSize: 11),
+                                                      textAlign: TextAlign.center,
+                                                    ),
+                                                  ),
                                                 ),
-                                                SizedBox(width: 70, child: Text('RY : ${voltages[0]}'),),
-                                                const Padding(
-                                                  padding: EdgeInsets.only(bottom: 2,top: 2),
-                                                  child: VerticalDivider(color: Colors.yellow,thickness: 1.5,),
+                                                const SizedBox(width: 7,),
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.yellow.shade50,
+                                                    border: Border.all(
+                                                      color: Colors.yellow.shade500,
+                                                      width: 0.7,
+                                                    ),
+                                                    borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                                  ),
+                                                  width: 65,
+                                                  height: 40,
+                                                  child: Center(
+                                                    child: Text(
+                                                      'YB : ${voltages[1]}',
+                                                      style: const TextStyle(fontSize: 11),
+                                                      textAlign: TextAlign.center,
+                                                    ),
+                                                  ),
                                                 ),
-                                                SizedBox(width: 70, child: Text('YB : ${voltages[1]}'),),
-                                                const Padding(
-                                                  padding: EdgeInsets.only(bottom: 2,top: 2),
-                                                  child: VerticalDivider(color: Colors.blue,thickness: 1.5,),
+                                                const SizedBox(width: 7,),
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.blue.shade50,
+                                                    border: Border.all(
+                                                      color: Colors.blue.shade300,
+                                                      width: 0.7,
+                                                    ),
+                                                    borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                                  ),
+                                                  width: 65,
+                                                  height: 40,
+                                                  child: Center(
+                                                    child: Text(
+                                                      'BR : ${voltages[2]}',
+                                                      style: const TextStyle(fontSize: 11),
+                                                      textAlign: TextAlign.center,
+                                                    ),
+                                                  ),
                                                 ),
-                                                SizedBox(width: 70, child: Text('BR : ${voltages[2]}'),),
                                               ],
                                             ),
                                           ),
-                                          const Padding(
-                                            padding: EdgeInsets.only(left: 8),
-                                            child: Divider(height: 6,color: Colors.black12),
-                                          ),
+                                          const SizedBox(height: 7,),
                                           Container(
-                                            width: 340,
+                                            width: 300,
                                             height: 25,
                                             color: Colors.transparent,
                                             child: Row(
                                               children: [
-                                                const SizedBox(width:80, child: Text('Current', style: TextStyle(color: Colors.black54),),),
-                                                const Padding(
-                                                  padding: EdgeInsets.only(bottom: 2,top: 2),
-                                                  child: VerticalDivider(color: Colors.transparent,),
+                                                const SizedBox(width:85, child: Text('Current', style: TextStyle(color: Colors.black54),),),
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.red.shade50,
+                                                    border: Border.all(
+                                                      color: Colors.red.shade200,
+                                                      width: 0.7,
+                                                    ),
+                                                    borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                                  ),
+                                                  width: 65,
+                                                  height: 40,
+                                                  child: Center( // Center widget aligns the child in the center
+                                                    child: Text(
+                                                      'YC : ${columns[0]}',
+                                                      style: const TextStyle(fontSize: 11),
+                                                      textAlign: TextAlign.center,
+                                                    ),
+                                                  ),
                                                 ),
-                                                SizedBox(width: 60, child: Center(child: Text(columns[0])),),
-                                                const Padding(
-                                                  padding: EdgeInsets.only(bottom: 2,top: 2),
-                                                  child: VerticalDivider(color: Colors.transparent,),
+                                                const SizedBox(width: 7,),
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.yellow.shade50,
+                                                    border: Border.all(
+                                                      color: Colors.yellow.shade500,
+                                                      width: 0.7,
+                                                    ),
+                                                    borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                                  ),
+                                                  width: 65,
+                                                  height: 40,
+                                                  child: Center(
+                                                    child: Text(
+                                                      'BC : ${columns[1]}',
+                                                      style: const TextStyle(fontSize: 11),
+                                                      textAlign: TextAlign.center,
+                                                    ),
+                                                  ),
                                                 ),
-                                                SizedBox(width: 65, child: Center(child: Text(columns[1])),),
-                                                const Padding(
-                                                  padding: EdgeInsets.only(bottom: 2,top: 2),
-                                                  child: VerticalDivider(color: Colors.transparent,),
+                                                const SizedBox(width: 7,),
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.blue.shade50,
+                                                    border: Border.all(
+                                                      color: Colors.blue.shade300,
+                                                      width: 0.7,
+                                                    ),
+                                                    borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                                  ),
+                                                  width: 65,
+                                                  height: 40,
+                                                  child: Center(
+                                                    child: Text(
+                                                      'RC : ${columns[2]}',
+                                                      style: const TextStyle(fontSize: 11),
+                                                      textAlign: TextAlign.center,
+                                                    ),
+                                                  ),
                                                 ),
-                                                SizedBox(width: 65, child: Center(child: Text(columns[2])),),
                                               ],
                                             ),
                                           ),
-                                          const Padding(
-                                            padding: EdgeInsets.only(left: 8),
-                                            child: Divider(height: 6,color: Colors.black12),
-                                          ),
+                                          const SizedBox(height: 7,),
+                                          icEnergy.length>1?Padding(
+                                            padding: const EdgeInsets.only(bottom: 7),
+                                            child: Container(
+                                              width: 300,
+                                              height: 25,
+                                              color: Colors.transparent,
+                                              child: Row(
+                                                children: [
+                                                  const SizedBox(width:229, child: Text('Instant Energy : ', style: TextStyle(color: Colors.black54),),),
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.grey.shade200,
+                                                      border: Border.all(
+                                                        color: Colors.grey.shade300,
+                                                        width: 0.7,
+                                                      ),
+                                                      borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                                    ),
+                                                    width: 65,
+                                                    height: 40,
+                                                    child: Center(
+                                                      child: Text(
+                                                        icEnergy[0],
+                                                        style: const TextStyle(fontSize: 12),
+                                                        textAlign: TextAlign.center,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ):
+                                          const SizedBox(),
+                                          icEnergy.length>1?Padding(
+                                            padding: const EdgeInsets.only(bottom: 7),
+                                            child: Container(
+                                              width: 300,
+                                              height: 25,
+                                              color: Colors.transparent,
+                                              child: Row(
+                                                children: [
+                                                  const SizedBox(width:229, child: Text('Cumulative Energy : ', style: TextStyle(color: Colors.black54),),),
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.grey.shade200,
+                                                      border: Border.all(
+                                                        color: Colors.grey.shade300,
+                                                        width: 0.7,
+                                                      ),
+                                                      borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                                    ),
+                                                    width: 65,
+                                                    height: 40,
+                                                    child: Center(
+                                                      child: Text(
+                                                        icEnergy[1],
+                                                        style: const TextStyle(fontSize: 12),
+                                                        textAlign: TextAlign.center,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ):
+                                          const SizedBox(),
+                                          icPwrFactor.length>1?Padding(
+                                            padding: const EdgeInsets.only(bottom: 7),
+                                            child: Container(
+                                              width: 300,
+                                              height: 25,
+                                              color: Colors.transparent,
+                                              child: Row(
+                                                children: [
+                                                  const SizedBox(width:90, child: Text('Power Factor', style: TextStyle(color: Colors.black54),),),
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.red.shade50,
+                                                      border: Border.all(
+                                                        color: Colors.red.shade200,
+                                                        width: 0.7,
+                                                      ),
+                                                      borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                                    ),
+                                                    width: 65,
+                                                    height: 40,
+                                                    child: Center( // Center widget aligns the child in the center
+                                                      child: Text(
+                                                        'RPF : ${icPwrFactor[0]}',
+                                                        style: const TextStyle(fontSize: 11),
+                                                        textAlign: TextAlign.center,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 7,),
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.yellow.shade50,
+                                                      border: Border.all(
+                                                        color: Colors.yellow.shade200,
+                                                        width: 0.7,
+                                                      ),
+                                                      borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                                    ),
+                                                    width: 65,
+                                                    height: 40,
+                                                    child: Center(
+                                                      child: Text(
+                                                        'YPF : ${icPwrFactor[1]}',
+                                                        style: const TextStyle(fontSize: 11),
+                                                        textAlign: TextAlign.center,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 7,),
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.blue.shade50,
+                                                      border: Border.all(
+                                                        color: Colors.blue.shade200,
+                                                        width: 0.7,
+                                                      ),
+                                                      borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                                    ),
+                                                    width: 65,
+                                                    height: 40,
+                                                    child: Center(
+                                                      child: Text(
+                                                        'BPF : ${icPwrFactor[2]}',
+                                                        style: const TextStyle(fontSize: 11),
+                                                        textAlign: TextAlign.center,
+                                                      ),
+                                                    ),
+                                                  ),
+
+                                                ],
+                                              ),
+                                            ),
+                                          ):
+                                          const SizedBox(),
+                                          icPwr.length>1?Container(
+                                            width: 300,
+                                            height: 25,
+                                            color: Colors.transparent,
+                                            child: Row(
+                                              children: [
+                                                const SizedBox(width:90, child: Text('Power', style: TextStyle(color: Colors.black54),),),
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.red.shade50,
+                                                    border: Border.all(
+                                                      color: Colors.red.shade200,
+                                                      width: 0.7,
+                                                    ),
+                                                    borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                                  ),
+                                                  width: 65,
+                                                  height: 40,
+                                                  child: Center( // Center widget aligns the child in the center
+                                                    child: Text(
+                                                      'RP : ${icPwr[0]}',
+                                                      style: const TextStyle(fontSize: 11),
+                                                      textAlign: TextAlign.center,
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 7,),
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.yellow.shade50,
+                                                    border: Border.all(
+                                                      color: Colors.yellow.shade200,
+                                                      width: 0.7,
+                                                    ),
+                                                    borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                                  ),
+                                                  width: 65,
+                                                  height: 40,
+                                                  child: Center(
+                                                    child: Text(
+                                                      'YP : ${icPwr[1]}',
+                                                      style: const TextStyle(fontSize: 11),
+                                                      textAlign: TextAlign.center,
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 7,),
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.blue.shade50,
+                                                    border: Border.all(
+                                                      color: Colors.blue.shade200,
+                                                      width: 0.7,
+                                                    ),
+                                                    borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                                  ),
+                                                  width: 65,
+                                                  height: 40,
+                                                  child: Center(
+                                                    child: Text(
+                                                      'BP : ${icPwr[2]}',
+                                                      style: const TextStyle(fontSize: 11),
+                                                      textAlign: TextAlign.center,
+                                                    ),
+                                                  ),
+                                                ),
+
+                                              ],
+                                            ),
+                                          ):
+                                          const SizedBox(),
+                                          const SizedBox(height: 5,),
+                                          int.parse(filteredPumps[index].reason)>0 && isTimeFormat(filteredPumps[index].setValue) ? SizedBox(
+                                            width: 300,
+                                            height: 45,
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: [
+                                                Text.rich(
+                                                  TextSpan(
+                                                    text: (filteredPumps[index].reason == '11'||filteredPumps[index].reason == '22') ? 'Remaining(hh:mm:ss)':'Set Amps : ',
+                                                    style: const TextStyle(fontSize: 12, color: Colors.black54),
+                                                    children: [
+                                                      TextSpan(
+                                                        text: '\n${filteredPumps[index].setValue}',
+                                                        style: const TextStyle(
+                                                            fontWeight: FontWeight.bold, color: Colors.black),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Text.rich(
+                                                  TextSpan(
+                                                    text: (filteredPumps[index].reason == '11'||filteredPumps[index].reason == '22') ? 'Max Time(hh:mm:ss)': 'Actual Amps : ' ,
+                                                    style: const TextStyle(fontSize: 12, color: Colors.black54),
+                                                    children: [
+                                                      TextSpan(
+                                                        text: '\n${filteredPumps[index].actualValue}',
+                                                        style: const TextStyle(
+                                                            fontWeight: FontWeight.bold, color: Colors.black),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ):
+                                          const SizedBox(),
+                                          const SizedBox(height: 7,),
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.end,
-                                            crossAxisAlignment: CrossAxisAlignment.center,
                                             children: [
                                               MaterialButton(
                                                 color: Colors.green,
@@ -643,403 +1289,76 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                               const SizedBox(width: 16,),
                                             ],
                                           ),
-                                          const SizedBox(height: 5,),
-                                          int.parse(filteredPumps[index].reason)>0 ?
-                                          Container(
-                                            width: 354,
-                                            height: 45,
-                                            color: Colors.red.shade100,
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              crossAxisAlignment: CrossAxisAlignment.center,
-                                              children: [
-                                                const SizedBox(width: 8,),
-                                                Expanded(
-                                                  child:
-                                                  Column(
-                                                    mainAxisAlignment: MainAxisAlignment.start,
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      int.parse(filteredPumps[index].reason)==8 || int.parse(filteredPumps[index].reason)==9 ?
-                                                      Text('Reason (Set : ${filteredPumps[index].setValue}. Actual : ${filteredPumps[index].actualValue})',style: const TextStyle(fontSize: 13,),): const Text('Reason',style: TextStyle(fontSize: 13,),),
-                                                      Text(getContentByCode(int.parse(filteredPumps[index].reason)), style: const TextStyle(fontSize: 11,)),
-                                                    ],
-                                                  ),
-                                                ),
-                                                int.parse(filteredPumps[index].reason)==8 || int.parse(filteredPumps[index].reason)==9?
-                                                MaterialButton(
-                                                  color: Colors.orange,
-                                                  textColor: Colors.white,
-                                                  onPressed: () {
-                                                    if(getPermissionStatusBySNo(context, 4)){
-                                                      String payload = '${filteredPumps[index].sNo},1';
-                                                      String payLoadFinal = jsonEncode({
-                                                        "6300": [{"6301": payload}]
-                                                      });
-                                                      MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceId}');
-                                                      sentUserOperationToServer('${pump.swName ?? pump.name} Start Manually', payLoadFinal);
-                                                      showSnakeBar('Pump of comment sent successfully');
-                                                      Navigator.pop(context);
-                                                    }else{
-                                                      Navigator.pop(context);
-                                                      GlobalSnackBar.show(context, 'Permission denied', 400);
-                                                    }
-                                                  },
-                                                  child: const Text('Reset',
-                                                    style: TextStyle(color: Colors.white),
-                                                  ),
-                                                ): const SizedBox(),
-                                                const SizedBox(width: 5,),
-                                              ],
-                                            ),
-                                          ):
-                                          const SizedBox(),
+                                          const SizedBox(height: 7,),
                                         ],
-                                      ),
-                                    ),
-                                    Container(
-                                      width: 0.5,
-                                      height: 125,
-                                      color: Colors.grey,
-                                    ),
-                                    SizedBox(
-                                      width: 59,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(3.0),
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            Text('${getUnitByParameter(context, 'Level Sensor', pumpLevel[0]['Value'])}',style: const TextStyle(fontSize: 10),),
-                                            const SizedBox(height: 5,),
-                                            Container(
-                                              width: 50,
-                                              height: 75,
-                                              decoration: BoxDecoration(
-                                                border: Border.all(color: Colors.grey, width: 1),
-                                                borderRadius: BorderRadius.circular(8),
-                                              ),
-                                              child: Stack(
-                                                alignment: Alignment.bottomCenter,
-                                                children: [
-                                                  FractionallySizedBox(
-                                                    heightFactor: pumpLevel[0]['LevelPercent']/75,
-                                                    alignment: Alignment.bottomCenter,
-                                                    child: Container(
-                                                      decoration: const BoxDecoration(
-                                                        color: Colors.blue, // Filled color
-                                                        borderRadius: BorderRadius.vertical(
-                                                          bottom: Radius.circular(6),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Center(
-                                                    child: Text(
-                                                      '${(pumpLevel[0]['LevelPercent'] * 75).toStringAsFixed(0)}%',
-                                                      style: const TextStyle(
-                                                        color: Colors.black,
-                                                        fontWeight: FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            const SizedBox(height: 5,),
-                                            Text(pumpLevel[0]['SW_Name'], style: const TextStyle(fontSize: 10),textAlign: TextAlign.center,),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ):
-                          voltKeyExists?Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: voltKeyExists && pumpLevel.isNotEmpty?392:352,
-                                height: 35,
-                                color: Colors.teal.shade50,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const SizedBox(width: 8,),
-                                    Text('Version: ${filteredPumps[index].version}'),
-                                    const Spacer(),
-                                    Icon(signalStrength == 0 ? Icons.wifi_off :
-                                    signalStrength >= 1 && signalStrength <= 20 ?
-                                    Icons.network_wifi_1_bar_outlined :
-                                    signalStrength >= 21 && signalStrength <= 40 ?
-                                    Icons.network_wifi_2_bar_outlined :
-                                    signalStrength >= 41 && signalStrength <= 60 ?
-                                    Icons.network_wifi_3_bar_outlined :
-                                    signalStrength >= 61 && signalStrength <= 80 ?
-                                    Icons.network_wifi_3_bar_outlined :
-                                    Icons.wifi, color: Colors.black,),
-                                    const SizedBox(width: 5,),
-                                    Text('$signalStrength%'),
-
-                                    const SizedBox(width: 5,),
-                                    batteryVolt==0?const Icon(Icons.battery_0_bar):
-                                    batteryVolt>0&&batteryVolt<=10?const Icon(Icons.battery_1_bar_rounded):
-                                    batteryVolt>10&&batteryVolt<=30?const Icon(Icons.battery_2_bar_rounded):
-                                    batteryVolt>30&&batteryVolt<=50?const Icon(Icons.battery_3_bar_rounded):
-                                    batteryVolt>50&&batteryVolt<=70?const Icon(Icons.battery_4_bar_rounded):
-                                    batteryVolt>70&&batteryVolt<=90?const Icon(Icons.battery_5_bar_rounded):
-                                    const Icon(Icons.battery_6_bar_rounded),
-                                    Text('$batteryVolt%'),
-
-                                    const SizedBox(width: 8,),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 5,),
-                              Container(
-                                width: 340,
-                                height: 25,
-                                color: Colors.transparent,
-                                child: Row(
-                                  children: [
-                                    const SizedBox(width:100, child: Text('Phase', style: TextStyle(color: Colors.black54),),),
-                                    const Spacer(),
-                                    CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>0? Colors.green: null,),
-                                    const VerticalDivider(color: Colors.transparent,),
-                                    CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>1? Colors.green: null,),
-                                    const VerticalDivider(color: Colors.transparent,),
-                                    CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>2? Colors.green: null,),
-                                  ],
-                                ),
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.only(left: 8),
-                                child: Divider(height: 6,color: Colors.black12),
-                              ),
-                              Container(
-                                width: 340,
-                                height: 25,
-                                color: Colors.transparent,
-                                child: Row(
-                                  children: [
-                                    const SizedBox(width:80, child: Text('Voltage', style: TextStyle(color: Colors.black54),),),
-                                    const Padding(
-                                      padding: EdgeInsets.only(bottom: 2,top: 2),
-                                      child: VerticalDivider(color: Colors.red, thickness: 1.5,),
-                                    ),
-                                    SizedBox(width: 70, child: Text('RY : ${voltages[0]}'),),
-                                    const Padding(
-                                      padding: EdgeInsets.only(bottom: 2,top: 2),
-                                      child: VerticalDivider(color: Colors.yellow,thickness: 1.5,),
-                                    ),
-                                    SizedBox(width: 70, child: Text('YB : ${voltages[1]}'),),
-                                    const Padding(
-                                      padding: EdgeInsets.only(bottom: 2,top: 2),
-                                      child: VerticalDivider(color: Colors.blue,thickness: 1.5,),
-                                    ),
-                                    SizedBox(width: 70, child: Text('BR : ${voltages[2]}'),),
-                                  ],
-                                ),
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.only(left: 8),
-                                child: Divider(height: 6,color: Colors.black12),
-                              ),
-                              Container(
-                                width: 340,
-                                height: 25,
-                                color: Colors.transparent,
-                                child: Row(
-                                  children: [
-                                    const SizedBox(width:80, child: Text('Current', style: TextStyle(color: Colors.black54),),),
-                                    const Padding(
-                                      padding: EdgeInsets.only(bottom: 2,top: 2),
-                                      child: VerticalDivider(color: Colors.transparent,),
-                                    ),
-                                    SizedBox(width: 60, child: Center(child: Text(columns[0])),),
-                                    const Padding(
-                                      padding: EdgeInsets.only(bottom: 2,top: 2),
-                                      child: VerticalDivider(color: Colors.transparent,),
-                                    ),
-                                    SizedBox(width: 65, child: Center(child: Text(columns[1])),),
-                                    const Padding(
-                                      padding: EdgeInsets.only(bottom: 2,top: 2),
-                                      child: VerticalDivider(color: Colors.transparent,),
-                                    ),
-                                    SizedBox(width: 65, child: Center(child: Text(columns[2])),),
-                                  ],
-                                ),
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.only(left: 8),
-                                child: Divider(height: 6,color: Colors.black12),
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  MaterialButton(
-                                    color: Colors.green,
-                                    textColor: Colors.white,
-                                    onPressed: () {
-                                      if(getPermissionStatusBySNo(context, 4)){
-                                        String payload = '${filteredPumps[index].sNo},1,1';
-                                        String payLoadFinal = jsonEncode({
-                                          "6200": [{"6201": payload}]
-                                        });
-                                        MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceId}');
-                                        sentUserOperationToServer('${pump.swName?? pump.name} Start Manually', payLoadFinal);
-                                        showSnakeBar('Pump of comment sent successfully');
-                                        Navigator.pop(context);
-                                      }else{
-                                        Navigator.pop(context);
-                                        GlobalSnackBar.show(context, 'Permission denied', 400);
-                                      }
-                                    },
-                                    child: const Text('Start Manually',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16,),
-                                  MaterialButton(
-                                    color: Colors.redAccent,
-                                    textColor: Colors.white,
-                                    onPressed: () {
-                                      if(getPermissionStatusBySNo(context, 4)){
-                                        String payload = '${filteredPumps[index].sNo},0,1';
-                                        String payLoadFinal = jsonEncode({
-                                          "6200": [{"6201": payload}]
-                                        });
-                                        MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceId}');
-                                        sentUserOperationToServer('${pump.swName ?? pump.name} Stop Manually', payLoadFinal);
-                                        showSnakeBar('Pump of comment sent successfully');
-                                        Navigator.pop(context);
-                                      }else{
-                                        Navigator.pop(context);
-                                        GlobalSnackBar.show(context, 'Permission denied', 400);
-                                      }
-                                    },
-                                    child: const Text('Stop Manually',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16,),
-                                ],
-                              ),
-                              const SizedBox(height: 5,),
-                              int.parse(filteredPumps[index].reason)>0 ? Container(
-                                width: 354,
-                                height: 45,
-                                color: Colors.red.shade100,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    const SizedBox(width: 8,),
-                                    Expanded(
-                                      child:
-                                      Column(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                      ):Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          int.parse(filteredPumps[index].reason)==8 || int.parse(filteredPumps[index].reason)==9 ?
-                                          Text('Reason (Set : ${filteredPumps[index].setValue}. Actual : ${filteredPumps[index].actualValue})',style: const TextStyle(fontSize: 12,),): const Text('Reason',style: TextStyle(fontSize: 12,),),
-                                          Text(getContentByCode(int.parse(filteredPumps[index].reason)), style: const TextStyle(fontSize: 11,)),
+                                          Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const SizedBox(height: 8,),
+                                              MaterialButton(
+                                                color: Colors.green,
+                                                textColor: Colors.white,
+                                                onPressed: () {
+                                                  if(getPermissionStatusBySNo(context, 4)){
+                                                    String payload = '${filteredPumps[index].sNo},1,1';
+                                                    String payLoadFinal = jsonEncode({
+                                                      "6200": [{"6201": payload}]
+                                                    });
+                                                    MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceId}');
+                                                    sentUserOperationToServer('${pump.swName ?? pump.name} Start Manually', payLoadFinal);
+                                                    showSnakeBar('Pump of comment sent successfully');
+                                                    Navigator.pop(context);
+                                                  }else{
+                                                    Navigator.pop(context);
+                                                    GlobalSnackBar.show(context, 'Permission denied', 400);
+                                                  }
+                                                },
+                                                child: const Text('Start Manually',
+                                                  style: TextStyle(color: Colors.white),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 8,),
+                                              MaterialButton(
+                                                color: Colors.redAccent,
+                                                textColor: Colors.white,
+                                                onPressed: () {
+                                                  if(getPermissionStatusBySNo(context, 4)){
+                                                    String payload = '${filteredPumps[index].sNo},0,1';
+                                                    String payLoadFinal = jsonEncode({
+                                                      "6200": [{"6201": payload}]
+                                                    });
+                                                    MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceId}');
+                                                    sentUserOperationToServer('${pump.swName ?? pump.name} Stop Manually', payLoadFinal);
+                                                    showSnakeBar('Pump of comment sent successfully');
+                                                    Navigator.pop(context);
+                                                  }else{
+                                                    Navigator.pop(context);
+                                                    GlobalSnackBar.show(context, 'Permission denied', 400);
+                                                  }
+
+                                                },
+                                                child: const Text('Stop Manually',
+                                                  style: TextStyle(color: Colors.white),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 8,),
+                                            ],
+                                          ),
                                         ],
                                       ),
-                                    ),
-                                    int.parse(filteredPumps[index].reason)==8 || int.parse(filteredPumps[index].reason)==9?
-                                    MaterialButton(
-                                      color: Colors.orange,
-                                      textColor: Colors.white,
-                                      onPressed: () {
-                                        if(getPermissionStatusBySNo(context, 4)){
-                                          String payload = '${filteredPumps[index].sNo},1';
-                                          String payLoadFinal = jsonEncode({
-                                            "6300": [{"6301": payload}]
-                                          });
-                                          MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceId}');
-                                          sentUserOperationToServer('${pump.swName ?? pump.name} Start Manually', payLoadFinal);
-                                          showSnakeBar('Pump of comment sent successfully');
-                                          Navigator.pop(context);
-                                        }else{
-                                          Navigator.pop(context);
-                                          GlobalSnackBar.show(context, 'Permission denied', 400);
-                                        }
-                                      },
-                                      child: const Text('Reset',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ): const SizedBox(),
-                                    const SizedBox(width: 5,),
-                                  ],
+                                    );
+                                  },
                                 ),
-                              ):
-                              const SizedBox(),
-                            ],
-                          ):Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  MaterialButton(
-                                    color: Colors.green,
-                                    textColor: Colors.white,
-                                    onPressed: () {
-                                      if(getPermissionStatusBySNo(context, 4)){
-                                        String payload = '${filteredPumps[index].sNo},1,1';
-                                        String payLoadFinal = jsonEncode({
-                                          "6200": [{"6201": payload}]
-                                        });
-                                        MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceId}');
-                                        sentUserOperationToServer('${pump.swName ?? pump.name} Start Manually', payLoadFinal);
-                                        showSnakeBar('Pump of comment sent successfully');
-                                        Navigator.pop(context);
-                                      }else{
-                                        Navigator.pop(context);
-                                        GlobalSnackBar.show(context, 'Permission denied', 400);
-                                      }
-                                    },
-                                    child: const Text('Start Manually',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8,),
-                                  MaterialButton(
-                                    color: Colors.redAccent,
-                                    textColor: Colors.white,
-                                    onPressed: () {
-                                      if(getPermissionStatusBySNo(context, 4)){
-                                        String payload = '${filteredPumps[index].sNo},0,1';
-                                        String payLoadFinal = jsonEncode({
-                                          "6200": [{"6201": payload}]
-                                        });
-                                        MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceId}');
-                                        sentUserOperationToServer('${pump.swName ?? pump.name} Stop Manually', payLoadFinal);
-                                        showSnakeBar('Pump of comment sent successfully');
-                                        Navigator.pop(context);
-                                      }else{
-                                        Navigator.pop(context);
-                                        GlobalSnackBar.show(context, 'Permission denied', 400);
-                                      }
-
-                                    },
-                                    child: const Text('Stop Manually',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                              ],
+                            );
+                          },
                           onPop: () => print('Popover was popped!'),
                           direction: PopoverDirection.right,
-                          width: voltKeyExists && pumpLevel.isNotEmpty?400:voltKeyExists?340:140,
-                          height: voltKeyExists?int.parse(filteredPumps[index].reason)>0?210:170:80,
+                          width: voltKeyExists && pumpLevel.isNotEmpty?400:voltKeyExists?300:140,
                           arrowHeight: 15,
                           arrowWidth: 30,
                           barrierColor: Colors.black54,
@@ -1049,6 +1368,10 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                           filteredPumps.length==4?(position.dx+25)+(index*70)-350:
                           filteredPumps.length==5?(position.dx+25)+(index*70)-420:
                           filteredPumps.length==6?(position.dx+25)+(index*70)-490:
+                          filteredPumps.length==7?(position.dx+25)+(index*70)-560:
+                          filteredPumps.length==8?(position.dx+25)+(index*70)-630:
+                          filteredPumps.length==9?(position.dx+25)+(index*70)-700:
+                          filteredPumps.length==10?(position.dx+25)+(index*70)-770:
                           (position.dx+25)+(index*70)-280,
                         );
                       },
@@ -1112,23 +1435,78 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                     ),
                   ):const SizedBox(),
                   int.tryParse(pump.reason) != null && int.parse(pump.reason) > 0
-                      ? const Positioned(
-                    top: 10,
+                      ? Positioned(
+                    top: 1,
                     left: 37.5,
-                    child: CircleAvatar(
-                      radius: 11,
-                      backgroundColor: Colors.orange,
-                      child: Icon(
-                        Icons.running_with_errors,
-                        size: 17,
-                        color: Colors.white,
+                    child: Tooltip(
+                      message: getContentByCode(int.parse(filteredPumps[index].reason)),
+                      textStyle: const TextStyle(color: Colors.black54),
+                      decoration: BoxDecoration(
+                        color: Colors.orangeAccent,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: const CircleAvatar(
+                        radius: 11,
+                        backgroundColor: Colors.deepOrangeAccent,
+                        child: Icon(
+                          Icons.info_outline,
+                          size: 17,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ):const SizedBox(),
+                  (filteredPumps[index].reason == '11'||filteredPumps[index].reason == '22')? Positioned(
+                    top: 40,
+                    left: 0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: pump.status==1?Colors.greenAccent:Colors.yellowAccent,
+                        borderRadius: const BorderRadius.all(Radius.circular(2)),
+                        border: Border.all(color: Colors.grey, width: .50),
+                      ),
+                      width: 67,
+                      child: Center(
+                        child: ValueListenableBuilder<String>(
+                          valueListenable: Provider.of<DurationNotifier>(context).onDelayLeft,
+                          builder: (context, value, child) {
+                            return Column(
+                              children: [
+                                Text(
+                                  'Max: ${pump.actualValue}',
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const Padding(
+                                  padding: EdgeInsets.only(left: 3, right: 3),
+                                  child: Divider(
+                                    height: 0,
+                                    color: Colors.grey,
+                                    thickness: 0.5,
+                                  ),
+                                ),
+                                Text(
+                                  pump.status==1?'Rm: ${pump.setValue}':'Br: ${pump.setValue}',
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ):const SizedBox(),
                 ],
               ),
               SizedBox(
-                width: 70,
+                width: 67,
                 height: 30,
                 child: Text(
                   pump.swName ?? pump.name,
@@ -1152,6 +1530,16 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
       return pumps;
     } else {
       return pumps.where((pump) => pump.location.contains(currentLocation)).toList();
+    }
+  }
+
+  double calculateArrowDxOffset(int pumpCount, double dx, int index) {
+    print(pumpCount);
+    if (pumpCount == 1) {
+      return dx - 25;
+    } else {
+      print(dx + (index * 70) - 35);
+      return dx + (index * 70) - 35;
     }
   }
 
@@ -1330,11 +1718,28 @@ class _DisplayIrrigationPumpState extends State<DisplayIrrigationPump> {
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              ListTile(
-                                title: Text('Version: ${filteredPumps[index].version}'),
-                                trailing: Row(
+                              Container(
+                                width: 315,
+                                height: 35,
+                                color: Colors.teal,
+                                child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
+                                    const SizedBox(width: 8,),
+                                    Text.rich(
+                                      TextSpan(
+                                        text: 'Version : ',
+                                        style: const TextStyle(color: Colors.white54),
+                                        children: [
+                                          TextSpan(
+                                            text: filteredPumps[index].version,
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold, color: Colors.white),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const Spacer(),
                                     Icon(signalStrength == 0 ? Icons.wifi_off :
                                     signalStrength >= 1 && signalStrength <= 20 ?
                                     Icons.network_wifi_1_bar_outlined :
@@ -1344,102 +1749,26 @@ class _DisplayIrrigationPumpState extends State<DisplayIrrigationPump> {
                                     Icons.network_wifi_3_bar_outlined :
                                     signalStrength >= 61 && signalStrength <= 80 ?
                                     Icons.network_wifi_3_bar_outlined :
-                                    Icons.wifi, color: Colors.black,),
+                                    Icons.wifi, color: signalStrength == 0?Colors.white54:Colors.white,),
                                     const SizedBox(width: 5,),
-                                    Text('$signalStrength%'),
+                                    Text('$signalStrength%', style: const TextStyle(color: Colors.white),),
 
                                     const SizedBox(width: 5,),
-                                    batteryVolt==0?const Icon(Icons.battery_0_bar):
-                                    batteryVolt>0&&batteryVolt<=10?const Icon(Icons.battery_1_bar_rounded):
-                                    batteryVolt>10&&batteryVolt<=30?const Icon(Icons.battery_2_bar_rounded):
-                                    batteryVolt>30&&batteryVolt<=50?const Icon(Icons.battery_3_bar_rounded):
-                                    batteryVolt>50&&batteryVolt<=70?const Icon(Icons.battery_4_bar_rounded):
-                                    batteryVolt>70&&batteryVolt<=90?const Icon(Icons.battery_5_bar_rounded):
-                                    const Icon(Icons.battery_6_bar_rounded),
-                                    Text('$batteryVolt%'),
-                                  ],
-                                ),
-                                tileColor: Colors.teal.shade50,
-                              ),
-                              const SizedBox(height: 5,),
-                              Container(
-                                width: 340,
-                                height: 25,
-                                color: Colors.transparent,
-                                child: const Row(
-                                  children: [
-                                    SizedBox(width:100, child: Text('Phase',  style: TextStyle(color: Colors.black54),),),
-                                    //'${filteredPumps[index]['Phase']}'
-                                    Spacer(),
-                                    CircleAvatar(radius: 7,),
-                                    VerticalDivider(color: Colors.transparent,),
-                                    CircleAvatar(radius: 7,),
-                                    VerticalDivider(color: Colors.transparent,),
-                                    CircleAvatar(radius: 7,),
+                                    batteryVolt==0?const Icon(Icons.battery_0_bar, color: Colors.white54,):
+                                    batteryVolt>0&&batteryVolt<=10?const Icon(Icons.battery_1_bar_rounded, color: Colors.white,):
+                                    batteryVolt>10&&batteryVolt<=30?const Icon(Icons.battery_2_bar_rounded, color: Colors.white,):
+                                    batteryVolt>30&&batteryVolt<=50?const Icon(Icons.battery_3_bar_rounded, color: Colors.white,):
+                                    batteryVolt>50&&batteryVolt<=70?const Icon(Icons.battery_4_bar_rounded, color: Colors.white,):
+                                    batteryVolt>70&&batteryVolt<=90?const Icon(Icons.battery_5_bar_rounded, color: Colors.white,):
+                                    const Icon(Icons.battery_full, color: Colors.white,),
+                                    Text('$batteryVolt%', style: const TextStyle(color: Colors.white),),
+
+                                    const SizedBox(width: 8,),
                                   ],
                                 ),
                               ),
-                              const Padding(
-                                padding: EdgeInsets.only(left: 8),
-                                child: Divider(height: 6,color: Colors.black12),
-                              ),
-                              Container(
-                                width: 340,
-                                height: 25,
-                                color: Colors.transparent,
-                                child: Row(
-                                  children: [
-                                    const SizedBox(width:80, child: Text('Voltage', style: TextStyle(color: Colors.black54)),),
-                                    const Padding(
-                                      padding: EdgeInsets.only(bottom: 2,top: 2),
-                                      child: VerticalDivider(color: Colors.red, thickness: 1.5,),
-                                    ),
-                                    SizedBox(width: 70, child: Text('RY : ${voltages[0]}'),),
-                                    const Padding(
-                                      padding: EdgeInsets.only(bottom: 2,top: 2),
-                                      child: VerticalDivider(color: Colors.yellow,thickness: 1.5,),
-                                    ),
-                                    SizedBox(width: 70, child: Text('YB : ${voltages[1]}'),),
-                                    const Padding(
-                                      padding: EdgeInsets.only(bottom: 2,top: 2),
-                                      child: VerticalDivider(color: Colors.blue,thickness: 1.5,),
-                                    ),
-                                    SizedBox(width: 70, child: Text('BR: ${voltages[2]}'),),
-                                  ],
-                                ),
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.only(left: 8),
-                                child: Divider(height: 6,color: Colors.black12),
-                              ),
-                              Container(
-                                width: 340,
-                                height: 25,
-                                color: Colors.transparent,
-                                child: Row(
-                                  children: [
-                                    const SizedBox(width:80, child: Text('Current', style: TextStyle(color: Colors.black54)),),
-                                    const Padding(
-                                      padding: EdgeInsets.only(bottom: 2,top: 2),
-                                      child: VerticalDivider(color: Colors.transparent,),
-                                    ),
-                                    SizedBox(width: 60, child: Center(child: Text(columns[0])),),
-                                    const Padding(
-                                      padding: EdgeInsets.only(bottom: 2,top: 2),
-                                      child: VerticalDivider(color: Colors.transparent,),
-                                    ),
-                                    SizedBox(width: 65, child: Center(child: Text(columns[1])),),
-                                    const Padding(
-                                      padding: EdgeInsets.only(bottom: 2,top: 2),
-                                      child: VerticalDivider(color: Colors.transparent,),
-                                    ),
-                                    SizedBox(width: 65, child: Center(child: Text(columns[2])),),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 5,),
                               int.parse(filteredPumps[index].reason)>0 ? Container(
-                                width: 355,
+                                width: 305,
                                 height: 45,
                                 color: Colors.red.shade100,
                                 child: Row(
@@ -1469,8 +1798,8 @@ class _DisplayIrrigationPumpState extends State<DisplayIrrigationPump> {
                                           "6300": [{"6301": payload}]
                                         });
                                         MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceId}');
-                                        sentUserOperationToServer('${pump.swName ?? pump.name} Start Manually', payLoadFinal);
-                                        showSnakeBar('Pump of comment sent successfully');
+                                        sentUserOperationToServer('${pump.swName ?? pump.name} Reset Manually', payLoadFinal);
+                                        showSnakeBar('Reset comment sent successfully');
                                         Navigator.pop(context);
                                       },
                                       child: const Text('Reset',
@@ -1482,6 +1811,164 @@ class _DisplayIrrigationPumpState extends State<DisplayIrrigationPump> {
                                 ),
                               ):
                               const SizedBox(),
+                              const SizedBox(height: 5,),
+                              Container(
+                                width: 300,
+                                height: 25,
+                                color: Colors.transparent,
+                                child: Row(
+                                  children: [
+                                    const SizedBox(width:100, child: Text('Phase', style: TextStyle(color: Colors.black54),),),
+                                    const Spacer(),
+                                    CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>0? Colors.green: null,),
+                                    const VerticalDivider(color: Colors.transparent,),
+                                    CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>1? Colors.green: null,),
+                                    const VerticalDivider(color: Colors.transparent,),
+                                    CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>2? Colors.green: null,),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 5,),
+                              Container(
+                                width: 300,
+                                height: 25,
+                                color: Colors.transparent,
+                                child: Row(
+                                  children: [
+                                    const SizedBox(width:85, child: Text('Voltage', style: TextStyle(color: Colors.black54),),),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.shade50,
+                                        border: Border.all(
+                                          color: Colors.red.shade200,
+                                          width: 0.7,
+                                        ),
+                                        borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                      ),
+                                      width: 65,
+                                      height: 40,
+                                      child: Center( // Center widget aligns the child in the center
+                                        child: Text(
+                                          'RY : ${voltages[0]}',
+                                          style: const TextStyle(fontSize: 11),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 7,),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.yellow.shade50,
+                                        border: Border.all(
+                                          color: Colors.yellow.shade500,
+                                          width: 0.7,
+                                        ),
+                                        borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                      ),
+                                      width: 65,
+                                      height: 40,
+                                      child: Center(
+                                        child: Text(
+                                          'YB : ${voltages[1]}',
+                                          style: const TextStyle(fontSize: 11),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 7,),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue.shade50,
+                                        border: Border.all(
+                                          color: Colors.blue.shade300,
+                                          width: 0.7,
+                                        ),
+                                        borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                      ),
+                                      width: 65,
+                                      height: 40,
+                                      child: Center(
+                                        child: Text(
+                                          'BR : ${voltages[2]}',
+                                          style: const TextStyle(fontSize: 11),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 7,),
+                              Container(
+                                width: 300,
+                                height: 25,
+                                color: Colors.transparent,
+                                child: Row(
+                                  children: [
+                                    const SizedBox(width:85, child: Text('Current', style: TextStyle(color: Colors.black54),),),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.shade50,
+                                        border: Border.all(
+                                          color: Colors.red.shade200,
+                                          width: 0.7,
+                                        ),
+                                        borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                      ),
+                                      width: 65,
+                                      height: 40,
+                                      child: Center( // Center widget aligns the child in the center
+                                        child: Text(
+                                          'YC : ${columns[0]}',
+                                          style: const TextStyle(fontSize: 11),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 7,),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.yellow.shade50,
+                                        border: Border.all(
+                                          color: Colors.yellow.shade500,
+                                          width: 0.7,
+                                        ),
+                                        borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                      ),
+                                      width: 65,
+                                      height: 40,
+                                      child: Center(
+                                        child: Text(
+                                          'BC : ${columns[1]}',
+                                          style: const TextStyle(fontSize: 11),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 7,),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue.shade50,
+                                        border: Border.all(
+                                          color: Colors.blue.shade300,
+                                          width: 0.7,
+                                        ),
+                                        borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                      ),
+                                      width: 65,
+                                      height: 40,
+                                      child: Center(
+                                        child: Text(
+                                          'RC : ${columns[2]}',
+                                          style: const TextStyle(fontSize: 11),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 7,),
                             ],
                           ):
                           const Column(
@@ -1496,8 +1983,7 @@ class _DisplayIrrigationPumpState extends State<DisplayIrrigationPump> {
                           ),
                           onPop: () => print('Popover was popped!'),
                           direction: PopoverDirection.right,
-                          width: voltKeyExists?340:125,
-                          height: voltKeyExists?int.parse(filteredPumps[index].reason)>0?175:145:80,
+                          width: voltKeyExists?315:125,
                           arrowHeight: 15,
                           arrowWidth: 30,
                           barrierColor: Colors.black54,
@@ -1737,7 +2223,6 @@ class DisplaySensor extends StatelessWidget {
     );
   }
 }
-
 
 class DisplayFilter extends StatefulWidget {
   const DisplayFilter({Key? key, required this.currentLineId, required this.filtersSites}) : super(key: key);
@@ -3727,7 +4212,7 @@ class _DisplayLocalFertilizerState extends State<DisplayLocalFertilizer> {
     } else if (flowValue is double) {
       flowRate = flowValue;
     } else {
-      flowRate = 0.00; // Default value in case the type is unknown
+      flowRate = 0.00;
     }
     return flowRate;
   }

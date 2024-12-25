@@ -54,54 +54,56 @@ class _MainDashBoardState extends State<MainDashBoard> {
     mqttServer.initializeMQTTServer(state: payloadProvider);
   }
 
-
   @override
   Widget build(BuildContext context)
   {
-    return FutureBuilder<SharedPreferences>(
-      future: sharedPreferencesFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return const Center(child: Text('Loading... Please wait.'));
-        } else {
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
+    return PopScope(
+      canPop: false,
+      child: FutureBuilder<SharedPreferences>(
+        future: sharedPreferencesFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(child: Text('Loading... Please wait.'));
+          } else {
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
 
-          final sharedPreferences = snapshot.data!;
-          final userId = sharedPreferences.getString('userId') ?? '';
-          final userName = sharedPreferences.getString('userName') ?? '';
-          final userType = sharedPreferences.getString('userType') ?? '';
-          final countryCode = sharedPreferences.getString('countryCode') ?? '';
-          final mobileNo = sharedPreferences.getString('mobileNumber') ?? '';
-          final emailId = sharedPreferences.getString('emailId') ?? '';
+            final sharedPreferences = snapshot.data!;
+            final userId = sharedPreferences.getString('userId') ?? '';
+            final userName = sharedPreferences.getString('userName') ?? '';
+            final userType = sharedPreferences.getString('userType') ?? '';
+            final countryCode = sharedPreferences.getString('countryCode') ?? '';
+            final mobileNo = sharedPreferences.getString('mobileNumber') ?? '';
+            final emailId = sharedPreferences.getString('emailId') ?? '';
 
-          return Consumer<ConnectivityService>(
-            builder: (context, connectivityService, child) {
-              final isConnected = connectivityService.isConnected;
-              return isConnected? userId.isNotEmpty? BuildDashboardScreen(
-                userId: int.parse(userId),
-                userType: int.parse(userType),
-                userName: userName,
-                countryCode: countryCode,
-                mobileNo: mobileNo,
-                emailId: emailId,
-              )
-                  : const LoginForm()
-                  : const Scaffold(
-                body: Padding(
-                  padding: EdgeInsets.all(50.0),
-                  child: Center(
-                    child: Image(
-                        image: AssetImage(
-                            'assets/images/no_internet_connection.png')),
+            return Consumer<ConnectivityService>(
+              builder: (context, connectivityService, child) {
+                final isConnected = connectivityService.isConnected;
+                return isConnected? userId.isNotEmpty? BuildDashboardScreen(
+                  userId: int.parse(userId),
+                  userType: int.parse(userType),
+                  userName: userName,
+                  countryCode: countryCode,
+                  mobileNo: mobileNo,
+                  emailId: emailId,
+                )
+                    : const LoginForm()
+                    : const Scaffold(
+                  body: Padding(
+                    padding: EdgeInsets.all(50.0),
+                    child: Center(
+                      child: Image(
+                          image: AssetImage(
+                              'assets/images/no_internet_connection.png')),
+                    ),
                   ),
-                ),
-              );
-            },
-          );
-        }
-      },
+                );
+              },
+            );
+          }
+        },
+      ),
     );
   }
 }

@@ -21,6 +21,17 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
 
   @override
   Widget build(BuildContext context) {
+    int prsSensorCount = 0;
+    if(widget.provider.centralFilter.isNotEmpty){
+      for (var site in widget.provider.centralFilter) {
+        if (site['PrsIn']!='-') {
+          prsSensorCount = prsSensorCount+1;
+        }
+        if (site['PrsOut']!='-') {
+          prsSensorCount = prsSensorCount+1;
+        }
+      }
+    }
 
     return Padding(
       padding: const EdgeInsets.all(3.0),
@@ -39,7 +50,7 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
           children: [
 
             (widget.provider.centralFertilizer.isEmpty && widget.provider.localFertilizer.isEmpty &&
-                (widget.provider.sourcePump.length + widget.provider.irrigationPump.length + widget.provider.centralFilter.length + widget.provider.localFilter.length) < 7)
+                (widget.provider.sourcePump.length + widget.provider.irrigationPump.length + widget.provider.centralFilter.length + widget.provider.localFilter.length+prsSensorCount) < 7)
                 ? Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -168,7 +179,7 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
                       Divider(height: 0, color: Colors.grey.shade300),
                       Container(height: 5, color: Colors.white24),
                       Divider(height: 0, color: Colors.grey.shade300),
-                      DisplayIrrigationLine(irrigationLine: widget.currentMaster.irrigationLine[0], currentLineId: 'all', currentMaster: widget.currentMaster, rWidth: (widget.provider.sourcePump.length + widget.provider.irrigationPump.length + widget.provider.centralFilter.length + widget.provider.localFilter.length+1)*70, customerId: widget.customerId,),
+                      DisplayIrrigationLine(irrigationLine: widget.currentMaster.irrigationLine[0], currentLineId: 'all', currentMaster: widget.currentMaster, rWidth: (widget.provider.sourcePump.length + widget.provider.irrigationPump.length + widget.provider.centralFilter.length + widget.provider.localFilter.length+prsSensorCount+1)*70, customerId: widget.customerId,),
                     ],
                   ),
                 ),
