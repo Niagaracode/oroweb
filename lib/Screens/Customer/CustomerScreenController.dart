@@ -1309,11 +1309,12 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Enter Password'),
+          title: const Text('Enter Password'),
           content: TextField(
+            autofocus: true,
             controller: _passwordController,
             obscureText: true,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Password',
               border: OutlineInputBorder(),
             ),
@@ -1323,7 +1324,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
@@ -1343,7 +1344,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                   _showErrorDialog(context);
                 }
               },
-              child: Text('Submit'),
+              child: const Text('Submit'),
             ),
           ],
         );
@@ -1356,14 +1357,14 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Error'),
-          content: Text('Incorrect password. Please try again.'),
+          title: const Text('Error'),
+          content: const Text('Incorrect password. Please try again.'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         );

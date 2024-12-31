@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:oro_irrigation_new/Screens/Customer/controllerlogfile.dart';
 
 
@@ -10,6 +11,7 @@ import 'package:provider/provider.dart';
 import '../../../constants/MQTTManager.dart';
 import '../../../constants/http_service.dart';
 import '../../constants/snack_bar.dart';
+import '../../screens/Customer/IrrigationProgram/program_library.dart';
 import '../../state_management/MqttPayloadProvider.dart';
 
 
@@ -26,6 +28,10 @@ class ResetVerssion extends StatefulWidget {
 }
 
 class _ResetVerssionState extends State<ResetVerssion> {
+  TextEditingController frequency1Controller = TextEditingController();
+  TextEditingController frequency2Controller = TextEditingController();
+  TextEditingController sf1Controller = TextEditingController();
+  TextEditingController sf2Controller = TextEditingController();
   List<Map<String, dynamic>> mergedList = [];
   late MqttPayloadProvider mqttPayloadProvider;
   IconData iconData = Icons.start;
@@ -76,7 +82,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
         MQTTManager().connect();
       });
     } else {
-      //_showSnackBar(response.body);
+      _showSnackBar(response.body);
     }
   }
 
@@ -105,9 +111,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
   }
 
   Update(int index) async {
-
-
-    sendHttp("3","Controller Version Update");
+     sendHttp("3","Controller Version Update");
     mergedList[index]["status"] = 'Started';
     iconData = Icons.start;
     iconcolor = Colors.blue;
@@ -155,7 +159,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
     return Scaffold(
       backgroundColor: Colors.teal.shade100,
       appBar: AppBar(
-        title: Text('Controller Info'),
+        title: const Text('Controller Info'),
       ),
       body: RefreshIndicator(
         onRefresh: fetchData,
@@ -167,7 +171,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
               crossAxisSpacing: 5,
               mainAxisSpacing: 40,
             ),
-            padding: EdgeInsets.all(5),
+            padding: const EdgeInsets.all(5),
             itemCount: mergedList.length,
             itemBuilder: (context, index) {
               return Card(
@@ -175,74 +179,89 @@ class _ResetVerssionState extends State<ResetVerssion> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          mergedList[index]['categoryName']!,
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        IconButton(
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all(
-                                  Colors.teal.shade100)),
-                          onPressed: () {
-                            setState(() {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ControllerLog(
-                                      deviceID: mergedList[index]['deviceId']!),
-                                ),
-                              );
-                            });
-                          },
-                          icon: Icon(Icons.arrow_circle_right_outlined),
-                        ),
-                      ],
+                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            mergedList[index]['categoryName']!,
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          IconButton(
+                            style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all(
+                                    Colors.teal.shade100)),
+                            onPressed: () {
+                              setState(() {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ControllerLog(
+                                        deviceID: mergedList[index]['deviceId']!),
+                                  ),
+                                );
+                              });
+                            },
+                            icon: const Icon(Icons.arrow_circle_right_outlined),
+                          ),
+                          mergedList[index]['categoryName']!.contains('ORO GEM') ? IconButton(
+                            style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all(
+                                    Colors.teal.shade100)),
+                            onPressed: () {
+                              setState(() {
+                                selectindex = index;
+                                _showFrequencyDialog(context,  mergedList[index]['categoryName']!.contains('ORO GEM PLUS') ? true : false);
+                              });
+                            },
+                            icon: const Icon(Icons.settings_applications_rounded),
+                          ) : Container(),
+                        ],
+                      ),
                     ),
                     Container(
                       height: 1,
                       color: Colors.black,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 20,
                     ),
                     SelectableText(mergedList[index]['deviceId']!,
                       style:
-                      TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+                      const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
 
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Text(
                       'SiteName:${mergedList[index]['groupName'] ?? ''}',
                       style:
-                      TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
 
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Text(
                       'Model:${mergedList[index]['modelName'] ?? ''}',
                       style:
-                      TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Text(
                       'Controller version:${mergedList[index]['currentVersion'] ?? ''}',
                       style:
-                      TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Text(
                       'Server version:${mergedList[index]['latestVersion']!}',
                       style:
-                      TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     imeicheck != mergedList[index]['deviceId']!
                         ? mergedList[index]['status'] != 'Status'
                         ? Container(
@@ -258,12 +277,11 @@ class _ResetVerssionState extends State<ResetVerssion> {
                     imeicheck != mergedList[index]['deviceId']!
                         ? Text(
                       '${mergedList[index]['status']}',
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontSize: 14, fontWeight: FontWeight.bold),
                     )
-                        : Text('Status'),
-
-                    // Center(child: Text('${mqttPayloadProvider.messageFromHw ?? 'Status'} ',style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),)),
+                        : const Text('Status'),
+                     // Center(child: Text('${mqttPayloadProvider.messageFromHw ?? 'Status'} ',style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),)),
                     Container(
                       height: 1,
                       color: Colors.grey,
@@ -284,9 +302,9 @@ class _ResetVerssionState extends State<ResetVerssion> {
                                   ? resetItem(index)
                                   : _showSnackBar("Please wait ....");
                             },
-                            child: Text('Restart'),
+                            child: const Text('Restart'),
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           FilledButton(
                             style: ButtonStyle(
                                 backgroundColor: checkupdatediable == 0
@@ -307,8 +325,8 @@ class _ResetVerssionState extends State<ResetVerssion> {
                               blinkDuration:
                               Duration(milliseconds: 500),
                             )
-                                : Text("Update")
-                                : Text("Update"),
+                                : const Text("Update")
+                                : const Text("Update"),
                           ),
                         ],
                       ),
@@ -323,6 +341,235 @@ class _ResetVerssionState extends State<ResetVerssion> {
       ),
     );
   }
+
+  // String formatNumber(String input) {
+  //    double number = double.parse(input) * 10;
+  //     String result = number.toStringAsFixed(0);
+  //     String firstPart = result.substring(0, 2);
+  //   String secondPart = result.substring(2, 4);
+  //     return '$firstPart,$secondPart';
+  // }
+
+
+  String formatNumber(String input) {
+
+     if (input.isEmpty)
+       {
+         return ',';
+       }
+     if (!input.contains('.')) {
+      input += '.0';
+    }
+     double number = double.parse(input);
+    number *= 10;
+    String result = number.toStringAsFixed(0);
+    while (result.length < 4) {
+      result = '0' + result;
+    }
+    String firstPart = result.substring(0, 2);
+    String secondPart = result.substring(2, 4);
+    return '$firstPart,$secondPart';
+  }
+
+  FrequnceAll1() async {
+     String firstfreequnce1 =  formatNumber(frequency1Controller.text);
+    String firstfreequnce2 =  formatNumber(frequency2Controller.text);
+    String sf1 =  sf1Controller.text;
+    String sf2 =  sf2Controller.text;
+    Map<String, dynamic> payLoadFinal = {
+      "6500": [
+        {"6501": "$firstfreequnce1,$sf1,$firstfreequnce2,$sf2"},
+      ]
+    };
+    print("AppToFipayLoadFinalrmware  --${payLoadFinal}");
+
+    print("AppToFirmware  --${mergedList[selectindex!]["deviceId"]}");
+    MQTTManager()
+        .publish(jsonEncode(payLoadFinal), "AppToFirmware/${mergedList[selectindex!]["deviceId"]}");
+  }
+
+  FrequnceAll() async{
+    String firstfreequnce1 =  formatNumber(frequency1Controller.text);
+    String firstfreequnce2 =  formatNumber(frequency2Controller.text);
+    String sf1 =  sf1Controller.text;
+    String sf2 =  sf2Controller.text;
+    Map<String, dynamic> payLoadFinal = {
+      "6500": [
+        {"6501": "$firstfreequnce1,$sf1,$firstfreequnce2,$sf2"},
+      ]
+    };
+  if (MQTTManager().isConnected == true) {
+  await validatePayloadSent(
+  dialogContext: context,
+  context: context,
+  mqttPayloadProvider: mqttPayloadProvider,
+  acknowledgedFunction: () async{
+  GlobalSnackBar.show(
+      context, 'Frequency value set successfully.', 200);
+   },
+  payload: payLoadFinal,
+  payloadCode: '6500',
+  deviceId: mergedList[selectindex!]["deviceId"]
+  );
+  } else {
+  GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
+  }
+
+}
+
+
+  void _showFrequencyDialog(BuildContext context,bool plusTrue) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('LoRa Frequency'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+                      Card(
+  child: Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Column(
+      children: [
+        TextField(
+          controller: frequency1Controller,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration:  const InputDecoration(
+            hintText: 'Enter LoRa Frequency 1 (000.0)',
+            labelText: "LoRa Frequency 1 ",
+          ),
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(
+                r'^\d{1,3}(\.\d{0,1})?$|^99(\.0)?$|^99\.9$')),
+          ],
+        ),
+        TextField(
+          controller: sf1Controller,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration:  const InputDecoration(
+            hintText: 'Enter SF value (7-12)',
+            labelText: "SF value ",
+          ),
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(
+              r'^(0|1|2|7|8|9|10|11|12)$', // Regex to allow values between 7 and 12 (no decimal)
+            )),
+          ],
+        ),
+      ],
+    ),
+  ),
+),
+                      const SizedBox(height: 16),
+                       plusTrue ? Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: frequency2Controller,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration:  const InputDecoration(
+                          hintText: 'Enter LoRa Frequency 2 (000.0)',
+                          labelText: "LoRa Frequency 2",
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(
+                              r'^\d{1,3}(\.\d{0,1})?$|^99(\.0)?$|^99\.9$')),
+                        ],
+                      ),
+                      TextField(
+                        controller: sf2Controller,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration:  const InputDecoration(
+                          hintText: 'Enter SF value (7-12)',
+                          labelText: 'SF value ',
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(
+                            r'^(0|1|2|7|8|9|10|11|12)$', // Regex to allow values between 7 and 12 (no decimal)
+                          )),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ) :  const SizedBox(),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+            onPressed: () {
+        String freq1 = frequency1Controller.text;
+        String freq2 = frequency2Controller.text;
+        String sf1 = sf1Controller.text;
+        String sf2 = sf2Controller.text;
+
+        bool isValidFreq1 = _isValidFrequency(freq1) && sf1.isNotEmpty;
+        bool isValidFreq2 = _isValidFrequency(freq2) && sf2.isNotEmpty;
+
+        if (plusTrue)
+        {
+          if(isValidFreq1 && isValidFreq2)
+            {
+              FrequnceAll();
+              Navigator.of(context).pop();
+            }
+          else {
+            _showErrorDialog(context);
+          }
+        } else {
+
+          if(isValidFreq1)
+          {
+            FrequnceAll();
+            Navigator.of(context).pop();
+          }
+          else {
+            _showErrorDialog(context);
+          }
+        }
+        },
+        child: const Text('Send'),
+        ),
+          ],
+        );
+      },
+    );
+  }
+
+  bool _isValidFrequency(String freq) {
+    final regex = RegExp(r'^\d{1,3}\.\d$');
+    return regex.hasMatch(freq);
+  }
+  void _showErrorDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: const Text('Please enter valid frequencies.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -387,7 +634,10 @@ class _ResetVerssionState extends State<ResetVerssion> {
           iconcolor = Colors.green;
           checkupdatediable = 0;
           selectindex = null;
-          // startDelay();
+          Future.delayed(const Duration(seconds: 2), () {
+            fetchData();
+          });
+           // startDelay();
         } else if (name.contains('wrong')) {
           mergedList[selectindex!]['status'] = '${ctrldata['Message']}';
           iconData = Icons.error;
@@ -412,8 +662,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
     }
   }
 
-
-  void resetItem(int index) {
+   void resetItem(int index) {
     setState(() {
       checkupdatediable = 1;
       _showDialogcheck(context, "Restart", index);
@@ -432,7 +681,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Warning'),
+          title: const Text('Warning'),
           content: Text(
               "Are you sure you want to $update?\n First, stop. If you confirm that you want to stop, then update your controller by clicking the 'Sure' button."),
           actions: [
@@ -441,13 +690,13 @@ class _ResetVerssionState extends State<ResetVerssion> {
                 update == "Update" ? Update(index) : ResetAll(index);
                 Navigator.of(context).pop();
               },
-              child: Text('Sure'),
+              child: const Text('Sure'),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
           ],
         );
