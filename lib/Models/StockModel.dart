@@ -17,7 +17,7 @@ class StockModel
     productId: json['productId'],
     categoryName: json['categoryName'],
     model: json['model'],
-    modelId: json['modelId'],
+    modelId: json['modelId'] ?? 0,
     imeiNo: json['imeiNo'],
     dtOfMnf: json['dtOfMnf'],
     warranty: json['warranty'],

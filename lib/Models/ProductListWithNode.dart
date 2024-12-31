@@ -124,6 +124,7 @@ class Node {
   final int outputCount;
   final String active;
   final bool usedInConfig;
+  late String? extendDeviceId;
 
   Node({
     required this.userDeviceListId,
@@ -149,6 +150,7 @@ class Node {
     required this.outputCount,
     required this.active,
     required this.usedInConfig,
+    required this.extendDeviceId,
   });
 
   factory Node.fromJson(Map<String, dynamic> json) {
@@ -176,6 +178,7 @@ class Node {
       outputCount: json['outputCount'],
       active: json['active'],
       usedInConfig: json['usedInConfig'],
+      extendDeviceId: json['extendDeviceId'],
     );
   }
 }

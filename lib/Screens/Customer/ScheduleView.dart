@@ -57,7 +57,7 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> with TickerProv
     )..repeat();
     if(mounted) {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        scheduleViewProvider.fetchData(widget.deviceId, widget.userId, widget.controllerId, context);
+        scheduleViewProvider.fetchData(widget.deviceId, widget.customerId, widget.controllerId, context);
         scheduleViewProvider.updateSelectedProgramCategory(0);
       });
     }
@@ -218,7 +218,7 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> with TickerProv
                               scheduleViewProvider.date = selectedDay;
                               _focusedDay = focusedDay;
                             });
-                            scheduleViewProvider.fetchData(widget.deviceId, widget.userId, widget.controllerId, context,);
+                            scheduleViewProvider.fetchData(widget.deviceId, widget.customerId, widget.controllerId, context,);
                             scheduleViewProvider.updateSelectedProgramCategory(0);
                           },
                         ),
@@ -250,7 +250,7 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> with TickerProv
                         scheduleViewProvider.date = selectedDay;
                         _focusedDay = focusedDay;
                       });
-                      scheduleViewProvider.fetchData(widget.deviceId, widget.userId, widget.controllerId, context);
+                      scheduleViewProvider.fetchData(widget.deviceId, widget.customerId, widget.controllerId, context);
                       scheduleViewProvider.updateSelectedProgramCategory(0);
                     },
                     // onFormatChanged: (format) {
@@ -279,7 +279,7 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> with TickerProv
                               child: SingleChildScrollView(
                                 child: Row(
                                   children: [
-                                    for(var i = 0; i < scheduleViewProvider.programList.length; i++)
+                                    for(var i = 0; i < scheduleViewProvider.programCategories.length; i++)
                                       Row(
                                         children: [
                                           ActionChip.elevated(
@@ -336,7 +336,7 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> with TickerProv
                                         Future.delayed(Duration.zero, () {
                                           scheduleViewProvider.date = newDate;
                                         }).then((value) {
-                                          scheduleViewProvider.fetchData(widget.deviceId, widget.userId, widget.controllerId, context);
+                                          scheduleViewProvider.fetchData(widget.deviceId, widget.customerId, widget.controllerId, context);
                                           scheduleViewProvider.updateSelectedProgramCategory(0);
                                         });
                                       },
@@ -416,7 +416,7 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> with TickerProv
                                     icon: Icons.refresh,
                                     label: "Refresh",
                                     onPressed: () {
-                                      scheduleViewProvider.fetchData(widget.deviceId, widget.userId, widget.controllerId, context);
+                                      scheduleViewProvider.fetchData(widget.deviceId, widget.customerId, widget.controllerId, context);
                                     }
                                 ),
                                 const SizedBox(width: 10,),
@@ -583,7 +583,7 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> with TickerProv
             }]
           };
           var userData = {
-            "userId": widget.userId,
+            "userId": widget.customerId,
             "controllerId": widget.controllerId,
             "modifyUser": widget.customerId,
             "sequence": scheduleViewProvider.convertedList,
@@ -602,10 +602,10 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> with TickerProv
                     // print("updateUserSequencePriority ==> ${updateUserSequencePriority}");
                     final response = jsonDecode(updateUserSequencePriority.body);
                     if(updateUserSequencePriority.statusCode == 200) {
-                      scheduleViewProvider.sentToServer(sentMessage.join('\n'), dataToHardware, widget.userId, widget.controllerId);
+                      scheduleViewProvider.sentToServer(sentMessage.join('\n'), dataToHardware, widget.customerId, widget.controllerId);
                       ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: response['message']));
                     }
-                    scheduleViewProvider.fetchData(widget.deviceId, widget.userId, widget.controllerId, context);
+                    scheduleViewProvider.fetchData(widget.deviceId, widget.customerId, widget.controllerId, context);
                     scheduleViewProvider.updateSelectedProgramCategory(0);
                   } catch(error, stackTrace) {
                     print("error ==> $error");

@@ -689,7 +689,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
 
 
               mySiteList[siteIndex].master[masterIndex].irrigationLine.length==1 &&
-                  payload.payloadIrrLine[0].irrigationPauseFlag !=2 ? Padding(
+                  (payload.payloadIrrLine.isNotEmpty && payload.payloadIrrLine[0].irrigationPauseFlag !=2) ? Padding(
                 padding: const EdgeInsets.all(8),
                 child: TextButton(
                   onPressed: () {
@@ -710,8 +710,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                       String payLoadFinal = jsonEncode({
                         "4900": [{
                           "4901": "$sNoToCheck, $prFlag",
-                        }
-                        ]
+                        }]
                       });
                       MQTTManager().publish(payLoadFinal, 'AppToFirmware/${mySiteList[siteIndex].master[masterIndex].deviceId}');
                       if(payload.payloadIrrLine[0].irrigationPauseFlag == 1){
@@ -1373,11 +1372,12 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Enter Password'),
+          title: const Text('Enter Password'),
           content: TextField(
+            autofocus: true,
             controller: _passwordController,
             obscureText: true,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Password',
               border: OutlineInputBorder(),
             ),
@@ -1387,11 +1387,11 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                final String _correctPassword = 'Oro@321';
+                const String _correctPassword = 'Oro@321';
                 final enteredPassword = _passwordController.text;
 
                 if (enteredPassword == _correctPassword) {
@@ -1407,7 +1407,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                   _showErrorDialog(context);
                 }
               },
-              child: Text('Submit'),
+              child: const Text('Submit'),
             ),
           ],
         );
@@ -1420,14 +1420,14 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Error'),
-          content: Text('Incorrect password. Please try again.'),
+          title: const Text('Error'),
+          content: const Text('Incorrect password. Please try again.'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         );
@@ -1592,7 +1592,7 @@ class AlarmListItems extends StatelessWidget {
           color: Colors.redAccent,
           textColor: Colors.white,
           onPressed: getPermissionStatusBySNo(context, 6) ?(){
-            String finalPayload =  '${payload.alarmList[index].sNo}';
+            String finalPayload =  payload.alarmList[index].sNo;
             String payLoadFinal = jsonEncode({
               "4100": [{"4101": finalPayload}]
             });
@@ -1951,6 +1951,7 @@ class _SideSheetClassState extends State<SideSheetClass> {
                   child: ListView.builder(
                     itemCount: widget.nodeList.length,
                     itemBuilder: (context, index) {
+                      print(widget.nodeList[index].interface);
                       return ExpansionTile(
                         //initiallyExpanded: true,
                         trailing: Row(
@@ -1989,7 +1990,14 @@ class _SideSheetClassState extends State<SideSheetClass> {
                                 children: [
                                   Text(widget.nodeList[index].deviceName, style: const TextStyle(fontWeight: FontWeight.normal, color: Colors.black, fontSize: 13)),
                                   Text(widget.nodeList[index].deviceId, style: const TextStyle(fontWeight: FontWeight.normal,fontSize: 11, color: Colors.black)),
-                                  Text(widget.nodeList[index].categoryName, style: const TextStyle(fontWeight: FontWeight.normal,fontSize: 11, color: Colors.black)),
+                                  RichText(
+                                    text: TextSpan(
+                                      children: <TextSpan>[
+                                        TextSpan(text: '${widget.nodeList[index].categoryName} - ', style: const TextStyle(fontWeight: FontWeight.normal,fontSize: 10, color: Colors.black)),
+                                        TextSpan(text: mapInterfaceType(widget.nodeList[index].interface), style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 10, color: Colors.black),),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -2514,6 +2522,19 @@ class _SideSheetClassState extends State<SideSheetClass> {
         ),
       ),
     );
+  }
+
+  String mapInterfaceType(String interface) {
+    switch (interface) {
+      case "RS485":
+        return "Wired";
+      case "LoRa":
+        return "Wireless";
+      case "MQTT":
+        return "GSM";
+      default:
+        return interface;
+    }
   }
 
   void sentToServer(String msg, String payLoad) async

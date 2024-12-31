@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:js_interop';
 import 'dart:math';
 
 import 'package:data_table_2/data_table_2.dart';
@@ -16,6 +17,7 @@ import '../../constants/http_service.dart';
 import '../../constants/snack_bar.dart';
 import '../Config/product_limit.dart';
 import '../Customer/ConfigDashboard/configMakerView.dart';
+import '../Customer/Dashboard/ScheduledProgramList.dart';
 
 enum MasterController {gem1, gem2, gem3, gem4, gem5, gem6, gem7, gem8, gem9, gem10,}
 
@@ -55,7 +57,6 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
   List<int> selectedProduct = [];
 
   bool checkboxValueNode = false;
-  final List<String> _interfaceInterval = ['0 sec', '5 sec', '10 sec', '20 sec', '30 sec', '45 sec','1 min','5 min','10 min','30 min','1 hr']; // Option 2
   List<int> nodeStockSelection = [];
   int currentSiteInx = 0;
   int currentMstInx = 0;
@@ -69,6 +70,8 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
   bool isLoading = false;
 
   static TextStyle commonTextStyle = const TextStyle(fontSize: 11);
+
+  List<String> extendList = [];
 
 
   @override
@@ -226,6 +229,7 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
     {
       customerSiteList.clear();
       var data = jsonDecode(response.body);
+      print(response.body);
       if(data["code"]==200)
       {
         final cntList = data["data"] as List;
@@ -812,7 +816,7 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
               ),
               PopupMenuButton(
                 elevation: 10,
-                tooltip: 'Add New Master controller',
+                tooltip: 'Add New Master Controller',
                 child: const Center(
                   child: MaterialButton(
                     onPressed: null,
@@ -821,7 +825,7 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
                         Icon(Icons.add, color: Colors.black),
                         SizedBox(width: 3),
                         Text(
-                          'New Master Device',
+                          'Add New Master',
                           style: TextStyle(color: Colors.black),
                         ),
                         SizedBox(width: 3),
@@ -1062,7 +1066,10 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
                                     ],
                                   ),
                                 ),
-                                SizedBox(
+                                customerSiteList[siteIndex].master[mstIndex].nodeList
+                                    .where((node) => node.categoryId == 16)
+                                    .map((node) => node.deviceId)
+                                    .toList().isNotEmpty?SizedBox(
                                   height: (customerSiteList[siteIndex].master[mstIndex].nodeList.length *33) +30,
                                   width: MediaQuery.sizeOf(context).width,
                                   child: DataTable2(
@@ -1091,18 +1098,26 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
                                       ),
                                       DataColumn2(
                                         label: Center(child: Text('Interface')),
-                                        fixedWidth: 80,
-                                      ),
-                                      DataColumn2(
-                                        label: Center(child: Text('Interval')),
                                         fixedWidth: 75,
                                       ),
                                       DataColumn2(
+                                        label: Center(child: Text('Extend Dvc-Id')),
+                                        fixedWidth: 105,
+                                      ),
+                                      DataColumn2(
                                         label: Center(child: Text('Action')),
-                                        fixedWidth: 60,
+                                        fixedWidth: 55,
                                       ),
                                     ],
                                     rows: customerSiteList[siteIndex].master[mstIndex].nodeList.map((data) {
+
+                                      extendList = customerSiteList[siteIndex]
+                                          .master[mstIndex]
+                                          .nodeList
+                                          .where((node) => node.categoryId == 16)
+                                          .map((node) => node.deviceId)
+                                          .toList();
+
                                       return DataRow(cells: [
                                         DataCell(Center(child: Text('${data.serialNumber}', style: commonTextStyle,))),
                                         DataCell(Text(data.categoryName, style: commonTextStyle,)),
@@ -1113,6 +1128,7 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
                                           style: const TextStyle(fontSize: 12),
                                           onChanged: (newValue) {
                                             setState(() {
+                                              data.extendDeviceId = '';
                                               data.interface = newValue!;
                                               int infIndex = interfaceType.indexWhere((model) =>  model.interface == newValue);
                                               data.interfaceTypeId = interfaceType[infIndex].interfaceTypeId;
@@ -1123,20 +1139,27 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
                                               value: interface.interface,
                                               child: Text(interface.interface, style: const TextStyle(fontWeight: FontWeight.normal),),
                                             );
+
                                           }).toList(),
-                                        )
-                                        )),
+                                        ))),
                                         DataCell(Center(
                                           child: DropdownButton(
-                                            value: data.interfaceInterval ?? '0 sec',
+                                            value: extendList.contains(data.extendDeviceId) ? data.extendDeviceId : null,
                                             style: const TextStyle(fontSize: 12), onChanged: (newValue) {
                                             setState(() {
-                                              data.interfaceInterval = newValue!;
+                                              data.extendDeviceId = newValue!;
                                             });
                                           },
-                                            items: _interfaceInterval.map((interface) {
-                                              return DropdownMenuItem(value: interface,
-                                                child: Text(interface, style: const TextStyle(fontWeight: FontWeight.normal),),
+                                            items: extendList.map((interface) {
+                                              if(data.interfaceTypeId!=8){
+                                                return const DropdownMenuItem(
+                                                  value: null,
+                                                  child: SizedBox(),
+                                                );
+                                              }
+                                              return DropdownMenuItem(
+                                                value: interface,
+                                                child: Text(interface, style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 10)),
                                               );
                                             }).toList(),
                                           ),
@@ -1172,7 +1195,142 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
                                       ]);
                                     }).toList(),
                                   ),
+                                ):
+                                SizedBox(
+                                  height: (customerSiteList[siteIndex].master[mstIndex].nodeList.length *33) +30,
+                                  width: MediaQuery.sizeOf(context).width,
+                                  child: DataTable2(
+                                    columnSpacing: 12,
+                                    horizontalMargin: 12,
+                                    minWidth: 600,
+                                    headingRowHeight: 25,
+                                    dataRowHeight: 33,
+                                    headingRowColor: WidgetStateProperty.all<Color>(primaryColorDark.withOpacity(0.2)),
+                                    columns: const [
+                                      DataColumn2(
+                                          label: Center(child: Text('S.No')),
+                                          fixedWidth: 35
+                                      ),
+                                      DataColumn2(
+                                          label: Text('Category'),
+                                          size: ColumnSize.M
+                                      ),
+                                      DataColumn2(
+                                          label: Text('Model Name'),
+                                          size: ColumnSize.M
+                                      ),
+                                      DataColumn2(
+                                          label: Text('Device Id'),
+                                          size: ColumnSize.M
+                                      ),
+                                      DataColumn2(
+                                        label: Center(child: Text('Interface')),
+                                        size: ColumnSize.M,
+                                      ),
+                                      /*DataColumn2(
+                                        label: Center(child: Text('Interval')),
+                                        fixedWidth: 75,
+                                      ),*/
+                                      DataColumn2(
+                                        label: Center(child: Text('Action')),
+                                        fixedWidth: 60,
+                                      ),
+                                    ],
+                                    rows: customerSiteList[siteIndex].master[mstIndex].nodeList.map((data) {
+                                      return DataRow(cells: [
+                                        DataCell(Center(child: Text('${data.serialNumber}', style: commonTextStyle,))),
+                                        DataCell(Text(data.categoryName, style: commonTextStyle,)),
+                                        DataCell(Text(data.modelName, style: commonTextStyle,)),
+                                        DataCell(SelectableText(data.deviceId, style: commonTextStyle,)),
+                                        DataCell(Center(child: DropdownButton(
+                                          value: data.interface,
+                                          style: const TextStyle(fontSize: 12),
+                                          onChanged: (newValue) {
+                                            setState(() {
+                                              data.interface = newValue!;
+                                              int infIndex = interfaceType.indexWhere((model) =>  model.interface == newValue);
+                                              data.interfaceTypeId = interfaceType[infIndex].interfaceTypeId;
+                                            });
+                                          },
+                                          items: interfaceType.map((interface) {
+                                            if(interface.interfaceTypeId==8){
+                                              return DropdownMenuItem<String>(
+                                                value: interface.interface,
+                                                child: InterfaceSubmenu(
+                                                  title: interface.interface,
+                                                  submenuItems: customerSiteList[siteIndex].master[mstIndex].nodeList
+                                                      .where((node) => node.categoryId == 16)
+                                                      .map((node) => node.deviceId)
+                                                      .toList(),
+                                                  onItemSelected: (selectedItem, selectedIndex) {
+                                                    print(selectedItem);
+                                                    print(selectedIndex);
+
+                                                    int infIndex = interfaceType.indexWhere((model) =>  model.interface == 'Extend');
+                                                    data.interfaceTypeId = interfaceType[infIndex].interfaceTypeId;
+
+                                                    Navigator.pop(context);
+                                                  },
+                                                ),
+                                              );
+                                            }
+                                            return DropdownMenuItem(
+                                              value: interface.interface,
+                                              child: Text(interface.interface, style: const TextStyle(fontWeight: FontWeight.normal),),
+                                            );
+
+
+                                          }).toList(),
+                                        )
+                                        )),
+                                        /*DataCell(Center(
+                                          child: DropdownButton(
+                                            value: data.interfaceInterval ?? '0 sec',
+                                            style: const TextStyle(fontSize: 12), onChanged: (newValue) {
+                                            setState(() {
+                                              data.interfaceInterval = newValue!;
+                                            });
+                                          },
+                                            items: _interfaceInterval.map((interface) {
+                                              return DropdownMenuItem(value: interface,
+                                                child: Text(interface, style: const TextStyle(fontWeight: FontWeight.normal),),
+                                              );
+                                            }).toList(),
+                                          ),
+                                        )),*/
+                                        DataCell(Center(
+                                          child: IconButton(
+                                              onPressed: () async {
+                                                if(data.usedInConfig==false){
+                                                  Map<String, dynamic> body = {
+                                                    "userId": widget.customerID,
+                                                    "controllerId": data.userDeviceListId,
+                                                    "modifyUser": widget.userID,
+                                                    "productId": data.productId,
+                                                  };
+                                                  final response = await HttpService().putRequest("removeNodeInMaster", body);
+                                                  if (response.statusCode == 200) {
+                                                    var data = jsonDecode(response.body);
+                                                    if (data["code"] == 200) {
+                                                      GlobalSnackBar.show(context, data["message"], data["code"]);
+                                                      getCustomerSite();
+                                                      //getNodeStockList();
+                                                    }
+                                                    else {
+                                                      GlobalSnackBar.show(context, data["message"], data["code"]);
+                                                    }
+                                                  }
+                                                }else{
+                                                  GlobalSnackBar.show(context, 'You can not delete the device, Because the device is used in config maker', 400);
+                                                }
+                                              },
+                                              icon: const Icon(Icons.delete_outline, color: Colors.red,)),
+                                        )),
+                                      ]);
+                                    }).toList(),
+                                  ),
                                 ),
+
                                 SizedBox(
                                   height: 45,
                                   width: MediaQuery.sizeOf(context).width,
@@ -1183,22 +1341,22 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
                                         onPressed:() async {
                                           List<dynamic> updatedInterface = [];
                                           for(int i=0; i<customerSiteList[siteIndex].master[mstIndex].nodeList.length; i++){
-                                            Map<String, dynamic> myMap = {"serialNumber": customerSiteList[siteIndex].master[mstIndex].nodeList[i].serialNumber, "productId": customerSiteList[siteIndex].master[currentMstInx].nodeList[i].productId,
-                                              'interfaceTypeId': customerSiteList[siteIndex].master[mstIndex].nodeList[i].interfaceTypeId, 'interfaceInterval': customerSiteList[siteIndex].master[currentMstInx].nodeList[i].interfaceInterval};
+                                            Map<String, dynamic> myMap = {"serialNumber": customerSiteList[siteIndex].master[mstIndex].nodeList[i].serialNumber,
+                                              "productId": customerSiteList[siteIndex].master[currentMstInx].nodeList[i].productId,
+                                              'interfaceTypeId': '${customerSiteList[siteIndex].master[mstIndex].nodeList[i].interfaceTypeId}',
+                                              'extendDeviceId': '${customerSiteList[siteIndex].master[mstIndex].nodeList[i].extendDeviceId}'};
                                             updatedInterface.add(myMap);
                                           }
 
-
                                           List<dynamic> payLoad = [];
                                           payLoad.add('${0},${customerSiteList[siteIndex].master[mstIndex].categoryName},${'1'}, ${'1'}, ${customerSiteList[siteIndex].master[mstIndex].deviceId.toString()},'
-                                              '${'0'},${"00:00:30"};');
+                                              '${'0'},${"0"};');
 
                                           for(int i=0; i<customerSiteList[siteIndex].master[mstIndex].nodeList.length; i++){
                                             //String paddedNumber = widget.customerSiteList[siteIndex].master[currentMstInx].nodeList[i].deviceId.toString().padLeft(20, '0');
-                                            String formattedTime = convertToHHmmss(customerSiteList[siteIndex].master[mstIndex].nodeList[i].interfaceInterval);
                                             payLoad.add('${customerSiteList[siteIndex].master[mstIndex].nodeList[i].serialNumber},${customerSiteList[siteIndex].master[mstIndex].nodeList[i].categoryName},${customerSiteList[siteIndex].master[mstIndex].nodeList[i].categoryId},'
                                                 '${customerSiteList[siteIndex].master[mstIndex].nodeList[i].referenceNumber},${customerSiteList[siteIndex].master[mstIndex].nodeList[i].deviceId},'
-                                                '${customerSiteList[siteIndex].master[mstIndex].nodeList[i].interfaceTypeId},$formattedTime;');
+                                                '${customerSiteList[siteIndex].master[mstIndex].nodeList[i].interfaceTypeId},${customerSiteList[siteIndex].master[mstIndex].nodeList[i].extendDeviceId};');
                                           }
 
                                           String inputString = payLoad.toString();
@@ -1453,43 +1611,55 @@ class _DeviceListState extends State<DeviceList> with SingleTickerProviderStateM
     return missingValues;
   }
 
-  String convertToHHmmss(String timeString)
-  {
-    List<String> parts = timeString.split(' ');
-    int quantity = int.parse(parts[0]);
-    String unit = parts[1];
+}
 
-    int seconds;
-    switch (unit) {
-      case 'sec':
-        seconds = quantity;
-        break;
-      case 'min':
-        seconds = quantity * 60;
-        break;
-      case 'hr':
-        seconds = quantity * 3600;
-        break;
-      default:
-        return 'Invalid input';
-    }
+class InterfaceSubmenu extends StatelessWidget {
+  final String title;
+  final List<String> submenuItems;
+  final Function(String selectedItem, int selectedIndex) onItemSelected;
 
-    String formattedTime = formatSecondsToTime(seconds);
+  const InterfaceSubmenu({super.key,
+    required this.title,
+    required this.submenuItems,
+    required this.onItemSelected,
+  });
 
-    return formattedTime;
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        _showSubmenu(context);
+      },
+      child: Text(title),
+    );
   }
 
-  String formatSecondsToTime(int seconds) {
-    // Calculate hours, minutes, and remaining seconds
-    int hours = seconds ~/ 3600;
-    int minutes = (seconds % 3600) ~/ 60;
-    int remainingSeconds = seconds % 60;
+  void _showSubmenu(BuildContext context) {
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
 
-    // Format as HH:mm:ss
-    String formattedTime =
-        '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+    final RelativeRect position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        button.localToGlobal(Offset(button.size.width, 0), ancestor: overlay),
+        button.localToGlobal(Offset(button.size.width, button.size.height), ancestor: overlay),
+      ),
+      Offset.zero & overlay.size,
+    );
 
-    return formattedTime;
+    showMenu<String>(
+      context: context,
+      position: position,
+      items: submenuItems.map((String item) {
+        return PopupMenuItem<String>(
+          value: item,
+          child: Text(item),
+        );
+      }).toList(),
+    ).then((String? selectedItem) {
+      if (selectedItem != null) {
+        int selectedIndex = submenuItems.indexOf(selectedItem);
+        onItemSelected(selectedItem, selectedIndex);
+      }
+    });
   }
-
 }

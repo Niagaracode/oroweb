@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../../../../Models/Customer/SensorHourlyData.dart';
 import '../../../../constants/MyFunction.dart';
@@ -16,29 +18,38 @@ class SensorHourlyLogs extends StatefulWidget {
 }
 
 class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
-  DateTime selectedDate = DateTime.now();
   List<AllMySensor> sensors = [];
   List<bool> selectedSegments = [true, false];
+  DateRange? selectedDateRange;
+  bool visibleLoading = false;
 
   @override
   void initState() {
     super.initState();
-    getSensorHourlyLogs(widget.userId, widget.controllerId, selectedDate);
+    selectedDateRange = DateRange(
+      DateTime.now().subtract(const Duration(days: 0)),
+      DateTime.now(),
+    );
+    getSensorHourlyLogs(widget.userId, widget.controllerId);
   }
 
 
-  Future<void> getSensorHourlyLogs(userId, controllerId, selectedDate) async {
-    String date = DateFormat('yyyy-MM-dd').format(selectedDate);
+  Future<void> getSensorHourlyLogs(userId, controllerId) async {
+    indicatorViewShow();
+    String sDate = '${selectedDateRange?.start.year}-${selectedDateRange?.start.month}-${selectedDateRange?.start.day}';
+    String eDate = '${selectedDateRange?.end.year}-${selectedDateRange?.end.month}-${selectedDateRange?.end.day}';
+
     Map<String, Object> body = {
       "userId": userId,
       "controllerId": controllerId,
-      "fromDate": date,
-      "toDate": date
+      "fromDate": sDate,
+      "toDate": eDate
     };
 
     final response = await HttpService().postRequest("getUserSensorHourlyLog", body);
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
+      print(response.body);
       if (data["code"] == 200) {
         try {
           sensors = (data['data'] as List).map((item) {
@@ -52,29 +63,76 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
             });
             return AllMySensor(name: item['name'], data: sensorData);
           }).toList();
-
-          setState(() {
-          });
+          indicatorViewHide();
         } catch (e) {
           print('Error: $e');
+          indicatorViewHide();
         }
+      }else{
+        indicatorViewHide();
       }
     }
   }
 
-  void _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
+
+  Widget datePickerBuilder(context, dynamic Function(DateRange?) onDateRangeChanged)
+  {
+    return DateRangePickerWidget(
+      doubleMonth: false,
+      maximumDateRangeLength: 10,
+      quickDateRanges: [
+        QuickDateRange(dateRange: null, label: "Remove date range"),
+        QuickDateRange(
+          label: 'Today',
+          dateRange: DateRange(
+            DateTime.now().subtract(const Duration(days: 0)),
+            DateTime.now(),
+          ),
+        ),
+        QuickDateRange(
+          label: 'Last 3 days',
+          dateRange: DateRange(
+            DateTime.now().subtract(const Duration(days: 2)),
+            DateTime.now(),
+          ),
+        ),
+        QuickDateRange(
+          label: 'Last 7 days',
+          dateRange: DateRange(
+            DateTime.now().subtract(const Duration(days: 6)),
+            DateTime.now(),
+          ),
+        ),
+        QuickDateRange(
+          label: 'Last 10 days',
+          dateRange: DateRange(
+            DateTime.now().subtract(const Duration(days: 9)),
+            DateTime.now(),
+          ),
+        ),
+      ],
+      minimumDateRangeLength: 2,
+      initialDateRange: selectedDateRange,
+      initialDisplayedDate:
+      selectedDateRange?.start ?? DateTime.now(),
+      onDateRangeChanged: onDateRangeChanged,
+      height: 350,
+      maxDate: DateTime.now(),
+      theme: const CalendarTheme(
+        selectedColor: Colors.teal,
+        dayNameTextStyle: TextStyle(color: Colors.black45, fontSize: 10),
+        inRangeColor: Color(0xFFD9EDFA),
+        inRangeTextStyle: TextStyle(color: Colors.teal),
+        selectedTextStyle: TextStyle(color: Colors.white),
+        todayTextStyle: TextStyle(fontWeight: FontWeight.bold),
+        defaultTextStyle: TextStyle(color: Colors.black, fontSize: 12),
+        radius: 10,
+        tileSize: 40,
+        disabledTextStyle: TextStyle(color: Colors.grey),
+        //quickDateRangeBackgroundColor: Color(0xFFFFF9F9),
+        selectedQuickDateRangeColor: Colors.teal,
+      ),
     );
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked;
-        getSensorHourlyLogs(widget.userId, widget.controllerId, selectedDate);
-      });
-    }
   }
 
   @override
@@ -131,20 +189,29 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
             ),
             title: const Text('Sensor Data Charts'),
             actions: [
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: Text(
-                    "${selectedDate.toLocal()}".split(' ')[0],
-                    style: const TextStyle(fontSize: 14, color: Colors.white),
-                  ),
-                ),
-              ),
               Padding(
                 padding: const EdgeInsets.only(right: 8),
-                child: IconButton(
-                  icon: const Icon(Icons.calendar_today),
-                  onPressed: () => _selectDate(context),
+                child: TextButton(
+                  isSemanticButton: true,
+                  onPressed: () {
+                    showDateRangePickerDialog(
+                      context: context,
+                      builder: datePickerBuilder,
+                      offset: Offset(MediaQuery.sizeOf(context).width-525, 40),
+                    ).then((value) {
+                      if(value!=null){
+                        selectedDateRange = value;
+                        getSensorHourlyLogs(widget.userId, widget.controllerId);
+                      }
+                    },);
+                  },
+                  child: Text(
+                    selectedDateRange != null &&
+                        selectedDateRange?.start.day == selectedDateRange?.end.day
+                        ? '${selectedDateRange?.start.day}-${selectedDateRange?.start.month}-${selectedDateRange?.start.year}'
+                        : '${selectedDateRange?.start.day}-${selectedDateRange?.start.month}-${selectedDateRange?.start.year} to ${selectedDateRange?.end.day}-${selectedDateRange?.end.month}-${selectedDateRange?.end.year}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
             ],
@@ -156,7 +223,21 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
           ),
         ),
       ):
-      Scaffold(appBar:AppBar(title: const Text('Sensor Data Charts'),), body: const Center(child: Text('Sensor Hourly log not found'),)),
+      Scaffold(
+        appBar:AppBar(title: const Text('Sensor Data Charts'),),
+        body: visibleLoading? Visibility(
+          visible: visibleLoading,
+          child: Container(
+            height: double.infinity,
+            color: Colors.transparent,
+            padding: EdgeInsets.fromLTRB(MediaQuery.sizeOf(context).width/2 - 25, 0, MediaQuery.sizeOf(context).width/2 - 25, 0),
+            child: const LoadingIndicator(
+              indicatorType: Indicator.ballPulse,
+            ),
+          ),
+        ):
+        const Center(child: Text('Sensor Hourly log not found'),),
+      ),
     );
   }
 
@@ -256,6 +337,24 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
       scrollDirection: Axis.horizontal,
       child: SensorDataTable(sensorData: sensorData, snrName: snrName,),
     );
+  }
+
+  void indicatorViewShow() {
+    if(mounted){
+      setState(() {
+        visibleLoading = true;
+      });
+    }
+  }
+
+  void indicatorViewHide() {
+    if(mounted){
+      Future.delayed(const Duration(milliseconds: 500), () {
+        setState(() {
+          visibleLoading = false;
+        });
+      });
+    }
   }
 
 }

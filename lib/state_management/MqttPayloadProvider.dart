@@ -301,6 +301,10 @@ class MqttPayloadProvider with ChangeNotifier {
     try {
       sourcePump = pumps.where((item) => item.type == 1).toList();
       irrigationPump = pumps.where((item) => item.type == 2).toList();
+
+      sourcePump.sort((a, b) => a.sNo.compareTo(b.sNo));
+      irrigationPump.sort((a, b) => a.sNo.compareTo(b.sNo));
+
       notifyListeners();
     } catch (e) {
       print('Error parsing JSON: $e');

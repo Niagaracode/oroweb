@@ -552,11 +552,11 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                                           children: [
                                                             const SizedBox(width:100, child: Text('Phase', style: TextStyle(color: Colors.black54),),),
                                                             const Spacer(),
-                                                            CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>0? Colors.green: null,),
+                                                            CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>0? Colors.green: Colors.red.shade100,),
                                                             const VerticalDivider(color: Colors.transparent,),
-                                                            CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>1? Colors.green: null,),
+                                                            CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>1? Colors.green: Colors.red.shade100,),
                                                             const VerticalDivider(color: Colors.transparent,),
-                                                            CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>2? Colors.green: null,),
+                                                            CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>2? Colors.green: Colors.red.shade100,),
                                                           ],
                                                         ),
                                                       ),
@@ -839,11 +839,11 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                               children: [
                                                 const SizedBox(width:100, child: Text('Phase', style: TextStyle(color: Colors.black54),),),
                                                 const Spacer(),
-                                                CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>0? Colors.green: null,),
+                                                CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>0? Colors.green: Colors.red.shade100,),
                                                 const VerticalDivider(color: Colors.transparent,),
-                                                CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>1? Colors.green: null,),
+                                                CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>1? Colors.green: Colors.red.shade100,),
                                                 const VerticalDivider(color: Colors.transparent,),
-                                                CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>2? Colors.green: null,),
+                                                CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>2? Colors.green: Colors.red.shade100,),
                                               ],
                                             ),
                                           ),
@@ -1128,116 +1128,302 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                             ),
                                           ):
                                           const SizedBox(),
-                                          icPwr.length>1?Container(
-                                            width: 300,
-                                            height: 25,
-                                            color: Colors.transparent,
-                                            child: Row(
-                                              children: [
-                                                const SizedBox(width:90, child: Text('Power', style: TextStyle(color: Colors.black54),),),
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.red.shade50,
-                                                    border: Border.all(
-                                                      color: Colors.red.shade200,
-                                                      width: 0.7,
+                                          icPwr.length>1?Padding(
+                                            padding: const EdgeInsets.only(bottom: 5),
+                                            child: Container(
+                                              width: 300,
+                                              height: 25,
+                                              color: Colors.transparent,
+                                              child: Row(
+                                                children: [
+                                                  const SizedBox(width:90, child: Text('Power', style: TextStyle(color: Colors.black54),),),
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.red.shade50,
+                                                      border: Border.all(
+                                                        color: Colors.red.shade200,
+                                                        width: 0.7,
+                                                      ),
+                                                      borderRadius: const BorderRadius.all(Radius.circular(3.0)),
                                                     ),
-                                                    borderRadius: const BorderRadius.all(Radius.circular(3.0)),
-                                                  ),
-                                                  width: 65,
-                                                  height: 40,
-                                                  child: Center( // Center widget aligns the child in the center
-                                                    child: Text(
-                                                      'RP : ${icPwr[0]}',
-                                                      style: const TextStyle(fontSize: 11),
-                                                      textAlign: TextAlign.center,
-                                                    ),
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 7,),
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.yellow.shade50,
-                                                    border: Border.all(
-                                                      color: Colors.yellow.shade200,
-                                                      width: 0.7,
-                                                    ),
-                                                    borderRadius: const BorderRadius.all(Radius.circular(3.0)),
-                                                  ),
-                                                  width: 65,
-                                                  height: 40,
-                                                  child: Center(
-                                                    child: Text(
-                                                      'YP : ${icPwr[1]}',
-                                                      style: const TextStyle(fontSize: 11),
-                                                      textAlign: TextAlign.center,
+                                                    width: 65,
+                                                    height: 40,
+                                                    child: Center( // Center widget aligns the child in the center
+                                                      child: Text(
+                                                        'RP : ${icPwr[0]}',
+                                                        style: const TextStyle(fontSize: 11),
+                                                        textAlign: TextAlign.center,
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                                const SizedBox(width: 7,),
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.blue.shade50,
-                                                    border: Border.all(
-                                                      color: Colors.blue.shade200,
-                                                      width: 0.7,
+                                                  const SizedBox(width: 7,),
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.yellow.shade50,
+                                                      border: Border.all(
+                                                        color: Colors.yellow.shade200,
+                                                        width: 0.7,
+                                                      ),
+                                                      borderRadius: const BorderRadius.all(Radius.circular(3.0)),
                                                     ),
-                                                    borderRadius: const BorderRadius.all(Radius.circular(3.0)),
-                                                  ),
-                                                  width: 65,
-                                                  height: 40,
-                                                  child: Center(
-                                                    child: Text(
-                                                      'BP : ${icPwr[2]}',
-                                                      style: const TextStyle(fontSize: 11),
-                                                      textAlign: TextAlign.center,
+                                                    width: 65,
+                                                    height: 40,
+                                                    child: Center(
+                                                      child: Text(
+                                                        'YP : ${icPwr[1]}',
+                                                        style: const TextStyle(fontSize: 11),
+                                                        textAlign: TextAlign.center,
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
+                                                  const SizedBox(width: 7,),
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.blue.shade50,
+                                                      border: Border.all(
+                                                        color: Colors.blue.shade200,
+                                                        width: 0.7,
+                                                      ),
+                                                      borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                                    ),
+                                                    width: 65,
+                                                    height: 40,
+                                                    child: Center(
+                                                      child: Text(
+                                                        'BP : ${icPwr[2]}',
+                                                        style: const TextStyle(fontSize: 11),
+                                                        textAlign: TextAlign.center,
+                                                      ),
+                                                    ),
+                                                  ),
 
-                                              ],
+                                                ],
+                                              ),
                                             ),
                                           ):
                                           const SizedBox(),
-                                          const SizedBox(height: 5,),
-                                          int.parse(filteredPumps[index].reason)>0 && isTimeFormat(filteredPumps[index].setValue) ? SizedBox(
-                                            width: 300,
-                                            height: 45,
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              crossAxisAlignment: CrossAxisAlignment.center,
-                                              children: [
-                                                Text.rich(
-                                                  TextSpan(
-                                                    text: (filteredPumps[index].reason == '11'||filteredPumps[index].reason == '22') ? 'Remaining(hh:mm:ss)':'Set Amps : ',
-                                                    style: const TextStyle(fontSize: 12, color: Colors.black54),
-                                                    children: [
-                                                      TextSpan(
-                                                        text: '\n${filteredPumps[index].setValue}',
-                                                        style: const TextStyle(
-                                                            fontWeight: FontWeight.bold, color: Colors.black),
-                                                      ),
-                                                    ],
+                                          int.parse(filteredPumps[index].reason)>0 && isTimeFormat(filteredPumps[index].setValue) ?
+                                          Padding(
+                                            padding: const EdgeInsets.only(bottom: 5),
+                                            child: SizedBox(
+                                              width: 300,
+                                              height: 45,
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                children: [
+                                                  Text.rich(
+                                                    TextSpan(
+                                                      text: (filteredPumps[index].reason == '11'||filteredPumps[index].reason == '22') ? 'Cyc-Remain(hh:mm:ss)':'Set Amps : ',
+                                                      style: const TextStyle(fontSize: 12, color: Colors.black54),
+                                                      children: [
+                                                        TextSpan(
+                                                          text: '\n${filteredPumps[index].setValue}',
+                                                          style: const TextStyle(
+                                                              fontWeight: FontWeight.bold, color: Colors.black),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
-                                                ),
-                                                Text.rich(
-                                                  TextSpan(
-                                                    text: (filteredPumps[index].reason == '11'||filteredPumps[index].reason == '22') ? 'Max Time(hh:mm:ss)': 'Actual Amps : ' ,
-                                                    style: const TextStyle(fontSize: 12, color: Colors.black54),
-                                                    children: [
-                                                      TextSpan(
-                                                        text: '\n${filteredPumps[index].actualValue}',
-                                                        style: const TextStyle(
-                                                            fontWeight: FontWeight.bold, color: Colors.black),
-                                                      ),
-                                                    ],
+                                                  Text.rich(
+                                                    TextSpan(
+                                                      text: (filteredPumps[index].reason == '11'||filteredPumps[index].reason == '22') ? 'Max Time(hh:mm:ss)': 'Actual Amps : ' ,
+                                                      style: const TextStyle(fontSize: 12, color: Colors.black54),
+                                                      children: [
+                                                        TextSpan(
+                                                          text: '\n${filteredPumps[index].actualValue}',
+                                                          style: const TextStyle(
+                                                              fontWeight: FontWeight.bold, color: Colors.black),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
                                             ),
                                           ):
                                           const SizedBox(),
-                                          const SizedBox(height: 7,),
+
+                                          filteredPumps[index].topTankHigh.isNotEmpty?
+                                          Padding(
+                                            padding: const EdgeInsets.only(left:5, bottom: 5, top: 5),
+                                            child: Column(
+                                              children: filteredPumps[index].topTankHigh.map((item) {
+                                                return Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Container(
+                                                      width: 300,
+                                                      height: 25,
+                                                      color: Colors.transparent,
+                                                      child: Row(
+                                                        children: [
+                                                          SizedBox(width:235, child: Text(item['SW_Name']!=null?' ${item['SW_Name']} : ':
+                                                          '${item['Name']} : ', style: const TextStyle(color: Colors.black54),),),
+                                                          Container(
+                                                            decoration: BoxDecoration(
+                                                              color: Colors.grey.shade200,
+                                                              border: Border.all(
+                                                                color: Colors.grey.shade300,
+                                                                width: 0.7,
+                                                              ),
+                                                              borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                                            ),
+                                                            width: 65,
+                                                            height: 40,
+                                                            child: Center(
+                                                              child: Text(
+                                                                item['Value'],
+                                                                style: const TextStyle(fontSize: 12),
+                                                                textAlign: TextAlign.center,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ):
+                                          const SizedBox(),
+
+                                          filteredPumps[index].topTankLow.isNotEmpty?
+                                          Padding(
+                                            padding: const EdgeInsets.only(left:5, bottom: 5, top: 5),
+                                            child: Column(
+                                              children: filteredPumps[index].topTankLow.map((item) {
+                                                return Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Container(
+                                                      width: 300,
+                                                      height: 25,
+                                                      color: Colors.transparent,
+                                                      child: Row(
+                                                        children: [
+                                                          SizedBox(width:235, child: Text(item['SW_Name']!=null?' ${item['SW_Name']} : ':
+                                                          '${item['Name']} : ', style: const TextStyle(color: Colors.black54),),),
+                                                          Container(
+                                                            decoration: BoxDecoration(
+                                                              color: Colors.grey.shade200,
+                                                              border: Border.all(
+                                                                color: Colors.grey.shade300,
+                                                                width: 0.7,
+                                                              ),
+                                                              borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                                            ),
+                                                            width: 65,
+                                                            height: 40,
+                                                            child: Center(
+                                                              child: Text(
+                                                                item['Value'],
+                                                                style: const TextStyle(fontSize: 12),
+                                                                textAlign: TextAlign.center,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ):
+                                          const SizedBox(),
+
+                                          filteredPumps[index].sumpTankHigh.isNotEmpty?
+                                          Padding(
+                                            padding: const EdgeInsets.only(left:5, bottom: 5, top: 5),
+                                            child: Column(
+                                              children: filteredPumps[index].sumpTankHigh.map((item) {
+                                                return Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Container(
+                                                      width: 300,
+                                                      height: 25,
+                                                      color: Colors.transparent,
+                                                      child: Row(
+                                                        children: [
+                                                          SizedBox(width:235, child: Text(item['SW_Name']!=null?' ${item['SW_Name']} : ':
+                                                          '${item['Name']} : ', style: const TextStyle(color: Colors.black54),),),
+                                                          Container(
+                                                            decoration: BoxDecoration(
+                                                              color: Colors.grey.shade200,
+                                                              border: Border.all(
+                                                                color: Colors.grey.shade300,
+                                                                width: 0.7,
+                                                              ),
+                                                              borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                                            ),
+                                                            width: 65,
+                                                            height: 40,
+                                                            child: Center(
+                                                              child: Text(
+                                                                item['Value'],
+                                                                style: const TextStyle(fontSize: 12),
+                                                                textAlign: TextAlign.center,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ):
+                                          const SizedBox(),
+
+                                          filteredPumps[index].sumpTankLow.isNotEmpty?
+                                          Padding(
+                                            padding: const EdgeInsets.only(left:5, bottom: 5, top: 5),
+                                            child: Column(
+                                              children: filteredPumps[index].sumpTankLow.map((item) {
+                                                return Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Container(
+                                                      width: 300,
+                                                      height: 25,
+                                                      color: Colors.transparent,
+                                                      child: Row(
+                                                        children: [
+                                                          SizedBox(width:235, child: Text(item['SW_Name']!=null?' ${item['SW_Name']} : ':
+                                                          '${item['Name']} : ', style: const TextStyle(color: Colors.black54),),),
+                                                          Container(
+                                                            decoration: BoxDecoration(
+                                                              color: Colors.grey.shade200,
+                                                              border: Border.all(
+                                                                color: Colors.grey.shade300,
+                                                                width: 0.7,
+                                                              ),
+                                                              borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                                                            ),
+                                                            width: 65,
+                                                            height: 40,
+                                                            child: Center(
+                                                              child: Text(
+                                                                item['Value'],
+                                                                style: const TextStyle(fontSize: 12),
+                                                                textAlign: TextAlign.center,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ):
+                                          const SizedBox(),
+
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.end,
                                             children: [
@@ -1372,6 +1558,8 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                           filteredPumps.length==8?(position.dx+25)+(index*70)-630:
                           filteredPumps.length==9?(position.dx+25)+(index*70)-700:
                           filteredPumps.length==10?(position.dx+25)+(index*70)-770:
+                          filteredPumps.length==11?(position.dx+25)+(index*70)-840:
+                          filteredPumps.length==12?(position.dx+25)+(index*70)-910:
                           (position.dx+25)+(index*70)-280,
                         );
                       },
@@ -1399,41 +1587,38 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                       ),
                       width: 55,
                       child: Center(
-                        child: ValueListenableBuilder<String>(
-                          valueListenable: Provider.of<DurationNotifier>(context).onDelayLeft,
-                          builder: (context, value, child) {
-                            return Column(
-                              children: [
-                                const Text(
-                                  "On delay",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.only(left: 3, right: 3),
-                                  child: Divider(
-                                    height: 0,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                Text(
-                                  value,
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
+                        child: Column(
+                          children: [
+                            const Text(
+                              "On delay",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 10,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.only(left: 3, right: 3),
+                              child: Divider(
+                                height: 0,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            Text(
+                              pump.onDelayLeft,
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  ):const SizedBox(),
+                  ):
+                  const SizedBox(),
+
                   int.tryParse(pump.reason) != null && int.parse(pump.reason) > 0
                       ? Positioned(
                     top: 1,
@@ -1456,7 +1641,9 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                       ),
                     ),
                   ):const SizedBox(),
-                  (filteredPumps[index].reason == '11'||filteredPumps[index].reason == '22')? Positioned(
+
+                  (filteredPumps[index].reason == '11'||filteredPumps[index].reason == '22')?
+                  Positioned(
                     top: 40,
                     left: 0,
                     child: Container(
@@ -1489,7 +1676,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                   ),
                                 ),
                                 Text(
-                                  pump.status==1?'Rm: ${pump.setValue}':'Br: ${pump.setValue}',
+                                  pump.status==1?'cRm: ${pump.setValue}':'Brk: ${pump.setValue}',
                                   style: const TextStyle(
                                     color: Colors.black,
                                     fontSize: 9,
@@ -1820,11 +2007,11 @@ class _DisplayIrrigationPumpState extends State<DisplayIrrigationPump> {
                                   children: [
                                     const SizedBox(width:100, child: Text('Phase', style: TextStyle(color: Colors.black54),),),
                                     const Spacer(),
-                                    CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>0? Colors.green: null,),
+                                    CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>0? Colors.green: Colors.red.shade100,),
                                     const VerticalDivider(color: Colors.transparent,),
-                                    CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>1? Colors.green: null,),
+                                    CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>1? Colors.green: Colors.red.shade100,),
                                     const VerticalDivider(color: Colors.transparent,),
-                                    CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>2? Colors.green: null,),
+                                    CircleAvatar(radius: 7, backgroundColor: int.parse(filteredPumps[index].phase)>2? Colors.green: Colors.red.shade100,),
                                   ],
                                 ),
                               ),
@@ -2126,8 +2313,6 @@ class _DisplayIrrigationPumpState extends State<DisplayIrrigationPump> {
 
 }
 
-
-
 class DisplaySensor extends StatelessWidget {
   const DisplaySensor({Key? key, required this.payload2408, required this.index,}) : super(key: key);
   final List<dynamic> payload2408;
@@ -2223,6 +2408,7 @@ class DisplaySensor extends StatelessWidget {
     );
   }
 }
+
 
 class DisplayFilter extends StatefulWidget {
   const DisplayFilter({Key? key, required this.currentLineId, required this.filtersSites}) : super(key: key);
@@ -2934,13 +3120,16 @@ class _DisplayCentralFertilizerState extends State<DisplayCentralFertilizer> {
                           VerticalDivider(width: 0,color: Colors.grey.shade300,),
                           const SizedBox(width: 5.0,),
 
-                          fertilizerCentral[fIndex]['Ec'].length!=0?SizedBox(
-                            width: fertilizerCentral[fIndex]['Ec'].length>1? 130 : 70,
+                          fertilizerCentral[fIndex]['Ec'].isNotEmpty || fertilizerCentral[fIndex]['Ph'].isNotEmpty
+                              ? SizedBox(
+                            width: fertilizerCentral[fIndex]['Ec'].length > 1 ? 130 : 70,
                             height: 30,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                fertilizerCentral[fIndex]['Ec'].isNotEmpty ? SizedBox(
+                                // Display Ec values if available
+                                fertilizerCentral[fIndex]['Ec'].isNotEmpty
+                                    ? SizedBox(
                                   height: 15,
                                   child: ListView.builder(
                                     scrollDirection: Axis.horizontal,
@@ -2949,22 +3138,32 @@ class _DisplayCentralFertilizerState extends State<DisplayCentralFertilizer> {
                                       return Row(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          const Center(child: Text('Ec : ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.normal))),
+                                          const Center(
+                                              child: Text(
+                                                'Ec : ',
+                                                style: TextStyle(
+                                                    fontSize: 11, fontWeight: FontWeight.normal),
+                                              )),
                                           Center(
                                             child: Text(
-                                              double.parse('${fertilizerCentral[fIndex]['Ec'][index]['Status']}')
+                                              double.parse(
+                                                  '${fertilizerCentral[fIndex]['Ec'][index]['Status']}')
                                                   .toStringAsFixed(2),
                                               style: const TextStyle(fontSize: 11),
                                             ),
                                           ),
-                                          const SizedBox(width: 5,),
+                                          const SizedBox(
+                                            width: 5,
+                                          ),
                                         ],
                                       );
                                     },
                                   ),
-                                ) :
-                                const SizedBox(),
-                                fertilizerCentral[fIndex]['Ph'].isNotEmpty ? SizedBox(
+                                )
+                                    : const SizedBox(),
+                                // Display Ph values if available
+                                fertilizerCentral[fIndex]['Ph'].isNotEmpty
+                                    ? SizedBox(
                                   height: 15,
                                   child: ListView.builder(
                                     scrollDirection: Axis.horizontal,
@@ -2972,31 +3171,41 @@ class _DisplayCentralFertilizerState extends State<DisplayCentralFertilizer> {
                                     itemBuilder: (BuildContext context, int index) {
                                       return Row(
                                         children: [
-                                          const Center(child: Text('pH : ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.normal),)),
+                                          const Center(
+                                              child: Text(
+                                                'pH : ',
+                                                style: TextStyle(
+                                                    fontSize: 11, fontWeight: FontWeight.normal),
+                                              )),
                                           Center(
                                             child: Text(
-                                              double.parse('${fertilizerCentral[fIndex]['Ph'][index]['Status']}')
+                                              double.parse(
+                                                  '${fertilizerCentral[fIndex]['Ph'][index]['Status']}')
                                                   .toStringAsFixed(2),
                                               style: const TextStyle(fontSize: 11),
                                             ),
                                           ),
-                                          const SizedBox(width: 5,),
+                                          const SizedBox(
+                                            width: 5,
+                                          ),
                                         ],
                                       );
                                     },
                                   ),
-                                ):
-                                const SizedBox(),
+                                )
+                                    : const SizedBox(),
                               ],
                             ),
                           ):
                           const SizedBox(),
+
                           Container(
                             decoration: BoxDecoration(
                               color: Colors.green.shade50,
                               borderRadius: BorderRadius.circular(3),
                             ),
-                            width: (fertilizerCentral[fIndex]['Fertilizer'].length * 67) - (fertilizerCentral[fIndex]['Ec'].length * 70),
+                            width: (fertilizerCentral[fIndex]['Fertilizer'].length * 67) - (fertilizerCentral[fIndex]['Ec'].length > 0 ?
+                            fertilizerCentral[fIndex]['Ec'].length * 70 : fertilizerCentral[fIndex]['Ph'].length * 70),
                             child: Center(
                               child: Text(fertilizerCentral[fIndex]['SW_Name'] ?? fertilizerCentral[fIndex]['FertilizerSite'], style: const TextStyle(color: primaryColorDark, fontSize: 11),),
                             ),
