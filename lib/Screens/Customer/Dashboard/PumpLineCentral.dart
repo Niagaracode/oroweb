@@ -320,7 +320,6 @@ class _PumpLineCentralState extends State<PumpLineCentral> {
     Map<String, Object> body = {"userId": widget.userId, "controllerId": widget.currentSiteData.master[widget.masterIdx].controllerId, "messageStatus": msg, "hardware": jsonDecode(payLoad), "createUser": widget.userId};
     final response = await HttpService().postRequest("createUserSentAndReceivedMessageManually", body);
     if (response.statusCode == 200) {
-      print(response.body);
     } else {
       throw Exception('Failed to load data');
     }
@@ -938,7 +937,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                                   height: 40,
                                                   child: Center( // Center widget aligns the child in the center
                                                     child: Text(
-                                                      'YC : ${columns[0]}',
+                                                      'RC : ${columns[0]}',
                                                       style: const TextStyle(fontSize: 11),
                                                       textAlign: TextAlign.center,
                                                     ),
@@ -958,7 +957,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                                   height: 40,
                                                   child: Center(
                                                     child: Text(
-                                                      'BC : ${columns[1]}',
+                                                      'YC : ${columns[1]}',
                                                       style: const TextStyle(fontSize: 11),
                                                       textAlign: TextAlign.center,
                                                     ),
@@ -978,7 +977,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                                   height: 40,
                                                   child: Center(
                                                     child: Text(
-                                                      'RC : ${columns[2]}',
+                                                      'BC : ${columns[2]}',
                                                       style: const TextStyle(fontSize: 11),
                                                       textAlign: TextAlign.center,
                                                     ),
@@ -1721,11 +1720,9 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
   }
 
   double calculateArrowDxOffset(int pumpCount, double dx, int index) {
-    print(pumpCount);
     if (pumpCount == 1) {
       return dx - 25;
     } else {
-      print(dx + (index * 70) - 35);
       return dx + (index * 70) - 35;
     }
   }
@@ -1744,7 +1741,6 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
     Map<String, Object> body = {"userId": widget.customerId, "controllerId": widget.controllerId, "messageStatus": msg, "hardware": jsonDecode(data), "createUser": widget.userId};
     final response = await HttpService().postRequest("createUserSentAndReceivedMessageManually", body);
     if (response.statusCode == 200) {
-      print(response.body);
     } else {
       throw Exception('Failed to load data');
     }
@@ -2106,7 +2102,7 @@ class _DisplayIrrigationPumpState extends State<DisplayIrrigationPump> {
                                       height: 40,
                                       child: Center( // Center widget aligns the child in the center
                                         child: Text(
-                                          'YC : ${columns[0]}',
+                                          'RC : ${columns[0]}',
                                           style: const TextStyle(fontSize: 11),
                                           textAlign: TextAlign.center,
                                         ),
@@ -2126,7 +2122,7 @@ class _DisplayIrrigationPumpState extends State<DisplayIrrigationPump> {
                                       height: 40,
                                       child: Center(
                                         child: Text(
-                                          'BC : ${columns[1]}',
+                                          'YC : ${columns[1]}',
                                           style: const TextStyle(fontSize: 11),
                                           textAlign: TextAlign.center,
                                         ),
@@ -2146,7 +2142,7 @@ class _DisplayIrrigationPumpState extends State<DisplayIrrigationPump> {
                                       height: 40,
                                       child: Center(
                                         child: Text(
-                                          'RC : ${columns[2]}',
+                                          'BC : ${columns[2]}',
                                           style: const TextStyle(fontSize: 11),
                                           textAlign: TextAlign.center,
                                         ),
@@ -2305,7 +2301,6 @@ class _DisplayIrrigationPumpState extends State<DisplayIrrigationPump> {
     Map<String, Object> body = {"userId": widget.userId, "controllerId": widget.controllerId, "messageStatus": msg, "data": data, "hardware": data, "createUser": widget.userId};
     final response = await HttpService().postRequest("createUserSentAndReceivedMessageManually", body);
     if (response.statusCode == 200) {
-      print(response.body);
     } else {
       throw Exception('Failed to load data');
     }

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:oro_irrigation_new/MyGemini.dart';
 import 'package:oro_irrigation_new/Screens/Config/NewPreference/preference_main_screen.dart';
+import 'package:oro_irrigation_new/Screens/Config/config_maker/config_maker.dart';
 import 'package:oro_irrigation_new/Screens/map/maplatlong_provider.dart';
 import 'package:oro_irrigation_new/constants/theme.dart';
 import 'package:oro_irrigation_new/screens/DashBoard.dart';
@@ -87,6 +88,7 @@ class MyApp extends StatelessWidget {
         '/dashboard': (context) => const MainDashBoard(),
       },
       // home: PreferenceMainScreen(userId: 22, controllerId: 36, deviceId: '2CCF674C0F8A', customerId: 22,),
+      // home: ConfigMakerScreen(userID: 104, customerID: 104, controllerId: 866, imeiNumber: ''),
     );
   }
 }

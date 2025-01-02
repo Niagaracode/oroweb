@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:js_interop';
 import 'package:data_table_2/data_table_2.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:oro_irrigation_new/constants/MyFunction.dart';
@@ -306,7 +307,7 @@ class Tile extends StatelessWidget {
                         columns: const [
                           DataColumn2(
                             label: Text('Output', style: TextStyle(fontSize: 13)),
-                            fixedWidth: 70,
+                            fixedWidth: 90,
                           ),
                           DataColumn2(
                               label: Text('Id', style: TextStyle(fontSize: 13),),
@@ -336,7 +337,7 @@ class Tile extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 IconButton(onPressed: () { }, icon: const Icon(Icons.add_circle, color: Colors.black54,),),
-                                Text('${index+1}', style: const TextStyle(fontSize: 10),),
+                                Text('DO-${index+1}', style: const TextStyle(fontSize: 10),),
                               ],
                             )),
                             DataCell(Text(rly.rlyNo!=-1?'${rly.name}':'--', style: TextStyle(fontSize: 12),)),
@@ -357,7 +358,7 @@ class Tile extends StatelessWidget {
                         columns: const [
                           DataColumn2(
                             label: Text('Input', style: TextStyle(fontSize: 13)),
-                            fixedWidth: 70,
+                            fixedWidth: 90,
                           ),
                           DataColumn2(
                               label: Text('Id', style: TextStyle(fontSize: 13),),
@@ -389,10 +390,10 @@ class Tile extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 IconButton(onPressed: () { }, icon: const Icon(Icons.add_circle, color: Colors.black54,),),
-                                Text('${index+1}', style: const TextStyle(fontSize: 10),),
+                                Text('DI-${index+1}', style: const TextStyle(fontSize: 10),),
                               ],
                             )),
-                            DataCell(Text(snr.angIpNo!=-1?'${snr.name}':'--', style: TextStyle(fontSize: 12),)),
+                            DataCell(Text(snr.angIpNo!=-1?snr.name:'--', style: TextStyle(fontSize: 12),)),
                             DataCell(Text(snr.swName!='N/A'?'${snr.swName}':'--', style: TextStyle(fontSize: 12),)),
                           ]);
                         }),

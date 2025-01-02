@@ -36,7 +36,7 @@ class MQTTManager {
       providerState = state;
       _client = MqttBrowserClient(baseURL, uniqueId);
       _client!.port = port;
-      _client!.keepAlivePeriod = 60;
+      _client!.keepAlivePeriod = 30;
       _client!.onDisconnected = onDisconnected;
       _client!.logging(on: false);
       _client!.onConnected = onConnected;

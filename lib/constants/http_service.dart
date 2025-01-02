@@ -7,14 +7,16 @@ class HttpService
 {
  final String baseURL = "http://13.235.254.21:3000/api/v1/";//cloud
    // final String baseURL = "http://192.168.68.141:3000/api/v1/";//local
-  Future<http.Response> postRequest(String action, Map<String, dynamic> data) async
+  Future<http.Response> postRequest(String action, Map<String, dynamic> bodyData) async
   {
-    print('$action -> $data');
+    print('action:$action');
+    print('body:$bodyData');
+
     var headers = {
       'Content-Type':'application/json',
       "action": action
     };
-    var body = json.encode(data);
+    var body = json.encode(bodyData);
 
     return await http.post(Uri.parse(baseURL),
         headers : headers,

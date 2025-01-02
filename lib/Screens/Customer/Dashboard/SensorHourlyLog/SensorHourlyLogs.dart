@@ -35,9 +35,10 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
 
 
   Future<void> getSensorHourlyLogs(userId, controllerId) async {
+    sensors.clear();
     indicatorViewShow();
-    String sDate = '${selectedDateRange?.start.year}-${selectedDateRange?.start.month}-${selectedDateRange?.start.day}';
-    String eDate = '${selectedDateRange?.end.year}-${selectedDateRange?.end.month}-${selectedDateRange?.end.day}';
+    String sDate = '${selectedDateRange?.start.year}-${selectedDateRange?.start.month.toString().padLeft(2, '0')}-${selectedDateRange?.start.day.toString().padLeft(2, '0')}';
+    String eDate = '${selectedDateRange?.end.year}-${selectedDateRange?.end.month.toString().padLeft(2, '0')}-${selectedDateRange?.end.day.toString().padLeft(2, '0')}';
 
     Map<String, Object> body = {
       "userId": userId,
@@ -49,7 +50,6 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
     final response = await HttpService().postRequest("getUserSensorHourlyLog", body);
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
-      print(response.body);
       if (data["code"] == 200) {
         try {
           sensors = (data['data'] as List).map((item) {
@@ -224,7 +224,36 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
         ),
       ):
       Scaffold(
-        appBar:AppBar(title: const Text('Sensor Data Charts'),),
+        appBar:AppBar(
+          title: const Text('Sensor Data Charts'),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: TextButton(
+                isSemanticButton: true,
+                onPressed: () {
+                  showDateRangePickerDialog(
+                    context: context,
+                    builder: datePickerBuilder,
+                    offset: Offset(MediaQuery.sizeOf(context).width-525, 40),
+                  ).then((value) {
+                    if(value!=null){
+                      selectedDateRange = value;
+                      getSensorHourlyLogs(widget.userId, widget.controllerId);
+                    }
+                  },);
+                },
+                child: Text(
+                  selectedDateRange != null &&
+                      selectedDateRange?.start.day == selectedDateRange?.end.day
+                      ? '${selectedDateRange?.start.day}-${selectedDateRange?.start.month}-${selectedDateRange?.start.year}'
+                      : '${selectedDateRange?.start.day}-${selectedDateRange?.start.month}-${selectedDateRange?.start.year} to ${selectedDateRange?.end.day}-${selectedDateRange?.end.month}-${selectedDateRange?.end.year}',
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
         body: visibleLoading? Visibility(
           visible: visibleLoading,
           child: Container(
@@ -243,11 +272,15 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
 
   Row buildLineChart(Map<String, List<SensorHourlyData>> sensorData, String snrName) {
     final Set<String> allHours = {};
+
+    // Collect all unique hours from the sensor data
     sensorData.values.expand((hourlyData) => hourlyData).forEach((data) {
       allHours.add(data.hour);
     });
 
-    final List<String> sortedHours = allHours.toList()..sort();
+    // Sort the hours and remove duplicate dates, keeping the date only for the first occurrence
+    final List<String> sortedHours = removeDuplicateDates(allHours.toList()..sort());
+
     final Map<String, List<SensorHourlyData>> groupedByName = {};
 
     sensorData.values.expand((hourlyData) => hourlyData).forEach((data) {
@@ -263,43 +296,42 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
     groupedByName.forEach((sensorName, sensorValues) {
       final color = sensorColors[colorIndex % sensorColors.length];
       colorIndex++;
+      //print(sensorValues);
 
       final dataPoints = sortedHours.map((hour) {
-        final data = sensorValues.firstWhere((d) => d.hour == hour,
+        //print(hour);
+        final data = sensorValues.firstWhere(
+              (d) => d.hour == hour,
           orElse: () => SensorHourlyData(id: '', value: 0.0, hour: hour, name: sensorName, sNo: 0),
         );
+        //print(data.value);
         return data;
       }).toList();
-
 
       series.add(LineSeries<SensorHourlyData, String>(
         name: sensorName,
         dataSource: dataPoints,
         xValueMapper: (SensorHourlyData data, _) => data.hour,
         yValueMapper: (SensorHourlyData data, _) {
-
-          if(snrName=='EC Sensor' || snrName=='PH Sensor'){
+          if (snrName == 'EC Sensor' || snrName == 'PH Sensor') {
             return data.value;
-          }else{
+          } else {
             String? result = getUnitByParameter(context, snrName, data.value.toString());
             String? numericString = result?.replaceAll(RegExp(r'[^\d.]+'), '');
             double? value = double.tryParse(numericString!);
             return value ?? 0.0;
           }
-
         },
         color: color,
         dataLabelSettings: const DataLabelSettings(isVisible: true),
         dataLabelMapper: (SensorHourlyData data, _) {
-
-          if(snrName=='EC Sensor' || snrName=='PH Sensor'){
+          if (snrName == 'EC Sensor' || snrName == 'PH Sensor') {
             return data.value.toString();
-          }else{
+          } else {
             String? result = getUnitByParameter(context, snrName, data.value.toString());
             String? numericString = result?.replaceAll(RegExp(r'[^\d.]+'), '');
             return '$numericString';
           }
-
         },
         markerSettings: const MarkerSettings(isVisible: true),
         dashArray: [4, 4],
@@ -318,17 +350,51 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
               title: AxisTitle(text: 'Hours'),
               majorGridLines: const MajorGridLines(width: 0),
               axisLine: const AxisLine(width: 0),
+              visibleMinimum: 0,
+              visibleMaximum: 10, // Adjust based on initial view
+              interval: 0.7,
             ),
             primaryYAxis: NumericAxis(
               title: AxisTitle(text: getSensorUnit(snrName, context)),
             ),
             legend: const Legend(isVisible: true, position: LegendPosition.right),
             tooltipBehavior: TooltipBehavior(enable: true),
+            zoomPanBehavior: ZoomPanBehavior(
+              enablePanning: true,
+              enablePinching: true,
+              enableDoubleTapZooming: true,
+            ),
             series: series,
           ),
         ),
       ],
     );
+  }
+
+  List<String> removeDuplicateDates(List<String> hours) {
+    String? previousDate;
+    return hours.map((hour) {
+
+      final parts = hour.split(' ');
+      final currentDate = parts[0];
+      /*List<String> partsD = currentDate.split('-'); // Split into year, month, and date
+      String lastPart = "${partsD[2]}-${partsD[1]}";*/
+
+      final time = parts[1];
+
+      //return '${currentDate.split('-').last}-$time';
+      return hour;
+      /*final parts = hour.split(' '); // Split into date and time
+      final currentDate = parts[0];
+      final time = parts[1];
+      //return time;
+      if (currentDate == previousDate) {
+        return time; // Return only time if date is duplicate
+      } else {
+        previousDate = currentDate;
+        return hour; // Return full timestamp for the first occurrence
+      }*/
+    }).toList();
   }
 
 

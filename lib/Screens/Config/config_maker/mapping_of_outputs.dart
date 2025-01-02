@@ -275,8 +275,9 @@ class _MappingOfOutputsTableState extends State<MappingOfOutputsTable> {
 
   List<Widget> getIrrigationLine(List<Map<String,dynamic>> myList,ConfigMakerProvider configPvd){
     List<Widget> widgetList = [];
+    print('getIrrigationLine : $myList');
     for(var i = 0;i < myList.length;i++){
-      if(!myList[i]['map'][0]['deleted']){
+      if(myList[i]['map'].isNotEmpty && !myList[i]['map'][0]['deleted']){
         widgetList.add(
             SizedBox(
               width: double.infinity,

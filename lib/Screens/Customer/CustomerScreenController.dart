@@ -115,7 +115,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
     {
       mySiteList.clear();
       var data = jsonDecode(response.body);
-      print(response.body);
+      //print(response.body);
       if(data["code"]==200)
       {
         final jsonData = data["data"] as List;
@@ -1372,12 +1372,11 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Enter Password'),
+          title: Text('Enter Password'),
           content: TextField(
-            autofocus: true,
             controller: _passwordController,
             obscureText: true,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Password',
               border: OutlineInputBorder(),
             ),
@@ -1387,7 +1386,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              child: Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
@@ -1407,7 +1406,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                   _showErrorDialog(context);
                 }
               },
-              child: const Text('Submit'),
+              child: Text('Submit'),
             ),
           ],
         );
@@ -1420,14 +1419,14 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Error'),
-          content: const Text('Incorrect password. Please try again.'),
+          title: Text('Error'),
+          content: Text('Incorrect password. Please try again.'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('OK'),
+              child: Text('OK'),
             ),
           ],
         );
@@ -1951,7 +1950,6 @@ class _SideSheetClassState extends State<SideSheetClass> {
                   child: ListView.builder(
                     itemCount: widget.nodeList.length,
                     itemBuilder: (context, index) {
-                      print(widget.nodeList[index].interface);
                       return ExpansionTile(
                         //initiallyExpanded: true,
                         trailing: Row(

@@ -76,7 +76,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
-
         if (data is Map<String, dynamic> && data["code"] == 200) {
           try {
             mySalesData = SalesDataModel.fromJson(data);

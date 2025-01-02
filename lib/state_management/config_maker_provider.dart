@@ -415,6 +415,10 @@ class ConfigMakerProvider extends ChangeNotifier {
     newSnoList = [];
     oldSnoList = [];
     categoryId = 0;
+    totalLowerTankLevelSensorCount = 0;
+    totalUpperTankLevelSensorCount = 0;
+    totalLowerTankLevelSensor = [];
+    totalUpperTankLevelSensor = [];
     notifyListeners();
   }
 
@@ -2417,20 +2421,20 @@ class ConfigMakerProvider extends ChangeNotifier {
         }
       case ('addIrrigationLine'):
         {
-          if (totalIrrigationLine > 0 && totalValve > 0) {
+          if (totalIrrigationLine > 0) {
             var add = false;
             for (var i in irrigationLines) {
               if (i['deleted'] == true) {
                 i['deleted'] = false;
-                i['valve'] = '1';
+                i['valve'] = '';
                 i['valveConnection'] = [
-                  {
-                    'sNo': returnI_O_AutoIncrement(),
-                    'rtu': '-',
-                    'rfNo': '-',
-                    'output': '-',
-                    'output_type': '1',
-                  }
+                  // {
+                  //   'sNo': returnI_O_AutoIncrement(),
+                  //   'rtu': '-',
+                  //   'rfNo': '-',
+                  //   'output': '-',
+                  //   'output_type': '1',
+                  // }
                 ];
                 i['main_valve'] = '';
                 i['main_valveConnection'] = [];
@@ -2485,16 +2489,16 @@ class ConfigMakerProvider extends ChangeNotifier {
               irrigationLines.add(
                 {
                   'sNo': returnI_O_AutoIncrement(),
-                  'valve': '1',
+                  'valve': '',
                   'deleted': false,
                   'valveConnection': [
-                    {
-                      'sNo': returnI_O_AutoIncrement(),
-                      'rtu': '-',
-                      'rfNo': '-',
-                      'output': '-',
-                      'output_type': '1',
-                    }
+                    // {
+                    //   'sNo': returnI_O_AutoIncrement(),
+                    //   'rtu': '-',
+                    //   'rfNo': '-',
+                    //   'output': '-',
+                    //   'output_type': '1',
+                    // }
                   ],
                   'main_valve': '',
                   'main_valveConnection': [],
@@ -2545,7 +2549,7 @@ class ConfigMakerProvider extends ChangeNotifier {
               );
             }
             totalIrrigationLine = totalIrrigationLine - 1;
-            totalValve = totalValve - 1;
+            // totalValve = totalValve - 1;
           }
           break;
         }
