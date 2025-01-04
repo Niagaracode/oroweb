@@ -375,6 +375,12 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
               sp.actualValue = decrementTime(sp.actualValue);
             }
           }
+
+          if (sp.reason=='8' && isTimeFormat(sp.actualValue.split('_').last) && sp.actualValue.split('_').last != '00:00:00') {
+            String lastValue = sp.actualValue.split('_').last;
+            String updatedTime = decrementTime(lastValue);
+            sp.actualValue = '${sp.actualValue.split('_').first}_$updatedTime';
+          }
         }
       });
     });
@@ -480,7 +486,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                         showPopover(
                           context: context,
                           bodyBuilder: (context) {
-                            MqttPayloadProvider provider = Provider.of<MqttPayloadProvider>(context, listen: true);
+                            //MqttPayloadProvider provider = Provider.of<MqttPayloadProvider>(context, listen: true);
                             Future.delayed(const Duration(seconds: 2));
                             _popoverUpdateNotifier.value++;
 
@@ -792,16 +798,21 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                           ),
                                           int.parse(filteredPumps[index].reason)>0 ? Container(
                                             width: 315,
-                                            height: 30,
-                                            color: Colors.green.shade50,
+                                            height: 33,
+                                            color: Colors.orange.shade100,
                                             child: Row(
                                               children: [
                                                 Expanded(child: Padding(
                                                   padding: const EdgeInsets.only(left: 5),
-                                                  child: Text(getContentByCode(int.parse(filteredPumps[index].reason)), style: const TextStyle(fontSize: 11, color: Colors.black54)),
+                                                  child: Text(
+                                                    filteredPumps[index].reason == '8' && isTimeFormat(filteredPumps[index].actualValue.split('_').last)
+                                                        ? '${getContentByCode(int.parse(filteredPumps[index].reason))}, It will be restart automatically within ${filteredPumps[index].actualValue.split('_').last} (hh:mm:ss)'
+                                                        :getContentByCode(int.parse(filteredPumps[index].reason)),
+                                                    style: const TextStyle(fontSize: 11, color: Colors.black87, fontWeight: FontWeight.normal),
+                                                  ),
                                                 )),
                                                 (!excludedReasons.contains(filteredPumps[index].reason)) ? SizedBox(
-                                                  height:20,
+                                                  height:23,
                                                   child: TextButton(
                                                     style: TextButton.styleFrom(
                                                       backgroundColor: Colors.redAccent.shade200,
@@ -822,7 +833,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                                         GlobalSnackBar.show(context, 'Permission denied', 400);
                                                       }
                                                     },
-                                                    child: const Text('Reset', style: TextStyle(fontSize: 11, color: Colors.white),),
+                                                    child: const Text('Reset', style: TextStyle(fontSize: 12, color: Colors.white),),
                                                   ),
                                                 ):const SizedBox(),
                                                 const SizedBox(width: 5,),
@@ -830,6 +841,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                             ),
                                           ):
                                           const SizedBox(),
+
                                           Container(
                                             width: 300,
                                             height: 25,
@@ -995,7 +1007,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                               color: Colors.transparent,
                                               child: Row(
                                                 children: [
-                                                  const SizedBox(width:229, child: Text('Instant Energy : ', style: TextStyle(color: Colors.black54),),),
+                                                  const SizedBox(width:229, child: Text('Instant Energy ', style: TextStyle(color: Colors.black54),),),
                                                   Container(
                                                     decoration: BoxDecoration(
                                                       color: Colors.grey.shade200,
@@ -1028,7 +1040,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                               color: Colors.transparent,
                                               child: Row(
                                                 children: [
-                                                  const SizedBox(width:229, child: Text('Cumulative Energy : ', style: TextStyle(color: Colors.black54),),),
+                                                  const SizedBox(width:229, child: Text('Cumulative Energy ', style: TextStyle(color: Colors.black54),),),
                                                   Container(
                                                     decoration: BoxDecoration(
                                                       color: Colors.grey.shade200,
@@ -1257,8 +1269,8 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                                       color: Colors.transparent,
                                                       child: Row(
                                                         children: [
-                                                          SizedBox(width:235, child: Text(item['SW_Name']!=null?' ${item['SW_Name']} : ':
-                                                          '${item['Name']} : ', style: const TextStyle(color: Colors.black54),),),
+                                                          SizedBox(width:230, child: Text(item['SW_Name']!=null?' ${item['SW_Name']} ':
+                                                          '${item['Name']} ', style: const TextStyle(color: Colors.black54),),),
                                                           Container(
                                                             decoration: BoxDecoration(
                                                               color: Colors.grey.shade200,
@@ -1688,7 +1700,54 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                         ),
                       ),
                     ),
-                  ):const SizedBox(),
+                  ):
+                  filteredPumps[index].reason == '8' && isTimeFormat(filteredPumps[index].actualValue.split('_').last)?Positioned(
+                    top: 40,
+                    left: 0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: pump.status==1?Colors.greenAccent:Colors.yellowAccent,
+                        borderRadius: const BorderRadius.all(Radius.circular(2)),
+                        border: Border.all(color: Colors.grey, width: .50),
+                      ),
+                      width: 67,
+                      child: Center(
+                        child: ValueListenableBuilder<String>(
+                          valueListenable: Provider.of<DurationNotifier>(context).onDelayLeft,
+                          builder: (context, value, child) {
+                            return Column(
+                              children: [
+                                const Text(
+                                  'Restart within',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const Padding(
+                                  padding: EdgeInsets.only(left: 3, right: 3),
+                                  child: Divider(
+                                    height: 0,
+                                    color: Colors.grey,
+                                    thickness: 0.5,
+                                  ),
+                                ),
+                                Text(filteredPumps[index].actualValue.split('_').last,
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ):
+                  const SizedBox(),
                 ],
               ),
               SizedBox(

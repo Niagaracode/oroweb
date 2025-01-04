@@ -61,7 +61,7 @@ class MySalesChartState extends State<MySalesBarChart> {
               borderRadius: BorderRadius.circular(5),
             ),
             child: Text(
-              category.categoryName,
+              '${category.categoryName}(${category.totalProduct})',
               style: const TextStyle(color: Colors.white, fontSize: 12),
             ),
           );

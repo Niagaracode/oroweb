@@ -11,8 +11,8 @@ import 'package:provider/provider.dart';
 import '../../../constants/MQTTManager.dart';
 import '../../../constants/http_service.dart';
 import '../../constants/snack_bar.dart';
+import '../../screens/Customer/IrrigationProgram/program_library.dart';
 import '../../state_management/MqttPayloadProvider.dart';
-import 'IrrigationProgram/program_library.dart';
 
 
 class ResetVerssion extends StatefulWidget {
@@ -64,6 +64,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
           'latestVersion': device['latestVersion'] ?? '',
           'currentVersion': device['currentVersion'] ?? '',
           'status': 'Status',
+          'loraFrequency': device['loraFrequency'] ?? '',
         });
       }
     }
@@ -217,7 +218,9 @@ class _ResetVerssionState extends State<ResetVerssion> {
                             onPressed: () {
                               setState(() {
                                 selectindex = index;
-                                _showFrequencyDialog(context,  mergedList[index]['categoryName']!.contains('ORO GEM PLUS') ? true : false);
+                                print("selectindex$selectindex");
+
+                                _showFrequencyDialog(context,index,  mergedList[index]['categoryName']!.contains('ORO GEM PLUS') ? true : false);
                               });
                             },
                             icon: const Icon(Icons.settings_applications_rounded),
@@ -371,22 +374,6 @@ class _ResetVerssionState extends State<ResetVerssion> {
     return '$firstPart,$secondPart';
   }
 
-  FrequnceAll1() async {
-    String firstfreequnce1 =  formatNumber(frequency1Controller.text);
-    String firstfreequnce2 =  formatNumber(frequency2Controller.text);
-    String sf1 =  sf1Controller.text;
-    String sf2 =  sf2Controller.text;
-    Map<String, dynamic> payLoadFinal = {
-      "6500": [
-        {"6501": "$firstfreequnce1,$sf1,$firstfreequnce2,$sf2"},
-      ]
-    };
-    print("AppToFipayLoadFinalrmware  --${payLoadFinal}");
-
-    print("AppToFirmware  --${mergedList[selectindex!]["deviceId"]}");
-    MQTTManager()
-        .publish(jsonEncode(payLoadFinal), "AppToFirmware/${mergedList[selectindex!]["deviceId"]}");
-  }
 
   FrequnceAll() async{
     String firstfreequnce1 =  formatNumber(frequency1Controller.text);
@@ -398,6 +385,26 @@ class _ResetVerssionState extends State<ResetVerssion> {
         {"6501": "$firstfreequnce1,$sf1,$firstfreequnce2,$sf2"},
       ]
     };
+    print('payLoadFinal $payLoadFinal');
+    Map<String, dynamic> body = {
+      "userId": widget.userId,
+      "controllerId": widget.controllerId,
+      "loraFrequency": '${frequency1Controller.text},${sf1Controller.text},${frequency2Controller.text},${sf2Controller.text}',
+      "modifyUser": widget.userId
+    };
+    print('body $body');
+    final response = await HttpService()
+        .putRequest("updateUserDeviceFirmwareDetails", body);
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      if (data["code"] == 200) {
+        _showSnackBar(data["message"]);
+      } else {
+        _showSnackBar(data["message"]);
+      }
+    }
+
     if (MQTTManager().isConnected == true) {
       await validatePayloadSent(
           dialogContext: context,
@@ -414,14 +421,31 @@ class _ResetVerssionState extends State<ResetVerssion> {
     } else {
       GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
     }
-
+fetchData();
   }
 
 
-  void _showFrequencyDialog(BuildContext context,bool plusTrue) {
+  void _showFrequencyDialog(BuildContext context,int index,bool plusTrue) {
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        String loravalue =  mergedList[index]['loraFrequency']!;
+        if( loravalue.isNotEmpty)
+        {
+          List<String> splitValues = loravalue.split(',');
+          frequency1Controller.text = splitValues[0];
+          sf1Controller.text = splitValues[1];
+          frequency2Controller.text = splitValues[2];
+          sf2Controller.text = splitValues[3];
+        }
+        else
+        {
+          frequency1Controller.text = '';
+          sf1Controller.text = '';
+          frequency2Controller.text = '';
+          sf2Controller.text = '';
+        }
         return AlertDialog(
           title: const Text('LoRa Frequency'),
           content: Column(
@@ -436,8 +460,8 @@ class _ResetVerssionState extends State<ResetVerssion> {
                         controller: frequency1Controller,
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         decoration:  const InputDecoration(
-                          hintText: 'Enter LoRa Frequency (000.0)',
-                          labelText: "1.LoRa Frequency ",
+                          hintText: 'Enter LoRa Frequency 1 (000.0)',
+                          labelText: "LoRa Frequency 1 ",
                         ),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp(
@@ -446,10 +470,11 @@ class _ResetVerssionState extends State<ResetVerssion> {
                       ),
                       TextField(
                         controller: sf1Controller,
+
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         decoration:  const InputDecoration(
                           hintText: 'Enter SF value (7-12)',
-                          labelText: "1.SF value ",
+                          labelText: "SF value ",
                         ),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp(
@@ -471,8 +496,8 @@ class _ResetVerssionState extends State<ResetVerssion> {
                         controller: frequency2Controller,
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         decoration:  const InputDecoration(
-                          hintText: 'Enter LoRa Frequency (000.0)',
-                          labelText: "2.LoRa Frequency",
+                          hintText: 'Enter LoRa Frequency 2 (000.0)',
+                          labelText: "LoRa Frequency 2",
                         ),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp(
@@ -484,7 +509,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         decoration:  const InputDecoration(
                           hintText: 'Enter SF value (7-12)',
-                          labelText: '2.SF value ',
+                          labelText: 'SF value ',
                         ),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp(
@@ -537,6 +562,8 @@ class _ResetVerssionState extends State<ResetVerssion> {
                     _showErrorDialog(context);
                   }
                 }
+
+
               },
               child: const Text('Send'),
             ),
