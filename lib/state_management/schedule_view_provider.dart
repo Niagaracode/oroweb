@@ -310,6 +310,79 @@ class ScheduleViewProvider extends ChangeNotifier {
         selectedStatus = selectedStatusList.contains(statusString);
         // selectedStatus = selectedStatusList.contains(statusList[4]);
         break;
+      case "26":
+        innerCircleColor = Colors.amber;
+        statusString = "Unknown status";
+        reason = "Started By Condition Paused By User";
+        iconData = Icons.device_unknown;
+        statusCode = "26";
+        selectedStatus = selectedStatusList.contains(statusString);
+        // selectedStatus = selectedStatusList.contains(statusList[4]);
+        break;
+      case "27":
+        innerCircleColor = Colors.amber;
+        statusString = "Unknown status";
+        reason = "Resumed ByCondition";
+        iconData = Icons.device_unknown;
+        statusCode = "27";
+        selectedStatus = selectedStatusList.contains(statusString);
+        // selectedStatus = selectedStatusList.contains(statusList[4]);
+        break;
+      case "28":
+        innerCircleColor = Colors.amber;
+        statusString = "Unknown status";
+        reason = "Bypassed Start Condition Manually";
+        iconData = Icons.device_unknown;
+        statusCode = "28";
+        selectedStatus = selectedStatusList.contains(statusString);
+        // selectedStatus = selectedStatusList.contains(statusList[4]);
+        break;
+      case "29":
+        innerCircleColor = Colors.amber;
+        statusString = "Unknown status";
+        reason = "Bypassed Stop ConditionManually";
+        iconData = Icons.device_unknown;
+        statusCode = "29";
+        selectedStatus = selectedStatusList.contains(statusString);
+        // selectedStatus = selectedStatusList.contains(statusList[4]);
+        break;
+      case "30":
+        innerCircleColor = Colors.amber;
+        statusString = "Unknown status";
+        reason = "Continue Manually";
+        iconData = Icons.device_unknown;
+        statusCode = "30";
+        selectedStatus = selectedStatusList.contains(statusString);
+        // selectedStatus = selectedStatusList.contains(statusList[4]);
+        break;
+      case "31":
+        innerCircleColor = Colors.amber;
+        statusString = "Unknown status";
+        reason = " - ";
+        iconData = Icons.device_unknown;
+        statusCode = "31";
+        selectedStatus = selectedStatusList.contains(statusString);
+        // selectedStatus = selectedStatusList.contains(statusList[4]);
+        break;
+      case "32":
+        innerCircleColor = Colors.amber;
+        statusString = "Unknown status";
+        reason = "Waiting For Condtion";
+        iconData = Icons.device_unknown;
+        statusCode = "32";
+        selectedStatus = selectedStatusList.contains(statusString);
+        // selectedStatus = selectedStatusList.contains(statusList[4]);
+        break;
+      case "33":
+        innerCircleColor = Colors.amber;
+        statusString = "Unknown status";
+        reason = "StartedBy Condition And RunAsPer Schedule";
+        iconData = Icons.device_unknown;
+        statusCode = "33";
+        selectedStatus = selectedStatusList.contains(statusString);
+        // selectedStatus = selectedStatusList.contains(statusList[4]);
+        break;
+
        default:
           throw Exception("Unsupported status code: $code");
     }
