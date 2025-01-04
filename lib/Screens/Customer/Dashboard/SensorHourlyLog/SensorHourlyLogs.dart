@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../../../../Models/Customer/SensorHourlyData.dart';
 import '../../../../constants/MyFunction.dart';
@@ -16,24 +18,33 @@ class SensorHourlyLogs extends StatefulWidget {
 }
 
 class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
-  DateTime selectedDate = DateTime.now();
   List<AllMySensor> sensors = [];
   List<bool> selectedSegments = [true, false];
+  DateRange? selectedDateRange;
+  bool visibleLoading = false;
 
   @override
   void initState() {
     super.initState();
-    getSensorHourlyLogs(widget.userId, widget.controllerId, selectedDate);
+    selectedDateRange = DateRange(
+      DateTime.now().subtract(const Duration(days: 0)),
+      DateTime.now(),
+    );
+    getSensorHourlyLogs(widget.userId, widget.controllerId);
   }
 
 
-  Future<void> getSensorHourlyLogs(userId, controllerId, selectedDate) async {
-    String date = DateFormat('yyyy-MM-dd').format(selectedDate);
+  Future<void> getSensorHourlyLogs(userId, controllerId) async {
+    sensors.clear();
+    indicatorViewShow();
+    String sDate = '${selectedDateRange?.start.year}-${selectedDateRange?.start.month.toString().padLeft(2, '0')}-${selectedDateRange?.start.day.toString().padLeft(2, '0')}';
+    String eDate = '${selectedDateRange?.end.year}-${selectedDateRange?.end.month.toString().padLeft(2, '0')}-${selectedDateRange?.end.day.toString().padLeft(2, '0')}';
+
     Map<String, Object> body = {
       "userId": userId,
       "controllerId": controllerId,
-      "fromDate": date,
-      "toDate": date
+      "fromDate": sDate,
+      "toDate": eDate
     };
 
     final response = await HttpService().postRequest("getUserSensorHourlyLog", body);
@@ -52,29 +63,76 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
             });
             return AllMySensor(name: item['name'], data: sensorData);
           }).toList();
-
-          setState(() {
-          });
+          indicatorViewHide();
         } catch (e) {
           print('Error: $e');
+          indicatorViewHide();
         }
+      }else{
+        indicatorViewHide();
       }
     }
   }
 
-  void _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
+
+  Widget datePickerBuilder(context, dynamic Function(DateRange?) onDateRangeChanged)
+  {
+    return DateRangePickerWidget(
+      doubleMonth: false,
+      maximumDateRangeLength: 10,
+      quickDateRanges: [
+        QuickDateRange(dateRange: null, label: "Remove date range"),
+        QuickDateRange(
+          label: 'Today',
+          dateRange: DateRange(
+            DateTime.now().subtract(const Duration(days: 0)),
+            DateTime.now(),
+          ),
+        ),
+        QuickDateRange(
+          label: 'Last 3 days',
+          dateRange: DateRange(
+            DateTime.now().subtract(const Duration(days: 2)),
+            DateTime.now(),
+          ),
+        ),
+        QuickDateRange(
+          label: 'Last 7 days',
+          dateRange: DateRange(
+            DateTime.now().subtract(const Duration(days: 6)),
+            DateTime.now(),
+          ),
+        ),
+        QuickDateRange(
+          label: 'Last 10 days',
+          dateRange: DateRange(
+            DateTime.now().subtract(const Duration(days: 9)),
+            DateTime.now(),
+          ),
+        ),
+      ],
+      minimumDateRangeLength: 2,
+      initialDateRange: selectedDateRange,
+      initialDisplayedDate:
+      selectedDateRange?.start ?? DateTime.now(),
+      onDateRangeChanged: onDateRangeChanged,
+      height: 350,
+      maxDate: DateTime.now(),
+      theme: const CalendarTheme(
+        selectedColor: Colors.teal,
+        dayNameTextStyle: TextStyle(color: Colors.black45, fontSize: 10),
+        inRangeColor: Color(0xFFD9EDFA),
+        inRangeTextStyle: TextStyle(color: Colors.teal),
+        selectedTextStyle: TextStyle(color: Colors.white),
+        todayTextStyle: TextStyle(fontWeight: FontWeight.bold),
+        defaultTextStyle: TextStyle(color: Colors.black, fontSize: 12),
+        radius: 10,
+        tileSize: 40,
+        disabledTextStyle: TextStyle(color: Colors.grey),
+        //quickDateRangeBackgroundColor: Color(0xFFFFF9F9),
+        selectedQuickDateRangeColor: Colors.teal,
+      ),
     );
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked;
-        getSensorHourlyLogs(widget.userId, widget.controllerId, selectedDate);
-      });
-    }
   }
 
   @override
@@ -131,20 +189,29 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
             ),
             title: const Text('Sensor Data Charts'),
             actions: [
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: Text(
-                    "${selectedDate.toLocal()}".split(' ')[0],
-                    style: const TextStyle(fontSize: 14, color: Colors.white),
-                  ),
-                ),
-              ),
               Padding(
                 padding: const EdgeInsets.only(right: 8),
-                child: IconButton(
-                  icon: const Icon(Icons.calendar_today),
-                  onPressed: () => _selectDate(context),
+                child: TextButton(
+                  isSemanticButton: true,
+                  onPressed: () {
+                    showDateRangePickerDialog(
+                      context: context,
+                      builder: datePickerBuilder,
+                      offset: Offset(MediaQuery.sizeOf(context).width-525, 40),
+                    ).then((value) {
+                      if(value!=null){
+                        selectedDateRange = value;
+                        getSensorHourlyLogs(widget.userId, widget.controllerId);
+                      }
+                    },);
+                  },
+                  child: Text(
+                    selectedDateRange != null &&
+                        selectedDateRange?.start.day == selectedDateRange?.end.day
+                        ? '${selectedDateRange?.start.day}-${selectedDateRange?.start.month}-${selectedDateRange?.start.year}'
+                        : '${selectedDateRange?.start.day}-${selectedDateRange?.start.month}-${selectedDateRange?.start.year} to ${selectedDateRange?.end.day}-${selectedDateRange?.end.month}-${selectedDateRange?.end.year}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
             ],
@@ -156,17 +223,64 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
           ),
         ),
       ):
-      Scaffold(appBar:AppBar(title: const Text('Sensor Data Charts'),), body: const Center(child: Text('Sensor Hourly log not found'),)),
+      Scaffold(
+        appBar:AppBar(
+          title: const Text('Sensor Data Charts'),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: TextButton(
+                isSemanticButton: true,
+                onPressed: () {
+                  showDateRangePickerDialog(
+                    context: context,
+                    builder: datePickerBuilder,
+                    offset: Offset(MediaQuery.sizeOf(context).width-525, 40),
+                  ).then((value) {
+                    if(value!=null){
+                      selectedDateRange = value;
+                      getSensorHourlyLogs(widget.userId, widget.controllerId);
+                    }
+                  },);
+                },
+                child: Text(
+                  selectedDateRange != null &&
+                      selectedDateRange?.start.day == selectedDateRange?.end.day
+                      ? '${selectedDateRange?.start.day}-${selectedDateRange?.start.month}-${selectedDateRange?.start.year}'
+                      : '${selectedDateRange?.start.day}-${selectedDateRange?.start.month}-${selectedDateRange?.start.year} to ${selectedDateRange?.end.day}-${selectedDateRange?.end.month}-${selectedDateRange?.end.year}',
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
+        body: visibleLoading? Visibility(
+          visible: visibleLoading,
+          child: Container(
+            height: double.infinity,
+            color: Colors.transparent,
+            padding: EdgeInsets.fromLTRB(MediaQuery.sizeOf(context).width/2 - 25, 0, MediaQuery.sizeOf(context).width/2 - 25, 0),
+            child: const LoadingIndicator(
+              indicatorType: Indicator.ballPulse,
+            ),
+          ),
+        ):
+        const Center(child: Text('Sensor Hourly log not found'),),
+      ),
     );
   }
 
   Row buildLineChart(Map<String, List<SensorHourlyData>> sensorData, String snrName) {
     final Set<String> allHours = {};
+
+    // Collect all unique hours from the sensor data
     sensorData.values.expand((hourlyData) => hourlyData).forEach((data) {
       allHours.add(data.hour);
     });
 
-    final List<String> sortedHours = allHours.toList()..sort();
+    // Sort the hours and remove duplicate dates, keeping the date only for the first occurrence
+    final List<String> sortedHours = removeDuplicateDates(allHours.toList()..sort());
+
     final Map<String, List<SensorHourlyData>> groupedByName = {};
 
     sensorData.values.expand((hourlyData) => hourlyData).forEach((data) {
@@ -182,43 +296,42 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
     groupedByName.forEach((sensorName, sensorValues) {
       final color = sensorColors[colorIndex % sensorColors.length];
       colorIndex++;
+      //print(sensorValues);
 
       final dataPoints = sortedHours.map((hour) {
-        final data = sensorValues.firstWhere((d) => d.hour == hour,
+        //print(hour);
+        final data = sensorValues.firstWhere(
+              (d) => d.hour == hour,
           orElse: () => SensorHourlyData(id: '', value: 0.0, hour: hour, name: sensorName, sNo: 0),
         );
+        //print(data.value);
         return data;
       }).toList();
-
 
       series.add(LineSeries<SensorHourlyData, String>(
         name: sensorName,
         dataSource: dataPoints,
         xValueMapper: (SensorHourlyData data, _) => data.hour,
         yValueMapper: (SensorHourlyData data, _) {
-
-          if(snrName=='EC Sensor' || snrName=='PH Sensor'){
+          if (snrName == 'EC Sensor' || snrName == 'PH Sensor') {
             return data.value;
-          }else{
+          } else {
             String? result = getUnitByParameter(context, snrName, data.value.toString());
             String? numericString = result?.replaceAll(RegExp(r'[^\d.]+'), '');
             double? value = double.tryParse(numericString!);
             return value ?? 0.0;
           }
-
         },
         color: color,
         dataLabelSettings: const DataLabelSettings(isVisible: true),
         dataLabelMapper: (SensorHourlyData data, _) {
-
-          if(snrName=='EC Sensor' || snrName=='PH Sensor'){
+          if (snrName == 'EC Sensor' || snrName == 'PH Sensor') {
             return data.value.toString();
-          }else{
+          } else {
             String? result = getUnitByParameter(context, snrName, data.value.toString());
             String? numericString = result?.replaceAll(RegExp(r'[^\d.]+'), '');
             return '$numericString';
           }
-
         },
         markerSettings: const MarkerSettings(isVisible: true),
         dashArray: [4, 4],
@@ -237,17 +350,51 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
               title: AxisTitle(text: 'Hours'),
               majorGridLines: const MajorGridLines(width: 0),
               axisLine: const AxisLine(width: 0),
+              visibleMinimum: 0,
+              visibleMaximum: 10, // Adjust based on initial view
+              interval: 0.7,
             ),
             primaryYAxis: NumericAxis(
               title: AxisTitle(text: getSensorUnit(snrName, context)),
             ),
             legend: const Legend(isVisible: true, position: LegendPosition.right),
             tooltipBehavior: TooltipBehavior(enable: true),
+            zoomPanBehavior: ZoomPanBehavior(
+              enablePanning: true,
+              enablePinching: true,
+              enableDoubleTapZooming: true,
+            ),
             series: series,
           ),
         ),
       ],
     );
+  }
+
+  List<String> removeDuplicateDates(List<String> hours) {
+    String? previousDate;
+    return hours.map((hour) {
+
+      final parts = hour.split(' ');
+      final currentDate = parts[0];
+      /*List<String> partsD = currentDate.split('-'); // Split into year, month, and date
+      String lastPart = "${partsD[2]}-${partsD[1]}";*/
+
+      final time = parts[1];
+
+      //return '${currentDate.split('-').last}-$time';
+      return hour;
+      /*final parts = hour.split(' '); // Split into date and time
+      final currentDate = parts[0];
+      final time = parts[1];
+      //return time;
+      if (currentDate == previousDate) {
+        return time; // Return only time if date is duplicate
+      } else {
+        previousDate = currentDate;
+        return hour; // Return full timestamp for the first occurrence
+      }*/
+    }).toList();
   }
 
 
@@ -256,6 +403,24 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
       scrollDirection: Axis.horizontal,
       child: SensorDataTable(sensorData: sensorData, snrName: snrName,),
     );
+  }
+
+  void indicatorViewShow() {
+    if(mounted){
+      setState(() {
+        visibleLoading = true;
+      });
+    }
+  }
+
+  void indicatorViewHide() {
+    if(mounted){
+      Future.delayed(const Duration(milliseconds: 500), () {
+        setState(() {
+          visibleLoading = false;
+        });
+      });
+    }
   }
 
 }

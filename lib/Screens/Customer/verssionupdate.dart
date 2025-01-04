@@ -112,7 +112,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
   }
 
   Update(int index) async {
-     sendHttp("3","Controller Version Update");
+    sendHttp("3","Controller Version Update");
     mergedList[index]["status"] = 'Started';
     iconData = Icons.start;
     iconcolor = Colors.blue;
@@ -284,7 +284,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
                           fontSize: 14, fontWeight: FontWeight.bold),
                     )
                         : const Text('Status'),
-                     // Center(child: Text('${mqttPayloadProvider.messageFromHw ?? 'Status'} ',style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),)),
+                    // Center(child: Text('${mqttPayloadProvider.messageFromHw ?? 'Status'} ',style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),)),
                     Container(
                       height: 1,
                       color: Colors.grey,
@@ -356,14 +356,14 @@ class _ResetVerssionState extends State<ResetVerssion> {
 
   String formatNumber(String input) {
 
-     if (input.isEmpty)
-       {
-         return ',';
-       }
-     if (!input.contains('.')) {
+    if (input.isEmpty)
+    {
+      return ',';
+    }
+    if (!input.contains('.')) {
       input += '.0';
     }
-     double number = double.parse(input);
+    double number = double.parse(input);
     number *= 10;
     String result = number.toStringAsFixed(0);
     while (result.length < 4) {
@@ -389,7 +389,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
     Map<String, dynamic> body = {
       "userId": widget.userId,
       "controllerId": widget.controllerId,
-       "loraFrequency": '${frequency1Controller.text},${sf1Controller.text},${frequency2Controller.text},${sf2Controller.text}',
+      "loraFrequency": '${frequency1Controller.text},${sf1Controller.text},${frequency2Controller.text},${sf2Controller.text}',
       "modifyUser": widget.userId
     };
     print('body $body');
@@ -405,24 +405,24 @@ class _ResetVerssionState extends State<ResetVerssion> {
       }
     }
 
-  if (MQTTManager().isConnected == true) {
-  await validatePayloadSent(
-  dialogContext: context,
-  context: context,
-  mqttPayloadProvider: mqttPayloadProvider,
-  acknowledgedFunction: () async{
-  GlobalSnackBar.show(
-      context, 'Frequency value set successfully.', 200);
-   },
-  payload: payLoadFinal,
-  payloadCode: '6500',
-  deviceId: mergedList[selectindex!]["deviceId"]
-  );
-  } else {
-  GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
+    if (MQTTManager().isConnected == true) {
+      await validatePayloadSent(
+          dialogContext: context,
+          context: context,
+          mqttPayloadProvider: mqttPayloadProvider,
+          acknowledgedFunction: () async{
+            GlobalSnackBar.show(
+                context, 'Frequency value set successfully.', 200);
+          },
+          payload: payLoadFinal,
+          payloadCode: '6500',
+          deviceId: mergedList[selectindex!]["deviceId"]
+      );
+    } else {
+      GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
+    }
+fetchData();
   }
-
-}
 
 
   void _showFrequencyDialog(BuildContext context,int index,bool plusTrue) {
@@ -430,64 +430,64 @@ class _ResetVerssionState extends State<ResetVerssion> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-      String loravalue =  mergedList[index]['loraFrequency']!;
-  if( loravalue.isNotEmpty)
- {
- List<String> splitValues = loravalue.split(',');
- frequency1Controller.text = splitValues[0];
- sf1Controller.text = splitValues[1];
- frequency2Controller.text = splitValues[2];
- sf2Controller.text = splitValues[3];
- }
- else
-   {
-     frequency1Controller.text = '';
-     sf1Controller.text = '';
-     frequency2Controller.text = '';
-     sf2Controller.text = '';
-   }
-          return AlertDialog(
+        String loravalue =  mergedList[index]['loraFrequency']!;
+        if( loravalue.isNotEmpty)
+        {
+          List<String> splitValues = loravalue.split(',');
+          frequency1Controller.text = splitValues[0];
+          sf1Controller.text = splitValues[1];
+          frequency2Controller.text = splitValues[2];
+          sf2Controller.text = splitValues[3];
+        }
+        else
+        {
+          frequency1Controller.text = '';
+          sf1Controller.text = '';
+          frequency2Controller.text = '';
+          sf2Controller.text = '';
+        }
+        return AlertDialog(
           title: const Text('LoRa Frequency'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-                      Card(
-  child: Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: Column(
-      children: [
-        TextField(
-          controller: frequency1Controller,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration:  const InputDecoration(
-            hintText: 'Enter LoRa Frequency 1 (000.0)',
-            labelText: "LoRa Frequency 1 ",
-          ),
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(
-                r'^\d{1,3}(\.\d{0,1})?$|^99(\.0)?$|^99\.9$')),
-          ],
-        ),
-        TextField(
-          controller: sf1Controller,
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: frequency1Controller,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration:  const InputDecoration(
+                          hintText: 'Enter LoRa Frequency 1 (000.0)',
+                          labelText: "LoRa Frequency 1 ",
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(
+                              r'^\d{1,3}(\.\d{0,1})?$|^99(\.0)?$|^99\.9$')),
+                        ],
+                      ),
+                      TextField(
+                        controller: sf1Controller,
 
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration:  const InputDecoration(
-             hintText: 'Enter SF value (7-12)',
-            labelText: "SF value ",
-          ),
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(
-              r'^(0|1|2|7|8|9|10|11|12)$', // Regex to allow values between 7 and 12 (no decimal)
-            )),
-          ],
-        ),
-      ],
-    ),
-  ),
-),
-                      const SizedBox(height: 16),
-                       plusTrue ? Card(
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration:  const InputDecoration(
+                          hintText: 'Enter SF value (7-12)',
+                          labelText: "SF value ",
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(
+                            r'^(0|1|2|7|8|9|10|11|12)$', // Regex to allow values between 7 and 12 (no decimal)
+                          )),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              plusTrue ? Card(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
@@ -532,41 +532,41 @@ class _ResetVerssionState extends State<ResetVerssion> {
               child: const Text('Cancel'),
             ),
             TextButton(
-            onPressed: () {
-        String freq1 = frequency1Controller.text;
-        String freq2 = frequency2Controller.text;
-        String sf1 = sf1Controller.text;
-        String sf2 = sf2Controller.text;
+              onPressed: () {
+                String freq1 = frequency1Controller.text;
+                String freq2 = frequency2Controller.text;
+                String sf1 = sf1Controller.text;
+                String sf2 = sf2Controller.text;
 
-        bool isValidFreq1 = _isValidFrequency(freq1) && sf1.isNotEmpty;
-        bool isValidFreq2 = _isValidFrequency(freq2) && sf2.isNotEmpty;
+                bool isValidFreq1 = _isValidFrequency(freq1) && sf1.isNotEmpty;
+                bool isValidFreq2 = _isValidFrequency(freq2) && sf2.isNotEmpty;
 
-        if (plusTrue)
-        {
-          if(isValidFreq1 && isValidFreq2)
-            {
-              FrequnceAll();
-              Navigator.of(context).pop();
-            }
-          else {
-            _showErrorDialog(context);
-          }
-        } else {
+                if (plusTrue)
+                {
+                  if(isValidFreq1 && isValidFreq2)
+                  {
+                    FrequnceAll();
+                    Navigator.of(context).pop();
+                  }
+                  else {
+                    _showErrorDialog(context);
+                  }
+                } else {
 
-          if(isValidFreq1)
-          {
-            FrequnceAll();
-            Navigator.of(context).pop();
-          }
-          else {
-            _showErrorDialog(context);
-          }
-        }
+                  if(isValidFreq1)
+                  {
+                    FrequnceAll();
+                    Navigator.of(context).pop();
+                  }
+                  else {
+                    _showErrorDialog(context);
+                  }
+                }
 
 
-        },
-        child: const Text('Send'),
-        ),
+              },
+              child: const Text('Send'),
+            ),
           ],
         );
       },
@@ -664,7 +664,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
           Future.delayed(const Duration(seconds: 2), () {
             fetchData();
           });
-           // startDelay();
+          // startDelay();
         } else if (name.contains('wrong')) {
           mergedList[selectindex!]['status'] = '${ctrldata['Message']}';
           iconData = Icons.error;
@@ -689,7 +689,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
     }
   }
 
-   void resetItem(int index) {
+  void resetItem(int index) {
     setState(() {
       checkupdatediable = 1;
       _showDialogcheck(context, "Restart", index);

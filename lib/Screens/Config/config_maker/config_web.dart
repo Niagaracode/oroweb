@@ -140,7 +140,7 @@ class _ConfigMakerForWebState extends State<ConfigMakerForWeb> {
                     var checkPump = [
                       if(configPvd.sourcePumpUpdated.any((element)=>element['deleted'] == false))
                         'sourcePump'
-                      'irrigationPump'
+                      // 'irrigationPump'
                     ];
                     for(var key in checkPump){
                       line: for(var i in configPvd.irrigationLines){
@@ -339,7 +339,7 @@ class _ConfigMakerForWebState extends State<ConfigMakerForWeb> {
                                  var checkPump = [
                                    if(configPvd.sourcePumpUpdated.any((element)=>element['deleted'] == false))
                                      'sourcePump',
-                                   'irrigationPump'
+                                   // 'irrigationPump'
                                  ];
                                  for(var key in checkPump){
                                    line: for(var i in configPvd.irrigationLines){

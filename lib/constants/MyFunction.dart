@@ -14,7 +14,7 @@ class MyFunction {
 
   Future<String?> getParameter(String key) async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(key);
+    return (prefs.getString(key) ?? "");
   }
 
   void clearMQTTPayload(context){
@@ -547,5 +547,24 @@ String formatDateTime(DateTime dateTime) {
     return '$weeks week${weeks > 1 ? 's' : ''} ago';
   } else {
     return DateFormat('MMM d, yyyy').format(dateTime);
+  }
+}
+
+String getOutputInputCount(String cName) {
+  switch (cName) {
+    case 'ORO PUMP':
+      return '5_3';
+    case 'ORO PUMP PLUS':
+      return '5_12';
+    case 'ORO SMART PLUS':
+      return '16_14';
+    case 'ORO SMART'||'ORO RTU'||'ORO RTU PLUS':
+      return '8_4';
+    case 'ORO SENSE':
+      return '0_7';
+    case 'ORO LEVEL':
+      return '0_10';
+    default:
+      return '0_0';
   }
 }

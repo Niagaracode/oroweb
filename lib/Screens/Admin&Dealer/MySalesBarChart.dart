@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../Models/DataResponse.dart';
@@ -49,7 +50,23 @@ class MySalesChartState extends State<MySalesBarChart> {
         toggleSeriesVisibility: false,
       ),
       series: seriesList,
-      tooltipBehavior: TooltipBehavior(enable: false),
+      tooltipBehavior: TooltipBehavior(
+        enable: true,
+        builder: (dynamic data, dynamic point, dynamic series, int pointIndex, int seriesIndex) {
+          final category = data as Category;
+          return Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: Text(
+              '${category.categoryName}(${category.totalProduct})',
+              style: const TextStyle(color: Colors.white, fontSize: 12),
+            ),
+          );
+        },
+      ),
       isTransposed: true,
       onLegendTapped: (LegendTapArgs args) {
         setState(() {

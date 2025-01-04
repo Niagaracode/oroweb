@@ -21,6 +21,21 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
 
   @override
   Widget build(BuildContext context) {
+    int mainLineDvcList = 0;
+    if(widget.provider.centralFilter.isNotEmpty){
+      for (var site in widget.provider.centralFilter) {
+        if (site['PrsIn']!='-') {
+          mainLineDvcList = mainLineDvcList+1;
+        }
+        if (site['PrsOut']!='-') {
+          mainLineDvcList = mainLineDvcList+1;
+        }
+
+        int filterLength = site['FilterStatus'].length;
+        mainLineDvcList = mainLineDvcList+filterLength;
+      }
+    }
+    mainLineDvcList = mainLineDvcList + (widget.provider.sourcePump.length + widget.provider.irrigationPump.length+1);
 
     return Padding(
       padding: const EdgeInsets.all(3.0),
@@ -38,8 +53,7 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
 
-            (widget.provider.centralFertilizer.isEmpty && widget.provider.localFertilizer.isEmpty &&
-                (widget.provider.sourcePump.length + widget.provider.irrigationPump.length + widget.provider.centralFilter.length + widget.provider.localFilter.length) < 7)
+            (widget.provider.centralFertilizer.isEmpty && widget.provider.localFertilizer.isEmpty && mainLineDvcList < 7)
                 ? Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -168,7 +182,7 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
                       Divider(height: 0, color: Colors.grey.shade300),
                       Container(height: 5, color: Colors.white24),
                       Divider(height: 0, color: Colors.grey.shade300),
-                      DisplayIrrigationLine(irrigationLine: widget.currentMaster.irrigationLine[0], currentLineId: 'all', currentMaster: widget.currentMaster, rWidth: (widget.provider.sourcePump.length + widget.provider.irrigationPump.length + widget.provider.centralFilter.length + widget.provider.localFilter.length+1)*70, customerId: widget.customerId,),
+                      DisplayIrrigationLine(irrigationLine: widget.currentMaster.irrigationLine[0], currentLineId: 'all', currentMaster: widget.currentMaster, rWidth: mainLineDvcList*70, customerId: widget.customerId,),
                     ],
                   ),
                 ),

@@ -76,7 +76,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
-
         if (data is Map<String, dynamic> && data["code"] == 200) {
           try {
             mySalesData = SalesDataModel.fromJson(data);
@@ -215,263 +214,119 @@ class _AdminDashboardState extends State<AdminDashboard> {
             Expanded(
               child: Column(
                 children: [
-                  Row(
-                    children: [
-                      SizedBox(
-                        height: 325,
-                        width: MediaQuery
-                            .sizeOf(context)
-                            .width - 386,
-                        child: Card(
-                          elevation: 5,
-                          surfaceTintColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                5.0),
-                          ),
-                          child: Column(
-                            children: [
-                              ListTile(
-                                title: const Text(
-                                  "Analytics Overview",
-                                  style: TextStyle(
-                                      fontSize: 20, color: Colors.black),
-                                ),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    SegmentedButton<Calendar>(
-                                      style: ButtonStyle(
-                                        backgroundColor: WidgetStateProperty
-                                            .all(
-                                            myTheme.primaryColor.withOpacity(
-                                                0.1)),
-                                        iconColor: WidgetStateProperty.all(
-                                            myTheme.primaryColor),
+                  SizedBox(
+                    height: 350,
+                    child: Card(
+                      elevation: 5,
+                      surfaceTintColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            5.0),
+                      ),
+                      child: Column(
+                        children: [
+                          ListTile(
+                            title: const Text(
+                              "Analytics Overview",
+                              style: TextStyle(
+                                  fontSize: 20, color: Colors.black),
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SegmentedButton<Calendar>(
+                                  style: ButtonStyle(
+                                    backgroundColor: WidgetStateProperty
+                                        .all(
+                                        myTheme.primaryColor.withOpacity(
+                                            0.1)),
+                                    iconColor: WidgetStateProperty.all(
+                                        myTheme.primaryColor),
+                                  ),
+                                  segments: const <ButtonSegment<Calendar>>[
+                                    ButtonSegment<Calendar>(
+                                      value: Calendar.all,
+                                      label: SizedBox(
+                                        width: 45,
+                                        child: Text('All',
+                                            textAlign: TextAlign.center),
                                       ),
-                                      segments: const <ButtonSegment<Calendar>>[
-                                        ButtonSegment<Calendar>(
-                                          value: Calendar.all,
-                                          label: SizedBox(
-                                            width: 45,
-                                            child: Text('All',
-                                                textAlign: TextAlign.center),
-                                          ),
-                                          icon: Icon(Icons.calendar_view_day),
-                                        ),
-                                        ButtonSegment<Calendar>(
-                                          value: Calendar.year,
-                                          label: SizedBox(
-                                            width: 45,
-                                            child: Text('Year',
-                                                textAlign: TextAlign.center),
-                                          ),
-                                          icon: Icon(Icons.calendar_view_month),
-                                        ),
-                                      ],
-                                      selected: <Calendar>{calendarView},
-                                      onSelectionChanged: (
-                                          Set<Calendar> newSelection) {
-                                        setState(() {
-                                          calendarView = newSelection.first;
-                                          String sldName = calendarView.name[0]
-                                              .toUpperCase() +
-                                              calendarView.name.substring(1);
-                                          getMySalesData(sldName);
-                                        });
-                                      },
+                                      icon: Icon(Icons.calendar_view_day),
                                     ),
-                                    const SizedBox(width: 16,),
-                                    Text.rich(
-                                      TextSpan(
-                                        text: 'Total Sales: ', // Regular text
-                                        style: const TextStyle(fontSize: 15),
-                                        children: <TextSpan>[
-                                          TextSpan(
-                                            text: '$totalSales',
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
+                                    ButtonSegment<Calendar>(
+                                      value: Calendar.year,
+                                      label: SizedBox(
+                                        width: 45,
+                                        child: Text('Year',
+                                            textAlign: TextAlign.center),
                                       ),
+                                      icon: Icon(Icons.calendar_view_month),
                                     ),
                                   ],
-                                ),
-                              ),
-                              Expanded(
-                                child: gettingSR ? const Center(child: SizedBox(
-                                    width: 40,
-                                    child: LoadingIndicator(
-                                        indicatorType: Indicator.ballPulse))) :
-                                MySalesBarChart(graph: mySalesData.graph,),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 8.0),
-                                child: Wrap(
-                                  spacing: 5,
-                                  runSpacing: 5,
-                                  alignment: WrapAlignment.start,
-                                  runAlignment: WrapAlignment.spaceBetween,
-                                  children: List.generate(
-                                    mySalesData.total!.length, (index) =>
-                                      Chip(
-                                        avatar: CircleAvatar(
-                                            backgroundColor: mySalesData
-                                                .total![index].color),
-                                        elevation: 3,
-                                        shape: const LinearBorder(),
-                                        label: Text(
-                                          '${index + 1} - ${mySalesData
-                                              .total![index].categoryName}',
-                                          style: const TextStyle(fontSize: 11),
-                                        ),
-                                        visualDensity: VisualDensity.compact,
-                                      ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 300,
-                        height: 325,
-                        child: Card(
-                          elevation: 5,
-                          surfaceTintColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                5.0), // Adjust the radius as needed
-                          ),
-                          child: gettingCL ?
-                          const Center(child: SizedBox(width: 40,
-                              child: LoadingIndicator(
-                                  indicatorType: Indicator.ballPulse))) :
-                          Column(
-                            children: [
-                              ListTile(
-                                title: const Text('My Dealer',
-                                    style: TextStyle(fontSize: 17)),
-                                trailing: IconButton(
-                                    tooltip: 'Create Dealer account',
-                                    icon: const Icon(Icons.person_add_outlined),
-                                    color: myTheme.primaryColor,
-                                    onPressed: () async
-                                    {
-                                      showModalBottomSheet(
-                                        context: context,
-                                        isScrollControlled: true,
-                                        builder: (context) {
-                                          return FractionallySizedBox(
-                                            heightFactor: 0.84,
-                                            widthFactor: 0.75,
-                                            child: Container(
-                                              // padding: EdgeInsets.all(16.0),
-                                              decoration: const BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
-                                              ),
-                                              child: CreateAccount(callback: callbackFunction, subUsrAccount: false, customerId: widget.userId, from: 'Admin',),
-                                            ),
-                                          );
-                                        },
-                                      );
-                                    }),
-                              ),
-                              const Divider(height: 0),
-                              Expanded(
-                                child: myDealerList.isNotEmpty ? ListView
-                                    .builder(
-                                  itemCount: myDealerList.length,
-                                  itemBuilder: (BuildContext context,
-                                      int index) {
-                                    return ListTile(
-                                      leading: const CircleAvatar(
-                                        backgroundImage: AssetImage(
-                                            "assets/images/user_thumbnail.png"),
-                                        backgroundColor: Colors.transparent,
-                                      ),
-                                      title: Text(
-                                          myDealerList[index].userName,
-                                          style: const TextStyle(fontSize: 13,
-                                              fontWeight: FontWeight.bold)),
-                                      subtitle: Text('+${myDealerList[index]
-                                          .countryCode} ${myDealerList[index]
-                                          .mobileNumber}',
-                                          style: const TextStyle(fontSize: 12,
-                                              fontWeight: FontWeight.normal)),
-                                      onTap: () {
-                                        Navigator.push(context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>  BaseScreenController(
-                                                userName: myDealerList[index]
-                                                    .userName,
-                                                countryCode: myDealerList[index]
-                                                    .countryCode,
-                                                mobileNo: myDealerList[index]
-                                                    .mobileNumber,
-                                                fromLogin: false,
-                                                userId: myDealerList[index]
-                                                    .userId,
-                                                emailId: myDealerList[index]
-                                                    .emailId,
-                                                userType: 2,
-                                              )),
-                                        );
-                                      },
-                                      trailing: IconButton(
-                                        tooltip: 'View and Add new product',
-                                        onPressed: () {
-                                          showModalBottomSheet(
-                                            context: context,
-                                            elevation: 10,
-                                            isScrollControlled: true,
-                                            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5))),
-                                            builder: (BuildContext context) {
-                                              return DeviceList(
-                                                customerID: myDealerList[index]
-                                                    .userId,
-                                                userName: myDealerList[index]
-                                                    .userName,
-                                                userID: widget.userId,
-                                                userType: 1,
-                                                productStockList: myStockList,
-                                                callback: callbackFunction,
-                                                customerType: 'Dealer',);
-                                            },
-                                          );
-                                        },
-                                        icon: const Icon(Icons.playlist_add),),
-                                    );
+                                  selected: <Calendar>{calendarView},
+                                  onSelectionChanged: (
+                                      Set<Calendar> newSelection) {
+                                    setState(() {
+                                      calendarView = newSelection.first;
+                                      String sldName = calendarView.name[0]
+                                          .toUpperCase() +
+                                          calendarView.name.substring(1);
+                                      getMySalesData(sldName);
+                                    });
                                   },
-                                ) :
-                                const Center(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(25.0),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment
-                                          .center,
-                                      children: [
-                                        Text('Customers not found.',
-                                            style: TextStyle(fontSize: 17,
-                                                fontWeight: FontWeight.normal)),
-                                        SizedBox(height: 5),
-                                        Text(
-                                            'Add your customer using top of the customer adding button.',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.normal)),
-                                        Icon(Icons.person_add_outlined),
-                                      ],
-                                    ),
+                                ),
+                                const SizedBox(width: 16,),
+                                Text.rich(
+                                  TextSpan(
+                                    text: 'Total Sales: ', // Regular text
+                                    style: const TextStyle(fontSize: 15),
+                                    children: <TextSpan>[
+                                      TextSpan(
+                                        text: '$totalSales',
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      )
-                    ],
+                          Expanded(
+                            child: gettingSR ? const Center(child: SizedBox(
+                                width: 40,
+                                child: LoadingIndicator(
+                                    indicatorType: Indicator.ballPulse))) :
+                            MySalesBarChart(graph: mySalesData.graph,),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: Wrap(
+                              spacing: 5,
+                              runSpacing: 5,
+                              alignment: WrapAlignment.start,
+                              runAlignment: WrapAlignment.spaceBetween,
+                              children: List.generate(
+                                mySalesData.total!.length, (index) =>
+                                  Chip(
+                                    avatar: CircleAvatar(
+                                        backgroundColor: mySalesData
+                                            .total![index].color),
+                                    elevation: 3,
+                                    shape: const LinearBorder(),
+                                    label: Text(
+                                      '${index + 1} - ${mySalesData
+                                          .total![index].categoryName}',
+                                      style: const TextStyle(fontSize: 11),
+                                    ),
+                                    visualDensity: VisualDensity.compact,
+                                  ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   Expanded(
                     child: Card(
@@ -613,7 +468,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                           DataCell(Center(child: Text(
                                               '${myStockList[index]
                                                   .warranty}'))),
-                                          DataCell(Center(child: IconButton(icon:const Icon(Icons.remove_circle_outline, color: Colors.redAccent,),tooltip: 'remove', onPressed: (){
+                                          DataCell(Center(child: IconButton(icon:const Icon(Icons.remove_circle_outline, color: Colors.redAccent,),tooltip: 'remove from stock', onPressed: (){
 
                                           },))),
                                         ]))),
@@ -627,6 +482,150 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     ),
                   ),
                 ],
+              ),
+            ),
+            SizedBox(
+              width: 300,
+              height: MediaQuery.sizeOf(context).height,
+              child: Card(
+                elevation: 5,
+                surfaceTintColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                      5.0), // Adjust the radius as needed
+                ),
+                child: gettingCL ?
+                const Center(child: SizedBox(width: 40,
+                    child: LoadingIndicator(
+                        indicatorType: Indicator.ballPulse))) :
+                Column(
+                  children: [
+                    ListTile(
+                      title: const Text('My Dealer',
+                          style: TextStyle(fontSize: 17)),
+                      trailing: IconButton(
+                          tooltip: 'Create Dealer account',
+                          icon: const Icon(Icons.person_add_outlined),
+                          color: myTheme.primaryColor,
+                          onPressed: () async
+                          {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              builder: (context) {
+                                return FractionallySizedBox(
+                                  heightFactor: 0.84,
+                                  widthFactor: 0.75,
+                                  child: Container(
+                                    // padding: EdgeInsets.all(16.0),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
+                                    ),
+                                    child: CreateAccount(callback: callbackFunction, subUsrAccount: false, customerId: widget.userId, from: 'Admin',),
+                                  ),
+                                );
+                              },
+                            );
+                          }),
+                    ),
+                    const Divider(height: 0),
+                    Expanded(
+                      child: myDealerList.isNotEmpty ? ListView.separated(
+                        itemCount: myDealerList.length,
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            leading: const CircleAvatar(
+                              backgroundImage: AssetImage(
+                                  "assets/images/user_thumbnail.png"),
+                              backgroundColor: Colors.transparent,
+                            ),
+                            title: Text(
+                                myDealerList[index].userName,
+                                style: const TextStyle(fontSize: 13,
+                                    fontWeight: FontWeight.bold)),
+                            subtitle: Text('+${myDealerList[index]
+                                .countryCode} ${myDealerList[index]
+                                .mobileNumber}',
+                                style: const TextStyle(fontSize: 12,
+                                    fontWeight: FontWeight.normal)),
+                            onTap: () {
+                              Navigator.push(context,
+                                MaterialPageRoute(
+                                    builder: (context) =>  BaseScreenController(
+                                      userName: myDealerList[index]
+                                          .userName,
+                                      countryCode: myDealerList[index]
+                                          .countryCode,
+                                      mobileNo: myDealerList[index]
+                                          .mobileNumber,
+                                      fromLogin: false,
+                                      userId: myDealerList[index]
+                                          .userId,
+                                      emailId: myDealerList[index]
+                                          .emailId,
+                                      userType: 2,
+                                    )),
+                              );
+                            },
+                            trailing: IconButton(
+                              tooltip: 'View and Add new product',
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  elevation: 10,
+                                  isScrollControlled: true,
+                                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5))),
+                                  builder: (BuildContext context) {
+                                    return DeviceList(
+                                      customerID: myDealerList[index]
+                                          .userId,
+                                      userName: myDealerList[index]
+                                          .userName,
+                                      userID: widget.userId,
+                                      userType: 1,
+                                      productStockList: myStockList,
+                                      callback: callbackFunction,
+                                      customerType: 'Dealer',);
+                                  },
+                                );
+                              },
+                              icon: const Icon(Icons.playlist_add),),
+                          );
+                        },
+                        separatorBuilder: (context, index) {
+                          return const Divider(
+                            color: Colors.black26,
+                            thickness: 0.3,
+                            indent: 16,
+                            endIndent: 0,
+                            height: 0,
+                          );
+                        },
+                      ):
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(25.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment
+                                .center,
+                            children: [
+                              Text('Customers not found.',
+                                  style: TextStyle(fontSize: 17,
+                                      fontWeight: FontWeight.normal)),
+                              SizedBox(height: 5),
+                              Text(
+                                  'Add your customer using top of the customer adding button.',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.normal)),
+                              Icon(Icons.person_add_outlined),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

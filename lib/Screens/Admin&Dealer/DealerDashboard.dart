@@ -4,6 +4,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:oro_irrigation_new/Screens/Admin&Dealer/sevicerequestdealer.dart';
+import 'package:popover/popover.dart';
 
 import '../../Models/DataResponse.dart';
 import '../../Models/Dealer/CustomerAlarmList.dart';
@@ -551,7 +552,7 @@ class _DealerDashboardState extends State<DealerDashboard> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
-                                  tooltip: 'chat',
+                                  tooltip: 'chart',
                                   onPressed: (){
                                     Navigator.push(
                                       context,
@@ -743,6 +744,7 @@ class _DisplayCriticalAlarmState extends State<DisplayCriticalAlarm> {
 
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
+      print(response.body);
       if (data["code"] == 200) {
         List<AlarmGroupData> alarmGroupDataList = List<AlarmGroupData>.from(data['data'].map((item) => AlarmGroupData.fromJson(item)));
         alarms.clear();
@@ -755,6 +757,7 @@ class _DisplayCriticalAlarmState extends State<DisplayCriticalAlarm> {
                 dvcName: master.deviceName,
                 location: alarm.location,
                 message: msg,
+                date: alarm.alarmRaisedDT,
               ));
             }
           }
@@ -795,13 +798,18 @@ class _DisplayCriticalAlarmState extends State<DisplayCriticalAlarm> {
           label: Text('Alarm Message', style: TextStyle(fontSize: 13)),
           size: ColumnSize.L,
         ),
+        DataColumn2(
+          label: Text('Date & Time', style: TextStyle(fontSize: 13),),
+          size: ColumnSize.M,
+        ),
       ],
       rows: List<DataRow>.generate(alarms.length, (index) {
         return DataRow(cells: [
-          DataCell(Text(alarms[index].fmName, style: const TextStyle(fontSize: 13,fontWeight: FontWeight.normal),)),
-          DataCell(Text(alarms[index].dvcName, style: const TextStyle(fontSize: 13,fontWeight: FontWeight.normal),)),
-          DataCell(Text(alarms[index].location, style: const TextStyle(fontSize: 13,fontWeight: FontWeight.normal),)),
-          DataCell(Text(alarms[index].message, style: const TextStyle(fontSize: 13,fontWeight: FontWeight.normal),)),
+          DataCell(Text(alarms[index].fmName, style: const TextStyle(fontSize: 12,fontWeight: FontWeight.normal),)),
+          DataCell(Text(alarms[index].dvcName, style: const TextStyle(fontSize: 12,fontWeight: FontWeight.normal),)),
+          DataCell(Text(alarms[index].location, style: const TextStyle(fontSize: 12,fontWeight: FontWeight.normal),)),
+          DataCell(Text(alarms[index].message, style: const TextStyle(fontSize: 12,fontWeight: FontWeight.normal),)),
+          DataCell(Text(alarms[index].date, style: const TextStyle(fontSize: 12,fontWeight: FontWeight.normal),)),
         ]);
       }),
     );

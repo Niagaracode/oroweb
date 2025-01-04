@@ -230,6 +230,10 @@ class NodeData {
   List<SensorStatus> sensor;
   int status;
   String? lastFeedbackReceivedTime;
+  int interfaceTypeId;
+  String interface;
+  String extendDeviceId;
+
 
   NodeData({
     required this.controllerId,
@@ -247,6 +251,9 @@ class NodeData {
     required this.sensor,
     required this.status,
     required this.lastFeedbackReceivedTime,
+    required this.interfaceTypeId,
+    required this.interface,
+    required this.extendDeviceId,
   });
 
   factory NodeData.fromJson(Map<String, dynamic> json) {
@@ -256,8 +263,6 @@ class NodeData {
 
     var sensorList = json['Sensor'] as List;
     List<SensorStatus> sensor = sensorList.map((sensor) => SensorStatus.fromJson(sensor)).toList();
-
-    bool lfKey = json.containsKey('LastFeedbackReceivedTime');
 
     return NodeData(
       controllerId: json['controllerId'],
@@ -274,7 +279,10 @@ class NodeData {
       rlyStatus: rlyStatus,
       sensor: sensor,
       status: json['Status'],
-      lastFeedbackReceivedTime: lfKey? json['LastFeedbackReceivedTime'] ?? '0': '0',
+      lastFeedbackReceivedTime: json['LastFeedbackReceivedTime'] ?? '--',
+      interfaceTypeId: json['interfaceTypeId'] ?? 0,
+      interface: json['interface'] ?? '',
+      extendDeviceId: json['extendDeviceId'] ?? '',
     );
   }
 
@@ -295,6 +303,9 @@ class NodeData {
       'Sensor': sensor,
       'Status': status,
       'lastFeedbackReceivedTime': lastFeedbackReceivedTime,
+      'InterfaceType': interfaceTypeId,
+      'interface': interface,
+      'extendDeviceId': extendDeviceId,
     };
   }
 }
@@ -318,12 +329,17 @@ class PumpData {
   List<dynamic> waterMeter;
   List<dynamic> pressure;
   List<dynamic> level;
-  List<dynamic> float;
+  List<dynamic> topTankHigh;
+  List<dynamic> topTankLow;
+  List<dynamic> sumpTankHigh;
+  List<dynamic> sumpTankLow;
   String onDelay;
   String onDelayCompleted;
   String onDelayLeft;
   String program;
-
+  String icEnergy;
+  String pwrFactor;
+  String pwr;
 
   PumpData({
     required this.sNo,
@@ -344,11 +360,17 @@ class PumpData {
     required this.waterMeter,
     required this.pressure,
     required this.level,
-    required this.float,
+    required this.topTankHigh,
+    required this.topTankLow,
+    required this.sumpTankHigh,
+    required this.sumpTankLow,
     required this.onDelay,
     required this.onDelayCompleted,
     required this.onDelayLeft,
     required this.program,
+    required this.icEnergy,
+    required this.pwrFactor,
+    required this.pwr,
   });
 
   factory PumpData.fromJson(Map<String, dynamic> json) {
@@ -365,6 +387,22 @@ class PumpData {
         : [];
     List<dynamic> level = json.containsKey('Level') && json['Level'] != null
         ? List<dynamic>.from(json['Level'])
+        : [];
+
+    List<dynamic> topTankHigh = json.containsKey('TopTankHigh') && json['TopTankHigh'] != null
+        ? List<dynamic>.from(json['TopTankHigh'])
+        : [];
+
+    List<dynamic> topTankLow = json.containsKey('TopTankLow') && json['TopTankLow'] != null
+        ? List<dynamic>.from(json['TopTankLow'])
+        : [];
+
+    List<dynamic> sumpTankHigh = json.containsKey('SumpTankHigh') && json['SumpTankHigh'] != null
+        ? List<dynamic>.from(json['SumpTankHigh'])
+        : [];
+
+    List<dynamic> sumpTankLow = json.containsKey('SumpTankLow') && json['SumpTankLow'] != null
+        ? List<dynamic>.from(json['SumpTankLow'])
         : [];
 
     String reason = json.containsKey('OnOffReason') && json['OnOffReason'] != null
@@ -392,11 +430,17 @@ class PumpData {
       waterMeter: waterMeter,
       pressure: pressure,
       level: level,
-      float: [],
+      topTankHigh: topTankHigh,
+      topTankLow: topTankLow,
+      sumpTankHigh: sumpTankHigh,
+      sumpTankLow: sumpTankLow,
       onDelay: onDelay,
       onDelayCompleted: json['OnDelayCompleted'] ?? '',
       onDelayLeft: json['OnDelayLeft'] ?? '',
       program: json['Program'] ?? '',
+      icEnergy: json.containsKey('E') ? json['E'] ?? '' : '',
+      pwrFactor: json.containsKey('PF') ? json['PF'] ?? '': '',
+      pwr: json.containsKey('P') ? json['P'] ?? '' : '',
     );
   }
 
@@ -420,11 +464,17 @@ class PumpData {
       'Watermeter': waterMeter,
       'Pressure': pressure,
       'Level': level,
-      'Float': float,
+      'TopTankHigh': topTankHigh,
+      'TopTankLow': topTankLow,
+      'SumpTankHigh': sumpTankHigh,
+      'SumpTankLow': sumpTankLow,
       'OnDelay': onDelay,
       'OnDelayCompleted': onDelayCompleted,
       'OnDelayLeft': onDelayLeft,
       'Program': program,
+      'E': icEnergy,
+      'PF': pwrFactor,
+      'P': pwr,
     };
   }
 }

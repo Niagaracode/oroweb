@@ -58,6 +58,8 @@ class _AddProductState extends State<AddProduct> {
         selection: TextSelection.collapsed(offset: imeiController.text.length),
       );
     });
+    ctrlWrM.text = '15';
+    ctrlDofM.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
   }
 
 
@@ -100,6 +102,7 @@ class _AddProductState extends State<AddProduct> {
       final response = await HttpService().postRequest("getModelByCategoryId", {"categoryId": categoryId.toString()});
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        modelEntries.clear();
         final models = data["data"] as List?;
         if (models != null) {
           setState(() {
@@ -484,6 +487,8 @@ class _AddProductState extends State<AddProduct> {
     return false; // IMEI does not exist
   }
 
+
+
   void _showAlertDialog(String title , String message)
   {
     showDialog(
@@ -505,6 +510,7 @@ class _AddProductState extends State<AddProduct> {
       ),
     );
   }
+
 }
 
 class SimpleCategory {

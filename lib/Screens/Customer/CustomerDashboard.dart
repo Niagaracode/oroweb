@@ -123,7 +123,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                 Provider.of<MqttPayloadProvider>(context).nodeConnection(true);
               }else{
                 if(items['SNo']!=0){
-                  print(items['DeviceId']);
+                  //print(items['DeviceId']);
                   Provider.of<MqttPayloadProvider>(context).nodeConnection(false);
                 }
               }
@@ -140,7 +140,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
         print(e);
       }
 
-      if(widget.siteData.master[widget.masterInx].irrigationLine[widget.lineIdx].sNo==0){
+      if(widget.siteData.master[widget.masterInx].irrigationLine[widget.lineIdx].sNo==0 || widget.siteData.master[widget.masterInx].irrigationLine.length==1){
         return Column(
           children: [
             provider.liveSync? stoppedAnimation(): const SizedBox(),
@@ -1076,10 +1076,220 @@ class SensorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if(sensorType != 'Pressure Switch'){
+      return Container(
+        width: 150,
+        margin: const EdgeInsets.only(left: 4, right: 4),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            const SizedBox(
+              width: 10,
+              height: 3,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  VerticalDivider(width: 0),
+                  SizedBox(width: 4),
+                  VerticalDivider(width: 0),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 10, right: 10),
+              child: Container(
+                width: 150,
+                height: 17,
+                decoration: BoxDecoration(
+                  color: Colors.yellow,
+                  borderRadius: const BorderRadius.all(Radius.circular(2)),
+                  border: Border.all(
+                    color: Colors.grey,
+                    width: 0.5,
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    getUnitByParameter(context, sensorType, sensor.value.toString()) ?? '',
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                showPopover(
+                  context: context,
+                  bodyBuilder: (context) {
+                    Map<String, dynamic> jsonData = jsonDecode(jsonEncode(sensorData));
+                    Map<String, List<Map<String, dynamic>>> filteredData = {};
+
+                    jsonData.forEach((key, value) {
+                      var filteredList = (value as List)
+                          .where((item) => item['sNo']==sensor.sNo)
+                          .toList();
+                      if (filteredList.isNotEmpty) {
+                        filteredData[key] = List<Map<String, dynamic>>.from(filteredList);
+                      }
+                    });
+
+                    String input = getUnitByParameter(context, sensorType, sensor.value.toString()) ?? '';
+                    String numericValue = extractNumber(input);
+
+                    return Row(
+                      children: [
+                        SizedBox(
+                          width: 450,
+                          height: 175,
+                          child: buildLineChart(context, filteredData, sensorType, sensor.name, sensor.moistureType!),
+                        ),
+                        SizedBox(
+                          width: 100,
+                          height: 100,
+                          child: SfRadialGauge(
+                            axes: <RadialAxis>[
+                              RadialAxis(
+                                minimum: 0,
+                                maximum: sensorType=='Moisture Sensor'?200:sensorType=='Pressure Sensor'?12:100,
+                                pointers: <GaugePointer>[
+                                  NeedlePointer(
+                                      value: double.parse(numericValue),
+                                      needleEndWidth: 3, needleColor: Colors.black54),
+                                  RangePointer(
+                                    value: sensorType=='Moisture Sensor'?200.0:100.0,
+                                    width: 0.30,
+                                    sizeUnit: GaugeSizeUnit.factor,
+                                    color: const Color(0xFF494CA2),
+                                    animationDuration: 1000,
+                                    animationType: AnimationType.easeOutBack,
+                                    gradient: SweepGradient(
+                                      colors: sensorType == "Water Meter" ? <Color>[
+                                        Colors.teal.shade300,
+                                        Colors.teal.shade400,
+                                        Colors.teal.shade500,
+                                        Colors.teal.shade600
+                                      ]:
+                                      <Color>[
+                                        Colors.tealAccent,
+                                        Colors.orangeAccent,
+                                        Colors.redAccent,
+                                        Colors.redAccent
+                                      ],
+                                      stops: const <double>[0.15, 0.50, 0.70, 1.00],
+                                    ),
+                                    enableAnimation: true,
+                                  ),
+                                ],
+                                showFirstLabel: false,
+                                annotations: <GaugeAnnotation>[
+                                  GaugeAnnotation(
+                                    widget: Text(
+                                      numericValue,
+                                      style: const TextStyle(
+                                          fontSize: 10, fontWeight: FontWeight.bold),
+                                    ),
+                                    angle: 90,
+                                    positionFactor: 0.8,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                  onPop: () => print('Popover was popped!'),
+                  direction: PopoverDirection.bottom,
+                  width: 550,
+                  height: 175,
+                  arrowHeight: 15,
+                  arrowWidth: 30,
+                  barrierColor: Colors.black54,
+                  arrowDyOffset: -20,
+                );
+              },
+              style: ButtonStyle(
+                padding: WidgetStateProperty.all(EdgeInsets.zero),
+                minimumSize: WidgetStateProperty.all(Size.zero),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                backgroundColor: WidgetStateProperty.all(Colors.transparent),
+              ),
+              child: Image.asset(
+                imagePath,
+                width: 35,
+                height: 35,
+              ),
+            ),
+            Text(
+              sensor.name.isNotEmpty ? sensor.name : sensor.id,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 10, color: Colors.black54),
+            ),
+          ],
+        ),
+      );
+    }
     return Container(
       width: 150,
       margin: const EdgeInsets.only(left: 4, right: 4),
       child: Column(
+        children: [
+          SizedBox(
+            width: 150,
+            height: 50,
+            child: Stack(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(left: 32),
+                  child: SizedBox(
+                    width: 10,
+                    height: 17,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        VerticalDivider(width: 0),
+                        SizedBox(width: 3),
+                        VerticalDivider(width: 0),
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 15,
+                  left: 30,
+                  child: Image.asset(
+                    imagePath,
+                    width: 35,
+                    height: 35,
+                  ),
+                ),
+                Positioned(
+                  top: 3,
+                  left: 43,
+                  child: CircleAvatar(
+                    radius: 9,
+                    backgroundColor: Colors.black45,
+                    child: CircleAvatar(radius: 6, backgroundColor:sensor.value == '1'? Colors.redAccent:Colors.lightGreenAccent,),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            sensor.name.isNotEmpty ? sensor.name : sensor.id,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 10, color: Colors.black54),
+          )
+        ],
+      ),
+      /*child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           const SizedBox(
@@ -1095,140 +1305,15 @@ class SensorWidget extends StatelessWidget {
               ],
             ),
           ),
-          sensorType != 'Pressure Switch'?Padding(
-            padding: const EdgeInsets.only(left: 10, right: 10),
-            child: Container(
-              width: 150,
-              height: 17,
-              decoration: BoxDecoration(
-                color: Colors.yellow,
-                borderRadius: const BorderRadius.all(Radius.circular(2)),
-                border: Border.all(
-                  color: Colors.grey,
-                  width: 0.5,
-                ),
-              ),
-              child: Center(
-                child: Text(
-                  getUnitByParameter(context, sensorType, sensor.value.toString()) ?? '',
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ):
           CircleAvatar(
             radius: 9,
             backgroundColor: Colors.black45,
             child: CircleAvatar(radius: 6, backgroundColor:sensor.value == '1'? Colors.redAccent:Colors.greenAccent,),
           ),
-          TextButton(
-            onPressed: sensorType != 'Pressure Switch'? () {
-              showPopover(
-                context: context,
-                bodyBuilder: (context) {
-                  Map<String, dynamic> jsonData = jsonDecode(jsonEncode(sensorData));
-                  Map<String, List<Map<String, dynamic>>> filteredData = {};
-
-                  jsonData.forEach((key, value) {
-                    var filteredList = (value as List)
-                        .where((item) => item['sNo']==sensor.sNo)
-                        .toList();
-                    if (filteredList.isNotEmpty) {
-                      filteredData[key] = List<Map<String, dynamic>>.from(filteredList);
-                    }
-                  });
-
-                  String input = getUnitByParameter(context, sensorType, sensor.value.toString()) ?? '';
-                  String numericValue = extractNumber(input);
-
-                  return Row(
-                    children: [
-                      SizedBox(
-                        width: 450,
-                        height: 175,
-                        child: buildLineChart(context, filteredData, sensorType, sensor.name, sensor.moistureType!),
-                      ),
-                      SizedBox(
-                        width: 100,
-                        height: 100,
-                        child: SfRadialGauge(
-                          axes: <RadialAxis>[
-                            RadialAxis(
-                              minimum: 0,
-                              maximum: sensorType=='Moisture Sensor'?200:sensorType=='Pressure Sensor'?12:100,
-                              pointers: <GaugePointer>[
-                                NeedlePointer(
-                                    value: double.parse(numericValue),
-                                    needleEndWidth: 3, needleColor: Colors.black54),
-                                RangePointer(
-                                  value: sensorType=='Moisture Sensor'?200.0:100.0,
-                                  width: 0.30,
-                                  sizeUnit: GaugeSizeUnit.factor,
-                                  color: const Color(0xFF494CA2),
-                                  animationDuration: 1000,
-                                  animationType: AnimationType.easeOutBack,
-                                  gradient: SweepGradient(
-                                    colors: sensorType == "Water Meter" ? <Color>[
-                                      Colors.teal.shade300,
-                                      Colors.teal.shade400,
-                                      Colors.teal.shade500,
-                                      Colors.teal.shade600
-                                    ]:
-                                    <Color>[
-                                      Colors.tealAccent,
-                                      Colors.orangeAccent,
-                                      Colors.redAccent,
-                                      Colors.redAccent
-                                    ],
-                                    stops: const <double>[0.15, 0.50, 0.70, 1.00],
-                                  ),
-                                  enableAnimation: true,
-                                ),
-                              ],
-                              showFirstLabel: false,
-                              annotations: <GaugeAnnotation>[
-                                GaugeAnnotation(
-                                  widget: Text(
-                                    numericValue,
-                                    style: const TextStyle(
-                                        fontSize: 10, fontWeight: FontWeight.bold),
-                                  ),
-                                  angle: 90,
-                                  positionFactor: 0.8,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                },
-                onPop: () => print('Popover was popped!'),
-                direction: PopoverDirection.bottom,
-                width: 550,
-                height: 175,
-                arrowHeight: 15,
-                arrowWidth: 30,
-                barrierColor: Colors.black54,
-                arrowDyOffset: -20,
-              );
-            } : null,
-            style: ButtonStyle(
-              padding: WidgetStateProperty.all(EdgeInsets.zero),
-              minimumSize: WidgetStateProperty.all(Size.zero),
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              backgroundColor: WidgetStateProperty.all(Colors.transparent),
-            ),
-            child: Image.asset(
-              imagePath,
-              width: 35,
-              height: 35,
-            ),
+          Image.asset(
+            imagePath,
+            width: 35,
+            height: 35,
           ),
           Text(
             sensor.name.isNotEmpty ? sensor.name : sensor.id,
@@ -1236,7 +1321,7 @@ class SensorWidget extends StatelessWidget {
             style: const TextStyle(fontSize: 10, color: Colors.black54),
           ),
         ],
-      ),
+      ),*/
     );
   }
 

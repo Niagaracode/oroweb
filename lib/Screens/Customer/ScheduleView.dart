@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 import '../../constants/http_service.dart';
 import '../../state_management/MqttPayloadProvider.dart';
@@ -13,6 +14,7 @@ import '../../widgets/SCustomWidgets/custom_date_picker.dart';
 import '../../widgets/SCustomWidgets/custom_snack_bar.dart';
 import '../../widgets/SCustomWidgets/custom_timeline_widget.dart';
 import 'IrrigationProgram/irrigation_program_main.dart';
+import 'IrrigationProgram/preview_screen.dart';
 import 'IrrigationProgram/program_library.dart';
 import 'IrrigationProgram/schedule_screen.dart';
 
@@ -40,6 +42,7 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> with TickerProv
   bool isToday = false;
   HttpService httpService = HttpService();
   List<String> sentMessage = [];
+  DateTime _focusedDay = DateTime.now();
 
   @override
   void initState() {
@@ -54,7 +57,7 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> with TickerProv
     )..repeat();
     if(mounted) {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        scheduleViewProvider.fetchData(widget.deviceId, widget.userId, widget.controllerId, context);
+        scheduleViewProvider.fetchData(widget.deviceId, widget.customerId, widget.controllerId, context);
         scheduleViewProvider.updateSelectedProgramCategory(0);
       });
     }
@@ -74,7 +77,7 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> with TickerProv
         builder: (BuildContext context, BoxConstraints constraints) {
           return Row(
             children: [
-              Expanded(
+              /*Expanded(
                   child: buildCustomSideMenuBar(
                     context: context,
                     title: "Schedule view",
@@ -102,6 +105,163 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> with TickerProv
                         ),
                     ],
                   )
+              ),*/
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    boxShadow: customBoxShadow,
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xff1C7C8A),
+                          Color(0xff03464F)
+                        ],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        tileMode: TileMode.clamp,
+                      )
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 25),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            const BackButton(color: Colors.white,),
+                            const SizedBox(width: 10,),
+                            Expanded(
+                              child: Text(
+                                'Scheduled Program Details',
+                                style: TextStyle(
+                                    fontSize: Theme.of(context).textTheme.titleLarge!.fontSize,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10)
+                        ),
+                        child: TableCalendar(
+                          focusedDay: _focusedDay,
+                          firstDay: DateTime.utc(2020, 10, 16),
+                          lastDay: DateTime.utc(2100, 10, 16),
+                          calendarFormat: CalendarFormat.month,
+                          calendarStyle: CalendarStyle(
+                            selectedDecoration: const BoxDecoration(
+                              gradient: linearGradientLeading,
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            cellMargin: const EdgeInsets.all(2),
+                            cellPadding: const EdgeInsets.all(0),
+                            // selectedTextStyle: TextStyle(color: Theme.of(context).primaryColorDark),
+                            // defaultTextStyle: const TextStyle(color: Colors.white),
+                            weekendTextStyle: const TextStyle(color: Colors.red),
+                            todayTextStyle: const TextStyle(color: Colors.black),
+                            todayDecoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor.withOpacity(0.5),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          headerStyle: HeaderStyle(
+                            // decoration: BoxDecoration(
+                            //   color: Colors.white,
+                            //   borderRadius: ci
+                            // ),
+                            titleCentered: true,
+                            titleTextFormatter: (date, locale) {
+                              return DateFormat('MMM yyyy', locale).format(date);
+                            },
+                            titleTextStyle: TextStyle(
+                              color: Theme.of(context).primaryColor,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            leftChevronPadding: EdgeInsets.zero,
+                            rightChevronPadding: EdgeInsets.zero,
+                            leftChevronMargin: EdgeInsets.zero,
+                            rightChevronMargin: EdgeInsets.zero,
+                            leftChevronIcon: Icon(
+                              Icons.chevron_left,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            rightChevronIcon: Icon(
+                              Icons.chevron_right,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            formatButtonVisible: false,
+                            formatButtonPadding: const EdgeInsets.symmetric(vertical: 5),
+                          ),
+                          daysOfWeekStyle: DaysOfWeekStyle(
+                            weekdayStyle: TextStyle(
+                              color: Theme.of(context).primaryColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            weekendStyle: const TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          selectedDayPredicate: (day) {
+                            return isSameDay(scheduleViewProvider.date, day);
+                          },
+                          onDaySelected: (selectedDay, focusedDay) {
+                            setState(() {
+                              scheduleViewProvider.date = selectedDay;
+                              _focusedDay = focusedDay;
+                            });
+                            scheduleViewProvider.fetchData(widget.deviceId, widget.customerId, widget.controllerId, context,);
+                            scheduleViewProvider.updateSelectedProgramCategory(0);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  // margin: EdgeInsets.symmetric(horizontal: 10),
+                 /* child: TableCalendar(
+                    focusedDay: _focusedDay,
+                    firstDay: DateTime.utc(2020, 10, 16),
+                    lastDay: DateTime.now(),
+                    calendarFormat: CalendarFormat.month,
+                    calendarStyle: CalendarStyle(
+                      selectedDecoration: BoxDecoration(
+                        gradient: linearGradientLeading,
+                        color: Theme.of(context).primaryColor,
+                        shape: BoxShape.circle,
+                      ),
+                      todayDecoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withOpacity(0.5),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    selectedDayPredicate: (day) {
+                      return isSameDay(scheduleViewProvider.date, day);
+                    },
+                    onDaySelected: (selectedDay, focusedDay) {
+                      setState(() {
+                        scheduleViewProvider.date = selectedDay;
+                        _focusedDay = focusedDay;
+                      });
+                      scheduleViewProvider.fetchData(widget.deviceId, widget.customerId, widget.controllerId, context);
+                      scheduleViewProvider.updateSelectedProgramCategory(0);
+                    },
+                    // onFormatChanged: (format) {
+                    //   if (_calendarFormat != format) {
+                    //     setState(() {
+                    //       _calendarFormat = format;
+                    //     });
+                    //   }
+                    // },
+                  ),*/
+                ),
               ),
               Expanded(
                 flex: 5,
@@ -115,7 +275,47 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> with TickerProv
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
+                            Expanded(
+                              child: SingleChildScrollView(
+                                child: Row(
+                                  children: [
+                                    for(var i = 0; i < scheduleViewProvider.programCategories.length; i++)
+                                      Row(
+                                        children: [
+                                          ActionChip.elevated(
+                                            pressElevation: 20,
+                                            label: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Text(
+                                                  scheduleViewProvider.programCategories[i].split('_').join(', ').toString(),
+                                                  style: TextStyle(
+                                                      color: scheduleViewProvider.selectedProgramCategory == i ? Colors.white : Theme.of(context).primaryColor, fontWeight: FontWeight.bold),),
+                                                const SizedBox(width: 5,),
+                                                CircleAvatar(
+                                                    radius: 12,
+                                                    backgroundColor: scheduleViewProvider.selectedProgramCategory == i ? Colors.white : Theme.of(context).primaryColor,
+                                                    child: Text("${scheduleViewProvider.scheduleCountList[i]}", style: TextStyle(color: scheduleViewProvider.selectedProgramCategory == i ? Theme.of(context).primaryColor: Colors.white, fontSize: 12, fontWeight: FontWeight.bold))
+                                                )
+                                              ],
+                                            ),
+                                            elevation: 10,
+                                            side: BorderSide.none,
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                                            backgroundColor: scheduleViewProvider.selectedProgramCategory == i ? Theme.of(context).primaryColor : null,
+                                            // color: MaterialStatePropertyAll(scheduleViewProvider.selectedProgramCategory == i ? Theme.of(context).primaryColor : null),
+                                            onPressed: () {
+                                              scheduleViewProvider.updateSelectedProgramCategory(i);
+                                            },
+                                          ),
+                                          const SizedBox(width: 20,)
+                                        ],
+                                      )
+                                  ],
+                                ),
+                              ),
+                            ),
+                            /*Row(
                               children: [
                                 const Text("Select a Date", style: TextStyle(fontWeight: FontWeight.normal),),
                                 const SizedBox(
@@ -136,7 +336,7 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> with TickerProv
                                         Future.delayed(Duration.zero, () {
                                           scheduleViewProvider.date = newDate;
                                         }).then((value) {
-                                          scheduleViewProvider.fetchData(widget.deviceId, widget.userId, widget.controllerId, context);
+                                          scheduleViewProvider.fetchData(widget.deviceId, widget.customerId, widget.controllerId, context);
                                           scheduleViewProvider.updateSelectedProgramCategory(0);
                                         });
                                       },
@@ -145,7 +345,7 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> with TickerProv
                                 ),
                                 const SizedBox(width: 20,),
                               ],
-                            ),
+                            ),*/
                             Row(
                               children: [
                                 buildActionButton(
@@ -216,7 +416,7 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> with TickerProv
                                     icon: Icons.refresh,
                                     label: "Refresh",
                                     onPressed: () {
-                                      scheduleViewProvider.fetchData(widget.deviceId, widget.userId, widget.controllerId, context);
+                                      scheduleViewProvider.fetchData(widget.deviceId, widget.customerId, widget.controllerId, context);
                                     }
                                 ),
                                 const SizedBox(width: 10,),
@@ -244,15 +444,15 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> with TickerProv
                                                       children: [
                                                         for (var i = 0; i < 12; i++)
                                                           Container(
-                                                            margin: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                                                            margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                                                             child: Row(
                                                               children: [
                                                                 CircleAvatar(
                                                                   backgroundColor: scheduleViewProvider.getStatusInfo(i.toString()).color,
                                                                   radius: 10,
                                                                 ),
-                                                                SizedBox(width: 10,),
-                                                                Text("${i != 12 ? scheduleViewProvider.getStatusInfo(i.toString()).statusString : "Auto skipped"}", style: TextStyle(fontWeight: FontWeight.w400),)
+                                                                const SizedBox(width: 10,),
+                                                                Text("${i != 12 ? scheduleViewProvider.getStatusInfo(i.toString()).statusString : "Auto skipped"}", style: const TextStyle(fontWeight: FontWeight.w400),)
                                                               ],
                                                             ),
                                                           )
@@ -383,7 +583,7 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> with TickerProv
             }]
           };
           var userData = {
-            "userId": widget.userId,
+            "userId": widget.customerId,
             "controllerId": widget.controllerId,
             "modifyUser": widget.customerId,
             "sequence": scheduleViewProvider.convertedList,
@@ -402,10 +602,10 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> with TickerProv
                     // print("updateUserSequencePriority ==> ${updateUserSequencePriority}");
                     final response = jsonDecode(updateUserSequencePriority.body);
                     if(updateUserSequencePriority.statusCode == 200) {
-                      scheduleViewProvider.sentToServer(sentMessage.join('\n'), dataToHardware, widget.userId, widget.controllerId);
+                      scheduleViewProvider.sentToServer(sentMessage.join('\n'), dataToHardware, widget.customerId, widget.controllerId);
                       ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: response['message']));
                     }
-                    scheduleViewProvider.fetchData(widget.deviceId, widget.userId, widget.controllerId, context);
+                    scheduleViewProvider.fetchData(widget.deviceId, widget.customerId, widget.controllerId, context);
                     scheduleViewProvider.updateSelectedProgramCategory(0);
                   } catch(error, stackTrace) {
                     print("error ==> $error");
@@ -1129,7 +1329,7 @@ Widget buildSideBarMenuList(
                 // boxShadow: customBoxShadow2,
                 gradient: selected ? linearGradientLeading : null,
                 border: Border.all(color: Theme.of(context).primaryColor, width: 0.3),
-                color: selected ? Theme.of(context).primaryColor : Color(0xffF2F2F2)
+                color: selected ? Theme.of(context).primaryColor : const Color(0xffF2F2F2)
             ),
             child: Center(
                 child: Padding(

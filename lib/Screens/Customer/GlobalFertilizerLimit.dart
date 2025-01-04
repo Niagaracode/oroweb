@@ -11,6 +11,7 @@ import '../../constants/http_service.dart';
 import '../../constants/theme.dart';
 import '../../state_management/FertilizerSetProvider.dart';
 import '../../state_management/GlobalFertLimitProvider.dart';
+import '../../state_management/MqttPayloadProvider.dart';
 import '../../state_management/overall_use.dart';
 import '../../widgets/TextFieldForGlobalFert.dart';
 class GlobalFertilizerLimit extends StatefulWidget {
@@ -54,8 +55,7 @@ class _GlobalFertilizerLimitState extends State<GlobalFertilizerLimit> {
     try{
       var response = await service.postRequest('getUserPlanningGlobalFertilizerLimit', {'userId' : widget.userId,'controllerId' : widget.controllerId});
       var jsonData = jsonDecode(response.body);
-      print('jsonData : $jsonData');
-      gfertpvd.editGlobalFert(jsonData['data']);
+      gfertpvd.editGlobalFert(jsonData['data'] is Map<String, dynamic> ? jsonData['data']['globalLimit'] : jsonData['data']);
     }catch(e){
       print(e.toString());
     }
@@ -63,18 +63,31 @@ class _GlobalFertilizerLimitState extends State<GlobalFertilizerLimit> {
   @override
   Widget build(BuildContext context) {
     var gfertpvd = Provider.of<GlobalFertLimitProvider>(context, listen: true);
-    var overAllPvd = Provider.of<OverAllUse>(context,listen: true);
+    var payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: true);
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: ()async{
           showDialog(context: context, builder: (context){
             return Consumer<GlobalFertLimitProvider>(builder: (context,fertSetPvd,child){
               return AlertDialog(
-                title: Text(fertSetPvd.wantToSendData == 0 ? 'Send to server' : fertSetPvd.wantToSendData == 1 ?  'Sending.....' : fertSetPvd.wantToSendData == 2 ? 'Success...' : 'Oopss!!!',style: TextStyle(color: fertSetPvd.wantToSendData == 3 ? Colors.red : Colors.green),),
-                content: fertSetPvd.wantToSendData == 0 ? Text('Are you sure want to send data ? ') : SizedBox(
+                title: Text(fertSetPvd.wantToSendData == 0
+                    ? 'Send to server' : fertSetPvd.wantToSendData == 1
+                    ?  'Sending.....' : fertSetPvd.wantToSendData == 2
+                    ? 'Success...' : fertSetPvd.wantToSendData == 3
+                    ? 'No Internet' : fertSetPvd.wantToSendData == 4
+                    ? 'Mqtt Error' : 'Code Error',style: TextStyle(color: fertSetPvd.wantToSendData == 3 ? Colors.red : Colors.green),),
+                content: fertSetPvd.wantToSendData == 0
+                    ? Text('Are you sure want to send data ? ')
+                    : SizedBox(
                   width: 200,
                   height: 200,
-                  child: fertSetPvd.wantToSendData == 2 ? Image.asset(fertSetPvd.wantToSendData == 3 ? 'assets/images/serverError.png' : 'assets/images/success.png') :LoadingIndicator(
+                  child: fertSetPvd.wantToSendData == 2
+                      ? Image.asset('assets/images/success.png')
+                      : fertSetPvd.wantToSendData == 3
+                      ? Image.asset('assets/images/serverError.png')
+                      : fertSetPvd.wantToSendData == 4
+                      ? Image.asset('assets/images/mqttError.png')
+                      : const LoadingIndicator(
                     indicatorType: Indicator.pacman,
                   ),
                 ),
@@ -82,28 +95,50 @@ class _GlobalFertilizerLimitState extends State<GlobalFertilizerLimit> {
                   if(fertSetPvd.wantToSendData == 0)
                     InkWell(
                       onTap: ()async{
-                        fertSetPvd.hwPayload();
+                        var flag = 0;
+                        setState(() {
+                          payloadProvider.messageFromHw = {};
+                        });
                         fertSetPvd.editWantToSendData(1);
+                        try{
+                          MQTTManager().publish(jsonEncode(gfertpvd.hwPayload()),'AppToFirmware/${widget.deviceId}');
+                          delayLoop : for(var i = 0;i < 30;i++){
+                            await Future.delayed(Duration(seconds: 1));
+                            print('waiting for response : ${i+1}');
+                            if(payloadProvider.messageFromHw.isNotEmpty){
+                              if(payloadProvider.messageFromHw['Code'] == '200'){
+                                flag = 1;
+                              }
+                              break delayLoop;
+                            }
+                          }
+                        }catch(e){
+                          print('error on mqtt :: ${e.toString()}');
+                        }
                         HttpService service = HttpService();
                         try{
                           var body = {
                             "userId" : widget.customerId,
                             "createUser" : widget.userId,
                             "controllerId" : widget.controllerId,
-                            'globalFertilizerLimit' : gfertpvd.globalFert
+                            'globalFertilizerLimit' : {
+                              "globalLimit": gfertpvd.globalFert,
+                              "controllerReadStatus": "0"
+                            }
                           };
                           HttpService service = HttpService();
                           var response = await service.postRequest('createUserPlanningGlobalFertilizerLimit', body);
                           var jsonData = jsonDecode(response.body);
                           if(jsonData['code'] == 200){
-                            Future.delayed(Duration(seconds: 1), () {
+                            if(flag == 0){
+                              fertSetPvd.editWantToSendData(4);
+                            }else{
                               fertSetPvd.editWantToSendData(2);
-                            });
+                            }
                           }else{
                             fertSetPvd.editWantToSendData(3);
                           }
                           print('jsonData : ${jsonData['code']}');
-                          MQTTManager().publish(jsonEncode(gfertpvd.hwPayload()),'AppToFirmware/${widget.deviceId}');
                         }catch(e){
                           print(e.toString());
                         }
@@ -234,7 +269,7 @@ class _GlobalFertilizerLimitState extends State<GlobalFertilizerLimit> {
                                               Row(
                                                 children: [
                                                   Container(
-                                                    decoration: BoxDecoration(
+                                                    decoration: const BoxDecoration(
                                                       color: Color(0xffDCF3DD),
                                                       border: Border(bottom: BorderSide(width: 0.5)),
                                                     ),
@@ -249,7 +284,7 @@ class _GlobalFertilizerLimitState extends State<GlobalFertilizerLimit> {
                                                     height: 40,
                                                     child: CustomPaint(
                                                       painter: VerticalDotBorder(borderColor: Colors.black),
-                                                      size: Size(0,40),
+                                                      size: const Size(0,40),
                                                     ),
                                                   ),
                                                 ],
@@ -646,5 +681,4 @@ class VerticalDotBorder extends CustomPainter{
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return false;
   }
-
 }
