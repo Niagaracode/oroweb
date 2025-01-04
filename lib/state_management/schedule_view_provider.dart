@@ -310,8 +310,8 @@ class ScheduleViewProvider extends ChangeNotifier {
         selectedStatus = selectedStatusList.contains(statusString);
         // selectedStatus = selectedStatusList.contains(statusList[4]);
         break;
-      default:
-        throw Exception("Unsupported status code: $code");
+       default:
+          throw Exception("Unsupported status code: $code");
     }
     return StatusInfo(innerCircleColor, statusString, iconData, statusCode, selectedStatus, reason);
   }
