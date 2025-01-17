@@ -345,20 +345,11 @@ class _ResetVerssionState extends State<ResetVerssion> {
     );
   }
 
-  // String formatNumber(String input) {
-  //    double number = double.parse(input) * 10;
-  //     String result = number.toStringAsFixed(0);
-  //     String firstPart = result.substring(0, 2);
-  //   String secondPart = result.substring(2, 4);
-  //     return '$firstPart,$secondPart';
-  // }
-
-
   String formatNumber(String input) {
 
     if (input.isEmpty)
     {
-      return ',';
+      return '0,0';
     }
     if (!input.contains('.')) {
       input += '.0';
@@ -380,13 +371,14 @@ class _ResetVerssionState extends State<ResetVerssion> {
     String firstfreequnce2 =  formatNumber(frequency2Controller.text);
     String sf1 =  sf1Controller.text;
     String sf2 =  sf2Controller.text;
-    Map<String, dynamic> payLoadFinal = {
+       sf1 = sf1.isEmpty ? "0" : sf1;
+    sf2 = sf2.isEmpty ? "0" : sf2;
+     Map<String, dynamic> payLoadFinal = {
       "6500": [
         {"6501": "$firstfreequnce1,$sf1,$firstfreequnce2,$sf2"},
       ]
     };
-    print('payLoadFinal $payLoadFinal');
-    Map<String, dynamic> body = {
+     Map<String, dynamic> body = {
       "userId": widget.userId,
       "controllerId": widget.controllerId,
       "loraFrequency": '${frequency1Controller.text},${sf1Controller.text},${frequency2Controller.text},${sf2Controller.text}',
@@ -783,3 +775,4 @@ class _BlinkingTextState extends State<BlinkingText>
     super.dispose();
   }
 }
+

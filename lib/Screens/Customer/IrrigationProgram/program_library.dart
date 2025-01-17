@@ -930,7 +930,7 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                               ? program.programName
                               : program.defaultProgramName,
                           focusNode: _programNameFocusNode,
-                          onChanged: (newValue) => program.programName = newValue,
+                          // onChanged: (newValue) => program.programName = newValue,
                           inputFormatters: [
                             LengthLimitingTextInputFormatter(20),
                             FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
@@ -940,10 +940,13 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                               return "Name cannot be empty";
                             }
                             if (programLibraryData.any((element) => element.programName == value)) {
-                              return "Name already exists";
+                                  return "Name already exists";
                             }
+                            else{
+                              program.programName = value;
                             return null;
-                          },
+                            }
+                           },
                         ),
                         const SizedBox(height: 5),
                         Container(
@@ -1021,6 +1024,10 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                           }
                           Navigator.pop(dialogContext);
                         }
+                        else
+                          {
+                            print('validate error');
+                          }
                       },
                       child: const Text('Save'),
                     ),

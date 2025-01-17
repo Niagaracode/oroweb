@@ -115,7 +115,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
     {
       mySiteList.clear();
       var data = jsonDecode(response.body);
-      //print(response.body);
+      print(response.body);
       if(data["code"]==200)
       {
         final jsonData = data["data"] as List;
