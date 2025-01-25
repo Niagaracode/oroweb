@@ -19,7 +19,7 @@ class ConstantProvider extends ChangeNotifier{
     },
     {
       'name' : 'Run List Limit',
-      'value' : '10',
+      'value' : '50',
       'type' : 1
     },
     {
@@ -179,6 +179,15 @@ class ConstantProvider extends ChangeNotifier{
   }
   void fetchSettings(dynamic data){
     generalUpdated = data['general'].isNotEmpty ? data['general'] : generalUpdated;
+    print('generalUpdated : ${generalUpdated.length}');
+    if(generalUpdated[5]['name'] != 'Pump on after valve on'){
+      generalUpdated[5] = {
+        'name' : 'Pump on after valve on',
+        'value' : false,
+        'type' : 4
+      };
+    }
+
     flag = data['controllerReadStatus'];
     setting['line'] = {};
     for(var il in data['line']){
@@ -299,8 +308,17 @@ class ConstantProvider extends ChangeNotifier{
       if(i.key == 'selector'){
         selectorList = [for(var i in i.value) i['hid']];
       }
-      if(i.key == 'tankFloat'){
-        tankFloatList = [for(var i in i.value) '${i['name']} - ${i['hid']}'];
+      // if(i.key == 'tankFloat'){
+      //   tankFloatList = [for(var i in i.value) '${i['name']} - ${i['hid']}'];
+      // }
+      if(i.key == 'float'){
+        print('there is float...');
+        print(i.value);
+        var list = [for(var i in i.value) '${i['name']} - ${i['hid']}'];
+        for(var fl in list){
+          tankFloatList.add(fl);
+        }
+        print('tankFloatList :: $tankFloatList');
       }
       if(i.key == 'default'){
         for(var j in i.value.entries){
@@ -764,7 +782,7 @@ class ConstantProvider extends ChangeNotifier{
   }
 
 
-  void generalUpdatedFunctionality(int index,String value){
+  void generalUpdatedFunctionality(int index,value){
     generalUpdated[index]['value'] = value;
     notifyListeners();
   }
@@ -1024,7 +1042,7 @@ class ConstantProvider extends ChangeNotifier{
   dynamic sendDataToHW(){
     var payload = {
       "300" : [
-        {'301': '${1},,,,${['',null].contains(generalUpdated[6]['value']) ? 1 : int.parse(generalUpdated[6]['value'])},${['',null].contains(generalUpdated[7]['value']) ? 1 : int.parse(generalUpdated[7]['value'])}'},
+        {'301': '${1},,,${generalUpdated[5]['value'] ? '1' : '0'},${['',null].contains(generalUpdated[6]['value']) ? 1 : int.parse(generalUpdated[6]['value'])},${['',null].contains(generalUpdated[7]['value']) ? 1 : int.parse(generalUpdated[7]['value'])}'},
 
       ]
     };

@@ -236,10 +236,10 @@ class SettingList {
       var value3 = setting.firstWhere((element) => element.serialNumber == 3).value;
       var value4 = setting.firstWhere((element) => element.serialNumber == 4).value;
 
-      if (value1 != null && value1 != '') result.add("$value1");
-      if (value2 != null && value2 != '') result.add("$value2");
-      if (value3 != null && value3 != '') result.add("$value3");
-      if (value4 != null && value4 != '') result.add("$value4");
+      if (value1 != null) result.add("${value1 != '' ? value1 : "0"}");
+      if (value2 != null) result.add("${value2 != '' ? value2 : "0"}");
+      if (value3 != null) result.add("${value3 != '' ? value3 : "0"}");
+      if (value4 != null) result.add("${value4 != '' ? value4 : "0"}");
     }
     return result;
   }

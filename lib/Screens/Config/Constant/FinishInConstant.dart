@@ -63,10 +63,12 @@ class _FinishInConstantState extends State<FinishInConstant> {
                             constantPvd.editWantToSendData(1);
                             HttpService service = HttpService();
                             try{
+                              print('sending payload.....');
                               setState(() {
                                 payloadProvider.messageFromHw = {};
                               });
                               MQTTManager().publish(jsonEncode(constantPvd.sendDataToHW()),'AppToFirmware/${widget.deviceId}');
+                              print('payload sended...');
                               delayLoop : for(var i = 0;i < 30;i++){
                                 await Future.delayed(Duration(seconds: 1));
                                 if(payloadProvider.messageFromHw.isNotEmpty){

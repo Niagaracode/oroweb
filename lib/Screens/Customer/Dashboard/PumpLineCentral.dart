@@ -43,6 +43,12 @@ class _PumpLineCentralState extends State<PumpLineCentral> {
 
     int? irrigationPauseFlag = getIrrigationPauseFlag(widget.crrIrrLine.id, widget.provider.payloadIrrLine);
 
+    final line = widget.provider.payloadIrrLine.firstWhere(
+          (line) => line.line == widget.crrIrrLine.id,
+      orElse: () => IrrigationLinePLD(level: [], sNo: 0, line: '', swName: '', prsIn: '', prsOut: '', dpValue: '', waterMeter: '', irrigationPauseFlag: 0, dosingPauseFlag: 0),
+    );
+
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -66,16 +72,12 @@ class _PumpLineCentralState extends State<PumpLineCentral> {
 
                     widget.provider.irrigationPump.isNotEmpty? Padding(
                       padding: EdgeInsets.only(top: widget.provider.centralFertilizer.isNotEmpty || widget.provider.localFertilizer.isNotEmpty? 38.4:0),
-                      child: InkWell(
-                        onTap: () {
+                      child:InkWell(
+                        onTap: line.level.length>1?() {
 
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
-                              final line = widget.provider.payloadIrrLine.firstWhere(
-                                    (line) => line.line == widget.crrIrrLine.id,
-                                orElse: () => IrrigationLinePLD(level: [], sNo: 0, line: '', swName: '', prsIn: '', prsOut: '', dpValue: '', waterMeter: '', irrigationPauseFlag: 0, dosingPauseFlag: 0), // Provide a valid fallback instance
-                              );
                               return AlertDialog(
                                 title: const Text('Level List'),
                                 content: line.level.isNotEmpty
@@ -142,15 +144,89 @@ class _PumpLineCentralState extends State<PumpLineCentral> {
                               );
                             },
                           );
-                        },
+                        }:null,
                         child: SizedBox(
                           width: 52.50,
-                          height: 70,
+                          height: 100,
                           child: Stack(
                             children: [
-                              widget.provider.sourcePump.isNotEmpty
+                              isPumpAvailable(widget.crrIrrLine.id, widget.provider.sourcePump)
                                   ? Image.asset('assets/images/dp_sump_src.png')
                                   : Image.asset('assets/images/dp_sump.png'),
+
+                              line.level.length==1? Positioned(
+                                top: 12,
+                                left: 0,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.yellow,
+                                    borderRadius: const BorderRadius.all(Radius.circular(2)),
+                                    border: Border.all(color: Colors.grey, width: .50),
+                                  ),
+                                  width: 52,
+                                  height: 30,
+                                  child: Center(
+                                    child: Column(
+                                      children: [
+                                        const Text(
+                                          "Level",
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        Text(
+                                          getUnitByParameter(
+                                            context,
+                                            'Level Sensor',
+                                            line.level[0].value,
+                                          ) ??
+                                              '',
+                                          style: const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ):
+                              const SizedBox(),
+
+                              line.level.length==1? Positioned(
+                                top: 43,
+                                left: 12,
+                                child: Center(
+                                  child: Text(
+                                    '${line.level[0].levelPercent}%',
+                                    style: const TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ):
+                              const SizedBox(),
+
+                              line.level.length==1? Positioned(
+                                top: 64,
+                                left: 5,
+                                child: Center(
+                                  child: Text(
+                                    line.level[0].swName ?? line.level[0].name,
+                                    style: const TextStyle(
+                                      color: Colors.black54,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ):
+                              const SizedBox(),
                             ],
                           ),
                         ),
@@ -313,6 +389,10 @@ class _PumpLineCentralState extends State<PumpLineCentral> {
       ],
     );
 
+  }
+
+  bool isPumpAvailable(String location, List<PumpData> pumps) {
+    return pumps.any((pump) => pump.location == location);
   }
 
   void sentToServer(String msg, String payLoad) async
@@ -1824,6 +1904,11 @@ class DisplayIrrigationPump extends StatefulWidget {
 
 class _DisplayIrrigationPumpState extends State<DisplayIrrigationPump> {
 
+  static const excludedReasons = [
+    '3', '4', '5', '6', '21', '22', '23', '24',
+    '25', '26', '27', '28', '29', '30', '31'
+  ];
+
   Timer? timer;
 
   @override
@@ -2030,7 +2115,32 @@ class _DisplayIrrigationPumpState extends State<DisplayIrrigationPump> {
                                         ],
                                       ),
                                     ),
-                                    int.parse(filteredPumps[index].reason)==8 || int.parse(filteredPumps[index].reason)==9?
+                                    (!excludedReasons.contains(filteredPumps[index].reason)) ? SizedBox(
+                                      height:23,
+                                      child: TextButton(
+                                        style: TextButton.styleFrom(
+                                          backgroundColor: Colors.redAccent.shade200,
+                                          textStyle: const TextStyle(color: Colors.white),
+                                        ),
+                                        onPressed: () {
+                                          if(getPermissionStatusBySNo(context, 4)){
+                                            String payload = '${filteredPumps[index].sNo},1';
+                                            String payLoadFinal = jsonEncode({
+                                              "6300": [{"6301": payload}]
+                                            });
+                                            MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceId}');
+                                            sentUserOperationToServer('${pump.swName ?? pump.name} Reset Manually', payLoadFinal);
+                                            showSnakeBar('Reset comment sent successfully');
+                                            Navigator.pop(context);
+                                          }else{
+                                            Navigator.pop(context);
+                                            GlobalSnackBar.show(context, 'Permission denied', 400);
+                                          }
+                                        },
+                                        child: const Text('Reset', style: TextStyle(fontSize: 12, color: Colors.white),),
+                                      ),
+                                    ):const SizedBox(),
+                                    /*int.parse(filteredPumps[index].reason)==8 || int.parse(filteredPumps[index].reason)==9?
                                     MaterialButton(
                                       color: Colors.orange,
                                       textColor: Colors.white,
@@ -2047,7 +2157,7 @@ class _DisplayIrrigationPumpState extends State<DisplayIrrigationPump> {
                                       child: const Text('Reset',
                                         style: TextStyle(color: Colors.white),
                                       ),
-                                    ): const SizedBox(),
+                                    ): const SizedBox(),*/
                                     const SizedBox(width: 5,),
                                   ],
                                 ),
@@ -2323,6 +2433,14 @@ class _DisplayIrrigationPumpState extends State<DisplayIrrigationPump> {
         }),
       ),
     );
+  }
+
+  String splitControllerVersion(versions){
+    List<String> versionList = versions.split(',');
+    List<String> firstSplitParts = versionList[0].split('.');
+    firstSplitParts[0] = "9";
+    versionList[0] = firstSplitParts.join('.');
+    return versionList[0];
   }
 
   int calculateOffset(int srcCount, int irgCount) {

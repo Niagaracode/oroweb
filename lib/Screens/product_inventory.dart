@@ -38,6 +38,7 @@ class ProductInventoryState extends State<ProductInventory> {
   String searchedChipName = '';
   bool filterActive = false;
   bool searched = false;
+  bool showSearchButton = false;
 
   int totalProduct = 0;
   int batchSize = 30;
@@ -184,17 +185,19 @@ class ProductInventoryState extends State<ProductInventory> {
     if(loggedUserType=='3' || widget.userType==3){
       body = {"fromUserId":null, "toUserId": widget.userId, "set":set, "limit":batchSize};
     }else{
-      if(loggedUserType==widget.userType.toString()){
-        body = {"fromUserId": widget.userId, "toUserId": null, "set":set, "limit":batchSize};
+      /*if(loggedUserType==widget.userType.toString()){
+        body = {"userId": widget.userId, "userType": widget.userType, "set":set, "limit":batchSize};
       }else{
         body = {"fromUserId": loggedUserId, "toUserId": widget.userId, "set":set, "limit":batchSize};
-      }
+      }*/
+
+      body = {"userId": widget.userId, "userType": widget.userType, "set":set, "limit":batchSize};
     }
 
     if(widget.userType == 3){
       response = await HttpService().postRequest("getCustomerProduct", body);
     }else{
-      response = await HttpService().postRequest("getProduct", body);
+      response = await HttpService().postRequest("getProductNew", body);
     }
 
     if(set==1){
@@ -259,20 +262,33 @@ class ProductInventoryState extends State<ProductInventory> {
     }
   }
 
-  Future<void> fetchFilterData(dynamic categoryId, dynamic modelId, dynamic deviceId) async {
+  bool isName(String value) {
+    final nameRegex = RegExp(r'^[a-zA-Z\s]+$');
+    return nameRegex.hasMatch(value);
+  }
+
+  Future<void> fetchFilterData(dynamic categoryId, dynamic modelId, dynamic value) async {
+
+    final isNameInput = isName(value);
 
     Map<String, dynamic> body;
-    if(loggedUserType=='3' || widget.userType==3){
-      body = {"fromUserId":null, "toUserId": widget.userId, "categoryId": categoryId, "modelId": modelId, "deviceId": deviceId};
+    /*if(loggedUserType=='3' || widget.userType==3){
+      body = {"fromUserId":null, "toUserId": widget.userId, "categoryId": categoryId, "modelId": modelId, "deviceId": value};
     }else{
       if(loggedUserType==widget.userType.toString()){
-        body = {"fromUserId": widget.userId, "toUserId": null, "categoryId": categoryId, "modelId": modelId, "deviceId": deviceId};
+        body = {"fromUserId": widget.userId, "toUserId": null, "categoryId": categoryId, "modelId": modelId, "deviceId": value};
       }else{
-        body = {"fromUserId": loggedUserId, "toUserId": widget.userId, "categoryId": categoryId, "modelId": modelId, "deviceId": deviceId};
+        body = {"fromUserId": loggedUserId, "toUserId": widget.userId, "categoryId": categoryId, "modelId": modelId, "deviceId": value};
       }
+    }*/
+
+    if(isNameInput){
+      body = {"userId": widget.userId, "userType": widget.userType, "categoryId": categoryId, "modelId": modelId, "deviceId": null, "userName" : value};
+    }else{
+      body = {"userId": widget.userId, "userType": widget.userType, "categoryId": categoryId, "modelId": modelId, "deviceId": value, "userName" : null};
     }
 
-    final response = await HttpService().postRequest("getFilteredProduct", body);
+    final response = await HttpService().postRequest("getFilteredProductNew", body);
     if (response.statusCode == 200)
     {
       if(jsonDecode(response.body)["code"]==200)
@@ -318,48 +334,68 @@ class ProductInventoryState extends State<ProductInventory> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 250,
+                    width: 300,
                     height: 40,
                     decoration: BoxDecoration(
-                        color: Colors.white, borderRadius: BorderRadius.circular(5)),
-                    child: Center(
-                      child: TextField(
-                          controller: txtFldSearch,
-                          decoration: InputDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(5),
+                      boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 1)],
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: txtFldSearch,
+                            decoration: InputDecoration(
                               prefixIcon: const Icon(Icons.search),
-                              suffixIcon: IconButton(
+                              suffixIcon: txtFldSearch.text.isNotEmpty
+                                  ? IconButton(
                                 icon: const Icon(Icons.clear),
                                 onPressed: () {
                                   setState(() {
+                                    txtFldSearch.clear();
                                     searchedChipName = '';
                                     filterActive = false;
                                     searched = false;
                                     filterProductInventoryList.clear();
-                                    txtFldSearch.clear();
+                                    showSearchButton = false; // Hide the button
                                   });
                                 },
-                              ),
-                              hintText: 'Search by device id',
-                              border: InputBorder.none),
-                          onChanged: (value) {
-                            if(value.isEmpty){
+                              )
+                                  : null,
+                              hintText: 'Search by device id / person',
+                              border: InputBorder.none,
+                            ),
+                            onChanged: (value) {
                               setState(() {
-                                searchedChipName = '';
-                                filterActive = false;
-                                searched = false;
-                                filterProductInventoryList.clear();
-                                txtFldSearch.clear();
+                                showSearchButton = value.isNotEmpty;
                               });
-                            }
-                          },
-                          onSubmitted: (value) {
-                            setState(() {
-                              filterActive = true;
-                              searchedChipName = value;
-                              fetchFilterData(null, null, value);
-                            });
-                          }
-                      ),
+                            },
+                            onSubmitted: (value) {
+                              if (value.isNotEmpty) {
+                                setState(() {
+                                  filterActive = true;
+                                  searchedChipName = value;
+                                  fetchFilterData(null, null, value);
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                        if (showSearchButton)
+                          IconButton(
+                            icon: const Icon(Icons.search, color: Colors.blue),
+                            onPressed: () {
+                              if (txtFldSearch.text.isNotEmpty) {
+                                setState(() {
+                                  filterActive = true;
+                                  searchedChipName = txtFldSearch.text;
+                                  fetchFilterData(null, null, txtFldSearch.text);
+                                });
+                              }
+                            },
+                          ),
+                      ],
                     ),
                   ),
                   const SizedBox(width: 8,),
@@ -475,6 +511,9 @@ class ProductInventoryState extends State<ProductInventory> {
     );
   }
 
+
+
+
   Widget buildWideLayout(screenWidth, screenHeight) {
     return Scaffold(
       backgroundColor: myTheme.primaryColor.withOpacity(0.02),
@@ -489,48 +528,68 @@ class ProductInventoryState extends State<ProductInventory> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 250,
+                    width: 300,
                     height: 40,
                     decoration: BoxDecoration(
-                        color: Colors.white, borderRadius: BorderRadius.circular(5)),
-                    child: Center(
-                      child: TextField(
-                          controller: txtFldSearch,
-                          decoration: InputDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(5),
+                      boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 1)],
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: txtFldSearch,
+                            decoration: InputDecoration(
                               prefixIcon: const Icon(Icons.search),
-                              suffixIcon: IconButton(
+                              suffixIcon: txtFldSearch.text.isNotEmpty
+                                  ? IconButton(
                                 icon: const Icon(Icons.clear),
                                 onPressed: () {
                                   setState(() {
+                                    txtFldSearch.clear();
                                     searchedChipName = '';
                                     filterActive = false;
                                     searched = false;
                                     filterProductInventoryList.clear();
-                                    txtFldSearch.clear();
+                                    showSearchButton = false; // Hide the button
                                   });
                                 },
-                              ),
-                              hintText: 'Search by device id',
-                              border: InputBorder.none),
-                          onChanged: (value) {
-                            if(value.isEmpty){
+                              )
+                                  : null,
+                              hintText: 'Search by device id / person',
+                              border: InputBorder.none,
+                            ),
+                            onChanged: (value) {
                               setState(() {
-                                searchedChipName = '';
-                                filterActive = false;
-                                searched = false;
-                                filterProductInventoryList.clear();
-                                txtFldSearch.clear();
+                                showSearchButton = value.isNotEmpty;
                               });
-                            }
-                          },
-                          onSubmitted: (value) {
-                            setState(() {
-                              filterActive = true;
-                              searchedChipName = value;
-                              fetchFilterData(null, null, value);
-                            });
-                          }
-                      ),
+                            },
+                            onSubmitted: (value) {
+                              if (value.isNotEmpty) {
+                                setState(() {
+                                  filterActive = true;
+                                  searchedChipName = value;
+                                  fetchFilterData(null, null, value);
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                        if (showSearchButton)
+                          IconButton(
+                            icon: const Icon(Icons.search, color: Colors.blue),
+                            onPressed: () {
+                              if (txtFldSearch.text.isNotEmpty) {
+                                setState(() {
+                                  filterActive = true;
+                                  searchedChipName = txtFldSearch.text;
+                                  fetchFilterData(null, null, txtFldSearch.text);
+                                });
+                              }
+                            },
+                          ),
+                      ],
                     ),
                   ),
                   const SizedBox(width: 8,),

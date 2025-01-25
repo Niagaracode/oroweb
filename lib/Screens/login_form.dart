@@ -31,6 +31,8 @@ class LoginForm extends StatefulWidget
 
 class _LoginFormState extends State<LoginForm> {
 
+  String countryCode = '91';
+
   @override
   void initState() {
     super.initState();
@@ -116,6 +118,7 @@ class _LoginFormState extends State<LoginForm> {
                                     ),
                                     onInputChanged: (PhoneNumber number) {
                                       //print(number);
+                                      countryCode = number.dialCode ?? '';
                                     },
                                     selectorConfig: const SelectorConfig(
                                       selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
@@ -192,11 +195,13 @@ class _LoginFormState extends State<LoginForm> {
                                         }
 
                                         Map<String, Object> body = {
+                                          'countryCode' : countryCode,
                                           'mobileNumber': _mobileNoController.text,
                                           'password': _passwordController.text,
+                                          'isMobile' : false,
                                         };
+                                        print(body);
                                         final response = await HttpService().postRequest("userSignIn", body);
-                                        //print(response.body);
                                         if(response.statusCode == 200)
                                         {
                                           var data = jsonDecode(response.body);
@@ -391,6 +396,7 @@ class _LoginFormState extends State<LoginForm> {
                                   ),
                                   onInputChanged: (PhoneNumber number) {
                                     //print(number);
+                                    countryCode = number.dialCode ?? '';
                                   },
                                   selectorConfig: const SelectorConfig(
                                     selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
@@ -462,11 +468,13 @@ class _LoginFormState extends State<LoginForm> {
                                       {
 
                                         Map<String, Object> body = {
+                                          'countryCode' : countryCode,
                                           'mobileNumber': _mobileNoController.text,
                                           'password': _passwordController.text,
+                                          'isMobile' : false,
                                         };
+                                        print(body);
                                         final response = await HttpService().postRequest("userSignIn", body);
-                                        //print(response.body);
                                         if(response.statusCode == 200)
                                         {
                                           var data = jsonDecode(response.body);
@@ -539,5 +547,6 @@ class _LoginFormState extends State<LoginForm> {
       ),
     );
   }
+
 
 }

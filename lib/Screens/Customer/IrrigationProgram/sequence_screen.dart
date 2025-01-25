@@ -153,84 +153,102 @@ class _SequenceScreenState extends State<SequenceScreen> {
                       IconButton(
                         onPressed: (){
                           showModalBottomSheet(
-                              context: context,
-                              backgroundColor: Colors.white,
-                              showDragHandle: true,
-                              builder: (BuildContext context) {
-                                return Container(
-                                  margin: const EdgeInsets.symmetric(horizontal: 10),
-                                  child: SingleChildScrollView(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        for(var index = 0; index < irrigationProgramProvider.irrigationLine!.sequence.length; index++)
-                                          Column(
-                                            children: [
-                                              Card(
-                                                child: buildListTile(
+                            context: context,
+                            backgroundColor: Colors.white,
+                            showDragHandle: true,
+                            builder: (BuildContext context) {
+                              return StatefulBuilder(
+                                builder: (BuildContext context, StateSetter setModalState) {
+                                  return Container(
+                                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                                    child: SingleChildScrollView(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          for (var index = 0; index < irrigationProgramProvider.irrigationLine!.sequence.length; index++)
+                                            Column(
+                                              children: [
+                                                Card(
+                                                  child: buildListTile(
                                                     context: context,
                                                     padding: const EdgeInsets.all(0),
                                                     isNeedBoxShadow: false,
-                                                    // titleChild: TextFormField(
-                                                    //   initialValue: irrigationProgramProvider.irrigationLine!.sequence[index]['name'],
-                                                    // ),
                                                     title: irrigationProgramProvider.irrigationLine!.sequence[index]['name'],
-                                                    subTitle: irrigationProgramProvider.irrigationLine!.sequence[index]['valve'].map((e) => e['name']).toList().join(", "),
-                                                    leading: "${index+1}",
+                                                    subTitle: irrigationProgramProvider.irrigationLine!.sequence[index]['valve']
+                                                        .map((e) => e['name'])
+                                                        .toList()
+                                                        .join(", "),
+                                                    leading: "${index + 1}",
                                                     trailing: IconButton(
-                                                        onPressed: (){
-                                                          _textEditingController.text = irrigationProgramProvider.irrigationLine!.sequence[index]['name'];
-                                                          _textEditingController.selection = TextSelection(
-                                                            baseOffset: 0,
-                                                            extentOffset: _textEditingController.text.length,
-                                                          );
-                                                          showDialog(
-                                                            context: context,
-                                                            builder: (ctx) {
-                                                              return StatefulBuilder(
-                                                                  builder: (BuildContext ctx, StateSetter stateSetter) {
-                                                                    return AlertDialog(
-                                                                      title: const Text("Edit program name"),
-                                                                      content: TextFormField(
-                                                                        autofocus: true,
-                                                                        controller: _textEditingController,
-                                                                        onChanged: (newValue) => tempSequenceName = newValue,
-                                                                        inputFormatters: [LengthLimitingTextInputFormatter(20)],
-                                                                      ),
-                                                                      actions: <Widget>[
-                                                                        TextButton(
-                                                                          onPressed: () => Navigator.of(ctx).pop(),
-                                                                          child: const Text("CANCEL", style: TextStyle(color: Colors.red),),
-                                                                        ),
-                                                                        TextButton(
-                                                                          onPressed: () {
-                                                                            Navigator.of(ctx).pop();
-                                                                            setState(() {
-                                                                              irrigationProgramProvider.irrigationLine!.sequence[index]['name'] = tempSequenceName;
-                                                                            });
-                                                                            // doneProvider.updateProgramName(tempProgramName, 'programName');
-                                                                          },
-                                                                          child: const Text("OKAY", style: TextStyle(color: Colors.green),),
-                                                                        ),
-                                                                      ],
-                                                                    );
-                                                                  }
-                                                              );
-                                                            },
-                                                          );
-                                                        },
-                                                        icon: const Icon(Icons.edit)
-                                                    )
+                                                      onPressed: () {
+                                                        _textEditingController.text = irrigationProgramProvider.irrigationLine!.sequence[index]['name'];
+                                                        _textEditingController.selection = TextSelection(
+                                                          baseOffset: 0,
+                                                          extentOffset: _textEditingController.text.length,
+                                                        );
+                                                        final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+                                                        showDialog(
+                                                          context: context,
+                                                          builder: (ctx) {
+                                                            return AlertDialog(
+                                                              title: const Text("Edit Sequence name"),
+                                                              content: Form(
+                                                                key: _formKey,
+                                                                child: TextFormField(
+                                                                  autofocus: true,
+                                                                  controller: _textEditingController,
+                                                                  // onChanged: (newValue) => tempSequenceName = newValue,
+                                                                  inputFormatters: [
+                                                                    LengthLimitingTextInputFormatter(20),
+                                                                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s.]'))
+                                                                  ],
+                                                                  validator: (value) {
+                                                                    if (value == null || value.isEmpty) {
+                                                                      return "Name cannot be empty";
+                                                                    } else if (irrigationProgramProvider.irrigationLine!.sequence.any((element) => element.programName == value)) {
+                                                                      return "Name already exists";
+                                                                    } else {
+                                                                      setState(() {
+                                                                        tempSequenceName = value;
+                                                                      });
+                                                                    }
+                                                                    return null;
+                                                                  },
+                                                                ),
+                                                              ),
+                                                              actions: <Widget>[
+                                                                TextButton(
+                                                                  onPressed: () => Navigator.of(ctx).pop(),
+                                                                  child: const Text("CANCEL", style: TextStyle(color: Colors.red)),
+                                                                ),
+                                                                TextButton(
+                                                                  onPressed: () {
+                                                                    Navigator.of(ctx).pop();
+                                                                    setModalState(() {
+                                                                      irrigationProgramProvider.irrigationLine!.sequence[index]['name'] = tempSequenceName;
+                                                                    });
+                                                                    setState(() {});
+                                                                  },
+                                                                  child: const Text("OKAY", style: TextStyle(color: Colors.green)),
+                                                                ),
+                                                              ],
+                                                            );
+                                                          },
+                                                        );
+                                                      },
+                                                      icon: Icon(Icons.edit),
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
-                                              // const SizedBox(height: 5,)
-                                            ],
-                                          ),
-                                      ],
+                                              ],
+                                            ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                );
-                              }
+                                  );
+                                },
+                              );
+                            },
                           );
                         },
                         icon: Icon(Icons.info, color: Theme.of(context).primaryColor,),

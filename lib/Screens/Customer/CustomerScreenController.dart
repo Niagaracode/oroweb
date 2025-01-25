@@ -475,10 +475,13 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
 
     return Scaffold(
       appBar: AppBar(
-        leading: const Padding(
+        leading: widget.comingFrom == 'Customer'?const Padding(
           padding: EdgeInsets.only(left: 10),
           child: Image(image: AssetImage("assets/images/oro_logo_white.png")),
-        ),
+        ):
+        IconButton(tooltip: 'back', onPressed: (){
+          Navigator.pop(context);
+        }, icon: const Icon(CupertinoIcons.arrow_left)),
         title:  Row(
           children: [
             const SizedBox(width: 10,),
@@ -1372,12 +1375,11 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Enter Password'),
+          title: Text('Enter Password'),
           content: TextField(
-            autofocus: true,
             controller: _passwordController,
             obscureText: true,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Password',
               border: OutlineInputBorder(),
             ),
@@ -1387,7 +1389,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              child: Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
@@ -1407,7 +1409,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                   _showErrorDialog(context);
                 }
               },
-              child: const Text('Submit'),
+              child: Text('Submit'),
             ),
           ],
         );
@@ -1420,14 +1422,14 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Error'),
-          content: const Text('Incorrect password. Please try again.'),
+          title: Text('Error'),
+          content: Text('Incorrect password. Please try again.'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('OK'),
+              child: Text('OK'),
             ),
           ],
         );
@@ -2005,17 +2007,41 @@ class _SideSheetClassState extends State<SideSheetClass> {
                         children: [
                           SizedBox(
                             width: double.infinity,
-                            height: calculateDynamicHeight(widget.nodeList[index]),
+                            height: calculateDynamicHeight(widget.nodeList[index])+20,
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: <Widget>[
+                                Container(
+                                  color: Colors.teal.shade100,
+                                  width : 370,
+                                  height: 25,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 5, right: 5),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Text('Missed communication :', style: TextStyle(fontWeight: FontWeight.normal),),
+                                        const Spacer(),
+                                        Text(
+                                          'Total : ${widget.nodeList[index].communicationCount?.split(',').first}',
+                                          style: const TextStyle(fontSize: 12),
+                                        ),
+                                        const SizedBox(width: 8,),
+                                        Text(
+                                          'Continuous : ${widget.nodeList[index].communicationCount?.split(',').last}',
+                                          style: const TextStyle(fontSize: 12),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                                 ListTile(
                                   tileColor: myTheme.primaryColor,
                                   textColor: Colors.black,
                                   title: const Text('Last feedback', style: TextStyle(fontSize: 10)),
                                   subtitle: Text(
                                     formatDateTime(widget.nodeList[index].lastFeedbackReceivedTime),
-                                    style: const TextStyle(fontSize: 11),
+                                    style: const TextStyle(fontSize: 10),
                                   ),
                                   trailing: Row(
                                     mainAxisSize: MainAxisSize.min,

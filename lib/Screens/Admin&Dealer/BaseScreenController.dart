@@ -7,6 +7,7 @@ import '../product_entry.dart';
 import 'AdminDashboard.dart';
 import '../my_preference.dart';
 import '../product_inventory.dart';
+import 'BugReport.dart';
 import 'DealerDashboard.dart';
 
 class BaseScreenController extends StatefulWidget {
@@ -108,6 +109,13 @@ class _BaseScreenControllerState extends State<BaseScreenController> {
           label: Text(''),
         ),
       );
+      destinations.add(
+        const NavigationRailDestination(
+          icon: Icon(Icons.bug_report),
+          selectedIcon: Icon(Icons.bug_report, color: Colors.white),
+          label: Text(''),
+        ),
+      );
     }
 
     destinations.add(
@@ -176,6 +184,8 @@ class _BaseScreenControllerState extends State<BaseScreenController> {
         return widget.userType == 1?
         const AllEntry() : MyPreference(userID: widget.userId);
       case 3:
+        return widget.userType == 1? Bugreport() : MyPreference(userID: widget.userId);
+      case 4:
         return MyPreference(userID: widget.userId);
       default:
         return const SizedBox();

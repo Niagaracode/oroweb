@@ -233,6 +233,7 @@ class NodeData {
   int interfaceTypeId;
   String interface;
   String extendDeviceId;
+  String? communicationCount;
 
 
   NodeData({
@@ -254,6 +255,7 @@ class NodeData {
     required this.interfaceTypeId,
     required this.interface,
     required this.extendDeviceId,
+    required this.communicationCount,
   });
 
   factory NodeData.fromJson(Map<String, dynamic> json) {
@@ -283,6 +285,7 @@ class NodeData {
       interfaceTypeId: json['interfaceTypeId'] ?? 0,
       interface: json['interface'] ?? '',
       extendDeviceId: json['extendDeviceId'] ?? '',
+      communicationCount: json['CommunicationCount'] ?? '0,0',
     );
   }
 
@@ -306,6 +309,7 @@ class NodeData {
       'InterfaceType': interfaceTypeId,
       'interface': interface,
       'extendDeviceId': extendDeviceId,
+      'CommunicationCount': communicationCount,
     };
   }
 }

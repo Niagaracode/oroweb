@@ -10,6 +10,7 @@ import '../../../constants/http_service.dart';
 import '../../../state_management/MqttPayloadProvider.dart';
 import '../../../state_management/preference_provider.dart';
 import '../../Customer/IrrigationProgram/irrigation_program_main.dart';
+import '../../Customer/IrrigationProgram/program_library.dart';
 
 const payloadTopic = "AppToFirmware";
 
@@ -427,60 +428,83 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
     // print(payloadForGem);
 
     try {
-      if(preferenceProvider.passwordValidationCode != 200 && isToGem) {
+      /*if(preferenceProvider.passwordValidationCode != 200 && isToGem) {
         MQTTManager().publish(jsonEncode(payloadForSlave), "AppToFirmware/${preferenceProvider.generalData!.deviceId}");
-      }
+      }*/
       bool isLevelSettingChanged = preferenceProvider.individualPumpSetting!.any((pump) => pump.settingList.any((setting) => setting.type == 210 && setting.changed));
 
       bool isAnyOtherChanged = preferenceProvider.commonPumpSettings!.any((pump) => pump.settingList.any((setting) => setting.changed));
+      if([1, 2].contains(preferenceProvider.generalData!.categoryId)) {
+        await validatePayloadSent(
+            dialogContext: context,
+            context: context,
+            mqttPayloadProvider: mqttPayloadProvider,
+            acknowledgedFunction: () async {
+              setState(() {
+                preferenceProvider.generalData!.controllerReadStatus = "1";
+              });
+            },
+            payload: payloadForSlave,
+            payloadCode: "400",
+            deviceId: preferenceProvider.generalData!.deviceId
+        );
+      }
 
       if (preferenceProvider.commonPumpSettings!.isNotEmpty && !(isLevelSettingChanged && !isAnyOtherChanged)) {
-        for (var i = 0; i < payloadForGem.length; i++) {
-          var payloadToDecode = isToGem ? payloadForGem[i].split('+')[4] : payloadForGem[i];
-          var decodedData = jsonDecode(payloadToDecode);
-          var key = decodedData.keys.first;
-          int oroPumpIndex = 0;
-          if(isToGem) {
-            oroPumpIndex = preferenceProvider.commonPumpSettings!.indexWhere((element) => element.deviceId == payloadForGem[i].split('+')[2]);
-          }
-          setState(() {
-            if(key.contains("100")) preferenceProvider.commonPumpSettings![oroPumpIndex].settingList[0].controllerReadStatus = "0";
-            if(key.contains("200")) preferenceProvider.commonPumpSettings![oroPumpIndex].settingList[1].controllerReadStatus = "0";
-            int pumpIndex = 0;
-            for (var individualPump in preferenceProvider.individualPumpSetting ?? []) {
-              if (preferenceProvider.commonPumpSettings![oroPumpIndex].deviceId == individualPump.deviceId) {
-                if(individualPump.output != null) {
-                  pumpIndex = int.parse(RegExp(r'\d+').firstMatch(individualPump.output)!.group(0)!);
-                } else {
-                  pumpIndex++;
-                }
-                for (var individualPumpSetting in individualPump.settingList) {
-                  switch (individualPumpSetting.type) {
-                    case 23:
-                      if(key.contains("400-$pumpIndex")) individualPumpSetting.controllerReadStatus= "0";
-                      break;
-                    case 22:
-                      if(key.contains("300-$pumpIndex") || key.contains("500-$pumpIndex")) individualPumpSetting.controllerReadStatus = "0";
-                      break;
-                    case 25:
-                      if(key.contains("600-$pumpIndex")) individualPumpSetting.controllerReadStatus = "0";
-                      break;
+        if(isToGem ? preferenceProvider.generalData!.controllerReadStatus == "1" : true) {
+          for (var i = 0; i < payloadForGem.length; i++) {
+            var payloadToDecode = isToGem ? payloadForGem[i].split('+')[4] : payloadForGem[i];
+            var decodedData = jsonDecode(payloadToDecode);
+            var key = decodedData.keys.first;
+            int oroPumpIndex = 0;
+            if(isToGem) {
+              oroPumpIndex = preferenceProvider.commonPumpSettings!.indexWhere((element) => element.deviceId == payloadForGem[i].split('+')[2]);
+            }
+            setState(() {
+              if(key.contains("100")) preferenceProvider.commonPumpSettings![oroPumpIndex].settingList[0].controllerReadStatus = "0";
+              if(key.contains("200")) preferenceProvider.commonPumpSettings![oroPumpIndex].settingList[1].controllerReadStatus = "0";
+              int pumpIndex = 0;
+              for (var individualPump in preferenceProvider.individualPumpSetting ?? []) {
+                if (preferenceProvider.commonPumpSettings![oroPumpIndex].deviceId == individualPump.deviceId) {
+                  if(individualPump.output != null) {
+                    pumpIndex = int.parse(RegExp(r'\d+').firstMatch(individualPump.output)!.group(0)!);
+                  } else {
+                    pumpIndex++;
+                  }
+                  for (var individualPumpSetting in individualPump.settingList) {
+                    switch (individualPumpSetting.type) {
+                      case 23:
+                        if(key.contains("400-$pumpIndex")) individualPumpSetting.controllerReadStatus= "0";
+                        break;
+                      case 22:
+                        if(key.contains("300-$pumpIndex") || key.contains("500-$pumpIndex")) individualPumpSetting.controllerReadStatus = "0";
+                        break;
+                      case 25:
+                        if(key.contains("600-$pumpIndex")) individualPumpSetting.controllerReadStatus = "0";
+                        break;
+                    }
                   }
                 }
               }
-            }
-            if(preferenceProvider.passwordValidationCode == 200 && preferenceProvider.calibrationSetting!.isNotEmpty) {
-              if(key.contains("900")) preferenceProvider.calibrationSetting![oroPumpIndex].settingList[1].controllerReadStatus = "0";
-            }
-          });
+              if(preferenceProvider.passwordValidationCode == 200 && preferenceProvider.calibrationSetting!.isNotEmpty) {
+                if(key.contains("900")) preferenceProvider.calibrationSetting![oroPumpIndex].settingList[1].controllerReadStatus = "0";
+              }
+            });
+          }
+          await processPayloads(
+              context: context,
+              mqttPayloadProvider: mqttPayloadProvider,
+              payload: preferenceProvider.passwordValidationCode == 200 ? getCalibrationPayload(isToGem: isToGem).split(';') : payloadForGem,
+              preferenceProvider: preferenceProvider,
+              isToGem: isToGem
+          );
+          if(getFailedPayload(sendAll: false, isToGem: [1, 2].contains(preferenceProvider.generalData!.categoryId)).split(';').where((part) => part.isNotEmpty).toList().isEmpty) {
+            preferenceProvider.generalData!.controllerReadStatus = "1";
+            await Future.delayed(Duration(milliseconds: 300));
+          } else {
+            preferenceProvider.generalData!.controllerReadStatus = "0";
+          }
         }
-        await processPayloads(
-            context: context,
-            mqttPayloadProvider: mqttPayloadProvider,
-            payload: preferenceProvider.passwordValidationCode == 200 ? getCalibrationPayload(isToGem: isToGem).split(';') : payloadForGem,
-            preferenceProvider: preferenceProvider,
-            isToGem: isToGem
-        );
       }
 
       await Future.delayed(Duration.zero, () {
@@ -496,6 +520,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
             'alarm': preferenceProvider.alarmNotificationData?.map((item) => item.toJson()).toList(),
           },
           'hardware': payloadForSlave,
+          'controllerReadStatus': preferenceProvider.generalData!.controllerReadStatus
         });
       });
 

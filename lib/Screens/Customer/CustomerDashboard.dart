@@ -275,6 +275,11 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
         rdWidth = ((filteredSrcPumps.length+filteredIrrPumps.length+filteredCentralFilter.length+1)*70);
       }
 
+      final line = provider.payloadIrrLine.firstWhere(
+            (line) => line.line == crrIrrLine.id,
+        orElse: () => IrrigationLinePLD(level: [], sNo: 0, line: '', swName: '', prsIn: '', prsOut: '', dpValue: '', waterMeter: '', irrigationPauseFlag: 0, dosingPauseFlag: 0), // Provide a valid fallback instance
+      );
+
       return Padding(
         padding: const EdgeInsets.all(3.0),
         child: Container(
@@ -301,15 +306,11 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                 provider.irrigationPump.isNotEmpty? Padding(
                   padding: EdgeInsets.only(top: provider.localFertilizer.isNotEmpty || provider.localFertilizer.isNotEmpty? 38.4:0),
                   child: InkWell(
-                    onTap: () {
-
+                    onTap: line.level.length>1?() {
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          final line = provider.payloadIrrLine.firstWhere(
-                                (line) => line.line == crrIrrLine.id,
-                            orElse: () => IrrigationLinePLD(level: [], sNo: 0, line: '', swName: '', prsIn: '', prsOut: '', dpValue: '', waterMeter: '', irrigationPauseFlag: 0, dosingPauseFlag: 0), // Provide a valid fallback instance
-                          );
+
                           return AlertDialog(
                             title: const Text('Level List'),
                             content: line.level.isNotEmpty
@@ -326,7 +327,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                                     title: Text(
                                       levelItem.swName.isNotEmpty == true
                                           ? levelItem.swName
-                                          : levelItem.name ?? 'No Name', // Fallback to 'No Name'
+                                          : levelItem.name ?? 'No Name',
                                       style: const TextStyle(fontSize: 14),
                                     ),
                                     trailing: Column(
@@ -376,15 +377,89 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                           );
                         },
                       );
-                    },
+                    }:null,
                     child: SizedBox(
                       width: 52.50,
-                      height: 70,
+                      height: 100,
                       child: Stack(
                         children: [
-                          provider.sourcePump.isNotEmpty
+                          isPumpAvailable(crrIrrLine.id, provider.sourcePump)
                               ? Image.asset('assets/images/dp_sump_src.png')
                               : Image.asset('assets/images/dp_sump.png'),
+
+                          line.level.length==1? Positioned(
+                            top: 12,
+                            left: 0,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.yellow,
+                                borderRadius: const BorderRadius.all(Radius.circular(2)),
+                                border: Border.all(color: Colors.grey, width: .50),
+                              ),
+                              width: 52,
+                              height: 30,
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    const Text(
+                                      "Level",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      getUnitByParameter(
+                                        context,
+                                        'Level Sensor',
+                                        line.level[0].value,
+                                      ) ??
+                                          '',
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ):
+                          const SizedBox(),
+
+                          line.level.length==1? Positioned(
+                            top: 43,
+                            left: 12,
+                            child: Center(
+                              child: Text(
+                                '${line.level[0].levelPercent}%',
+                                style: const TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ):
+                          const SizedBox(),
+
+                          line.level.length==1? Positioned(
+                            top: 64,
+                            left: 5,
+                            child: Center(
+                              child: Text(
+                                line.level[0].swName ?? line.level[0].name,
+                                style: const TextStyle(
+                                  color: Colors.black54,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ):
+                          const SizedBox(),
                         ],
                       ),
                     ),
@@ -507,6 +582,10 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
         ),
       ),
     );
+  }
+
+  bool isPumpAvailable(String location, List<PumpData> pumps) {
+    return pumps.any((pump) => pump.location == location);
   }
 
   String getCurrentDateAndTime() {

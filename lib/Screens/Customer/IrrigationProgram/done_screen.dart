@@ -35,6 +35,7 @@ class _AdditionalDataScreenState extends State<AdditionalDataScreen> {
   final TextEditingController _textEditingController = TextEditingController();
   String tempProgramName = '';
   late MqttPayloadProvider mqttPayloadProvider;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -87,11 +88,29 @@ class _AdditionalDataScreenState extends State<AdditionalDataScreen> {
                                       context: context,
                                       builder: (ctx) => AlertDialog(
                                         title: const Text("Edit program name"),
-                                        content: TextFormField(
-                                          autofocus: true,
-                                          controller: _textEditingController,
-                                          onChanged: (newValue) => tempProgramName = newValue,
-                                          inputFormatters: [LengthLimitingTextInputFormatter(20), FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),],
+                                        content: Form(
+                                          key: _formKey,
+                                          child: TextFormField(
+                                            autofocus: true,
+                                            controller: _textEditingController,
+                                            // onChanged: (newValue) => tempProgramName = newValue,
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(20),
+                                              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s.]'))
+                                            ],
+                                            validator: (value) {
+                                              if (value == null || value.isEmpty) {
+                                                return "Name cannot be empty";
+                                              } else if (doneProvider.programLibrary!.program.any((element) => element.programName == value)) {
+                                                return "Name already exists";
+                                              } else {
+                                                setState(() {
+                                                  tempProgramName = value;
+                                                });
+                                              }
+                                              return null;
+                                            },
+                                          ),
                                         ),
                                         actions: <Widget>[
                                           TextButton(
@@ -100,8 +119,10 @@ class _AdditionalDataScreenState extends State<AdditionalDataScreen> {
                                           ),
                                           TextButton(
                                             onPressed: () {
-                                              Navigator.of(ctx).pop();
-                                              doneProvider.updateProgramName(tempProgramName, 'programName');
+                                              if (_formKey.currentState!.validate()) {
+                                                doneProvider.updateProgramName(tempProgramName, 'programName');
+                                                Navigator.of(ctx).pop();
+                                              }
                                             },
                                             child: const Text("OKAY", style: TextStyle(color: Colors.green),),
                                           ),

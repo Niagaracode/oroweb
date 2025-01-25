@@ -353,11 +353,22 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
           for(var oroPump in configPvd.serverData['referenceNo']['3']){
             var pumpCount = 0;
             String masterSlave = '';
+            dynamic relay1;
+            dynamic relay2;
+            dynamic relay3;
             for(var pump in configPvd.sourcePumpUpdated){
               if(pump['deleted'] == false){
                 if(pump['rtu'] == 'ORO Pump'){
                   if(pump['rfNo'] == oroPump['referenceNumber'].toString()){
-                    masterSlave += '${masterSlave.isNotEmpty ? ',' : ''}${1}';
+                    var pumpData = '${masterSlave.isNotEmpty ? ',' : ''}${1}';
+                    if(pump['output'] == 'R1'){
+                      relay1 = pumpData;
+                    }else if(pump['output'] == 'R2'){
+                      relay2 = pumpData;
+                    }else{
+                      relay3 = pumpData;
+                    }
+                    // masterSlave += '${masterSlave.isNotEmpty ? ',' : ''}${1}';
                     pumpCount += 1;
                   }
                 }
@@ -367,12 +378,21 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
               if(pump['deleted'] == false){
                 if(pump['rtu'] == 'ORO Pump'){
                   if(pump['rfNo'] == oroPump['referenceNumber'].toString()){
-                    masterSlave += '${masterSlave.isNotEmpty ? ',' : ''}${2}';
+                    var pumpData = '${masterSlave.isNotEmpty ? ',' : ''}${2}';
+                    if(pump['output'] == 'R1'){
+                      relay1 = pumpData;
+                    }else if(pump['output'] == 'R2'){
+                      relay2 = pumpData;
+                    }else{
+                      relay3 = pumpData;
+                    }
+                    // masterSlave += '${masterSlave.isNotEmpty ? ',' : ''}${2}';
                     pumpCount += 1;
                   }
                 }
               }
             }
+            masterSlave += '${relay1 != null ? '$relay1' : ''}${relay2 != null ? ',$relay2' : ''}${relay3 != null ? ',$relay3' : ''}';
             if(pumpCount != 0){
               var actualPumpPayload = convert.jsonEncode({"sentSms":"pumpconfig,$pumpCount,${oroPump['referenceNumber']},$masterSlave,${[1,2].contains(configPvd.categoryId) ? '1' : '0'}"});
               var gemPumpPayload = convert.jsonEncode({

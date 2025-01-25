@@ -930,17 +930,20 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                               ? program.programName
                               : program.defaultProgramName,
                           focusNode: _programNameFocusNode,
-                          onChanged: (newValue) => program.programName = newValue,
+                          // onChanged: (newValue) => program.programName = newValue,
                           inputFormatters: [
                             LengthLimitingTextInputFormatter(20),
-                            FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
+                            FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s.]'))
                           ],
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return "Name cannot be empty";
-                            }
-                            if (programLibraryData.any((element) => element.programName == value)) {
+                            } else if (programLibraryData.any((element) => element.programName == value)) {
                               return "Name already exists";
+                            } else {
+                              setState(() {
+                                program.programName = value;
+                              });
                             }
                             return null;
                           },

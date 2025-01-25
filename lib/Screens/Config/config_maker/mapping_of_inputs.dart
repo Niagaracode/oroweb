@@ -1630,100 +1630,102 @@ class _MappingOfInputsTableState extends State<MappingOfInputsTable> {
     }
 
     if(name != null){
-      if(name == 'Ec sensor 1'){
-        if(!myList.contains('A-5') || !myList.contains('A-6')){
-          myList = [];
-        }else{
-          myList.removeWhere((element) => element != 'A-7');
-        }
-      }
-      else if(name == 'Ec sensor 2'){
-        if(!myList.contains('A-5') || !myList.contains('A-6')){
-          myList = [];
-        }else{
-          myList.removeWhere((element) => element != 'A-8');
-        }
-      }
-      else if(name == 'Ph sensor 1'){
-        if(rtu == 'ORO Smart'){
-          var checkList = [];
-          for(var central in configPvd.centralDosingUpdated){
-            for(var ph in central['phConnection']){
-              if(ph['rtu'] == 'ORO Smart'){
-                if(ph['rfNo'] == rf){
-                  checkList.add(ph['input']);
-                }
-              }
-            }
-          }
-          for(var local in configPvd.localDosingUpdated){
-            for(var ph in local['phConnection']){
-              if(ph['rtu'] == 'ORO Smart'){
-                if(ph['rfNo'] == rf){
-                  checkList.add(ph['input']);
-                }
-              }
-            }
-          }
-          if(checkList.contains('A-2') && !myList.contains('A-2')){
-            myList.removeWhere((element) => element != 'A-1');
-          }else{
-            if(myList.contains('A-2')){
-              myList.removeWhere((element) => element != 'A-1');
-            }else{
-              myList = [];
-            }
-          }
-        }
-        else{
-          if(!myList.contains('A-7') || !myList.contains('A-8')){
-            myList = [];
-          }else{
-            myList.removeWhere((element) => element != 'A-5');
-          }
-        }
-      }
-      else if(name == 'Ph sensor 2'){
-        if(rtu == 'ORO Smart'){
-          var checkList = [];
-          for(var central in configPvd.centralDosingUpdated){
-            for(var ph in central['phConnection']){
-              if(ph['rtu'] == 'ORO Smart'){
-                if(ph['rfNo'] == rf){
-                  checkList.add(ph['input']);
-                }
-              }
-            }
-          }
-          for(var local in configPvd.localDosingUpdated){
-            for(var ph in local['phConnection']){
-              if(ph['rtu'] == 'ORO Smart'){
-                if(ph['rfNo'] == rf){
-                  checkList.add(ph['input']);
-                }
-              }
-            }
-          }
-          if(checkList.contains('A-1') && !myList.contains('A-1')){
-            myList.removeWhere((element) => element != 'A-2');
-          }else{
-            if(myList.contains('A-1')){
-              myList.removeWhere((element) => element != 'A-2');
-            }else{
-              myList = [];
-            }
-          }
-        }
-        else{
-          if(!myList.contains('A-7') || !myList.contains('A-8')){
-            myList = [];
-          }else{
-            myList.removeWhere((element) => element != 'A-6');
-          }
-        }
-
-      }
-      else if(name == 'powerSupply '){
+      // if(name == 'Ec sensor 1'){
+      //   if(!myList.contains('A-5') || !myList.contains('A-6')){
+      //     myList = [];
+      //   }else{
+      //     myList.removeWhere((element) => element != 'A-7');
+      //   }
+      // }
+      // else if(name == 'Ec sensor 2'){
+      //   if(!myList.contains('A-5') || !myList.contains('A-6')){
+      //     myList = [];
+      //   }else{
+      //     myList.removeWhere((element) => element != 'A-8');
+      //   }
+      // }
+      // else if(name == 'Ph sensor 1'){
+      //   if(rtu == 'ORO Smart'){
+      //     var checkList = [];
+      //     for(var central in configPvd.centralDosingUpdated){
+      //       for(var ph in central['phConnection']){
+      //         if(ph['rtu'] == 'ORO Smart'){
+      //           if(ph['rfNo'] == rf){
+      //             checkList.add(ph['input']);
+      //           }
+      //         }
+      //       }
+      //     }
+      //     for(var local in configPvd.localDosingUpdated){
+      //       for(var ph in local['phConnection']){
+      //         if(ph['rtu'] == 'ORO Smart'){
+      //           if(ph['rfNo'] == rf){
+      //             checkList.add(ph['input']);
+      //           }
+      //         }
+      //       }
+      //     }
+      //     if(checkList.contains('A-2') && !myList.contains('A-2')){
+      //       myList.removeWhere((element) => element != 'A-1');
+      //     }else{
+      //       if(myList.contains('A-2')){
+      //         myList.removeWhere((element) => element != 'A-1');
+      //       }else{
+      //         myList = [];
+      //       }
+      //     }
+      //   }
+      //   else{
+      //     if(!myList.contains('A-7') || !myList.contains('A-8')){
+      //       myList = [];
+      //     }else{
+      //       myList.removeWhere((element) => element != 'A-5');
+      //     }
+      //   }
+      // }
+      // else if(name == 'Ph sensor 2'){
+      //   if(rtu == 'ORO Smart'){
+      //     var checkList = [];
+      //     for(var central in configPvd.centralDosingUpdated){
+      //       for(var ph in central['phConnection']){
+      //         if(ph['rtu'] == 'ORO Smart'){
+      //           if(ph['rfNo'] == rf){
+      //             checkList.add(ph['input']);
+      //           }
+      //         }
+      //       }
+      //     }
+      //     for(var local in configPvd.localDosingUpdated){
+      //       for(var ph in local['phConnection']){
+      //         if(ph['rtu'] == 'ORO Smart'){
+      //           if(ph['rfNo'] == rf){
+      //             checkList.add(ph['input']);
+      //           }
+      //         }
+      //       }
+      //     }
+      //     if(checkList.contains('A-1') && !myList.contains('A-1')){
+      //       myList.removeWhere((element) => element != 'A-2');
+      //     }else{
+      //       if(myList.contains('A-1')){
+      //         myList.removeWhere((element) => element != 'A-2');
+      //       }else{
+      //         myList = [];
+      //       }
+      //     }
+      //   }
+      //   else{
+      //     if(!myList.contains('A-7') || !myList.contains('A-8')){
+      //       myList = [];
+      //     }else{
+      //       myList.removeWhere((element) => element != 'A-6');
+      //     }
+      //   }
+      //
+      // }
+      // else
+      print('myList ::::: ${myList}');
+        if(name == 'powerSupply '){
         myList.removeWhere((element) => element != 'A-8');
       }
       else if(name == 'pressureSwitch '){
@@ -1752,9 +1754,9 @@ class _MappingOfInputsTableState extends State<MappingOfInputsTable> {
       }
       else{
         if(rtu != 'O-Pump-Plus'){
-          for(var i in ['D-5','A-5','A-6','A-7','A-8','A-9']){
-            myList.remove(i);
-          }
+          // for(var i in ['D-5','A-5','A-6','A-7','A-8','A-9']){
+          //   myList.remove(i);
+          // }
         }
       }
     }else{

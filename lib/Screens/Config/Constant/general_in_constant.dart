@@ -22,9 +22,10 @@ class _GeneralInConstState extends State<GeneralInConst> {
     'Run List Limit' : true,
     'No Pressure Delay' : false,
     'Water pulse before dosing' : false,
-    'Common dosing coefficient' : false,
+    'Common dosing coefficient' : true,
     'Lora Key 1' : true,
     'Lora Key 2' : true,
+    'Pump on after valve on' : true,
   };
 
   @override
@@ -156,6 +157,24 @@ Widget getYourWidgetGeneral({
             title: Text(constantPvd.generalUpdated[index]['name'],style: cardTitle),
             trailing: Text(constantPvd.generalUpdated[index]['value'])
         ),
+      ),
+    );
+  }if(type == 4){
+    return getCardWidegt(
+      context: context,
+      child: ListTile(
+          leading: const Icon(Icons.adb_outlined),
+          title: Text(constantPvd.generalUpdated[index]['name'],style: cardTitle,),
+          trailing: SizedBox(
+              width: 50,
+              height: 40,
+              child: Switch(
+                  value: constantPvd.generalUpdated[index]['value'],
+                  onChanged: (value){
+                    constantPvd.generalUpdatedFunctionality(index, value);
+                  }
+              )
+          )
       ),
     );
   }else{

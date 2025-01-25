@@ -89,6 +89,8 @@ class MQTTManager {
   }
 
   publish(String message, String topic) {
+    print('topic : $topic');
+    print('message : $message');
     final MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
     builder.addString(message);
     _client!.publishMessage(topic, MqttQos.exactlyOnce, builder.payload!);

@@ -399,10 +399,8 @@ class _CreateAccountState extends State<CreateAccount> {
                         'country': sldCountryID.toString(),
                         'state': sldStateID.toString(),
                         'email': email.toString(),
-                        'mainUserId': userID,
+                        'mainUserId': widget.customerId,
                       };
-
-                      print(body);
 
                       final response = widget.subUsrAccount? await HttpService().postRequest("createUserAccountWithMainUser", body):
                       await HttpService().postRequest("createUser", body);

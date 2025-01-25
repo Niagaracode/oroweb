@@ -351,8 +351,8 @@ class _MyContainerWithTabsState extends State<MyContainerWithTabs> {
                   DataCell(
                     TextFormField(
                       inputFormatters: [
-                        LengthLimitingTextInputFormatter(
-                            15), // Limit input to 50 characters
+                        LengthLimitingTextInputFormatter(15),
+                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s.]'))
                       ],
                       initialValue: nameList[index].name,
                       onChanged: (val) {

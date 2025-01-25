@@ -188,7 +188,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
         length: preferenceProvider.individualPumpSetting?.length ?? 0,
         vsync: this
     );
-    if(preferenceProvider.commonPumpSettings != null && preferenceProvider.commonPumpSettings!.isNotEmpty && [1,2].contains(preferenceProvider.generalData!.categoryId)) {
+    /*if(preferenceProvider.commonPumpSettings != null && preferenceProvider.commonPumpSettings!.isNotEmpty && [1,2].contains(preferenceProvider.generalData!.categoryId)) {
       final oroPumpSerialNumber = preferenceProvider.commonPumpSettings![tabController1.index].serialNumber;
       final referenceNumber = preferenceProvider.commonPumpSettings![tabController1.index].referenceNumber;
       final deviceId = preferenceProvider.commonPumpSettings![tabController1.index].deviceId;
@@ -198,7 +198,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
       final payload2 = jsonEncode({"0": payload});
       final viewConfig = {"5900": [{"5901": "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload2+${categoryId}"},{"5902": "${widget.userId}"}]};
       MQTTManager().publish(jsonEncode(viewConfig), "AppToFirmware/${preferenceProvider.generalData!.deviceId}");
-    }
+    }*/
     if(mounted) {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         if(preferenceProvider.commonPumpSettings!.isEmpty) {
@@ -248,6 +248,17 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                                 selectedSetting = value!;
                                 if(!widget.viewSettings) {
                                   if(selectedSetting == 2) {
+                                    if([1,2].contains(Provider.of<OverAllUse>(context, listen: false).controllerType)) {
+                                      final oroPumpSerialNumber = preferenceProvider.commonPumpSettings![tabController1.index].serialNumber;
+                                      final referenceNumber = preferenceProvider.commonPumpSettings![tabController1.index].referenceNumber;
+                                      final deviceId = preferenceProvider.commonPumpSettings![tabController1.index].deviceId;
+                                      final interfaceType = preferenceProvider.commonPumpSettings![tabController1.index].interfaceTypeId;
+                                      final categoryId = preferenceProvider.commonPumpSettings![tabController1.index].categoryId;
+                                      final payload = jsonEncode({"sentSms": "viewconfig"});
+                                      final payload2 = jsonEncode({"0": payload});
+                                      final viewConfig = {"5900": [{"5901": "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload2+${categoryId}"},{"5902": "${widget.userId}"}]};
+                                      MQTTManager().publish(jsonEncode(viewConfig), "AppToFirmware/${preferenceProvider.generalData!.deviceId}");
+                                    }
                                     showDialog(
                                         context: context,
                                         builder: (BuildContext context) {
@@ -273,16 +284,16 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                                                     TextButton(
                                                         onPressed: (){
                                                           passwordController.text = "";
-                                                          preferenceProvider.updateValidationCode();
+                                                          preferenceProvider.passwordValidationCode = 0;
                                                           selectedSetting = 1;
                                                           Navigator.of(context).pop();
                                                         },
-                                                        child: const Text("CANCEL")
+                                                        child: Text("CANCEL")
                                                     ),
                                                     TextButton(
                                                         onPressed: () async {
                                                           await Future.delayed(Duration.zero, () {
-                                                            preferenceProvider.updateValidationCode();
+                                                            preferenceProvider.passwordValidationCode = 0;
                                                           });
                                                           await preferenceProvider.checkPassword(userId: widget.userId, password: passwordController.text);
                                                           if(preferenceProvider.passwordValidationCode == 200) {
@@ -290,7 +301,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                                                             passwordController.text = "";
                                                           }
                                                         },
-                                                        child: const Text("OK")
+                                                        child: Text("OK")
                                                     ),
                                                   ],
                                                 );
@@ -299,7 +310,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                                         }
                                     );
                                   } else {
-                                    preferenceProvider.updateValidationCode();
+                                    preferenceProvider.passwordValidationCode = 0;
                                   }
                                 }
                               });

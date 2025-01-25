@@ -479,12 +479,13 @@ class _DealerDashboardState extends State<DealerDashboard> {
                                 });
                               },
                             ),
-                            hintText: 'Search by name',
+                            hintText: 'Filter by name or number',
                             border: InputBorder.none),
                         onChanged: (value) {
                           setState(() {
                             filteredCustomerList = myCustomerList.where((customer) {
-                              return customer.userName.toLowerCase().contains(value.toLowerCase());
+                              return customer.userName.toLowerCase().contains(value.toLowerCase()) ||
+                                  customer.mobileNumber.toLowerCase().contains(value.toLowerCase());
                             }).toList();
                           });
                         },
@@ -493,7 +494,7 @@ class _DealerDashboardState extends State<DealerDashboard> {
                     ListTile(
                       title: RichText(
                         text: TextSpan(
-                          text: 'My Customers : ', // Regular text
+                          text: 'My Customers : ',
                           style: const TextStyle(fontSize: 17, color: Colors.black), // Default style
                           children: [
                             TextSpan(

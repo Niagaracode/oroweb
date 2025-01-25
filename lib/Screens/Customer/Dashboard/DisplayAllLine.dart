@@ -37,6 +37,11 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
     }
     mainLineDvcList = mainLineDvcList + (widget.provider.sourcePump.length + widget.provider.irrigationPump.length+1);
 
+    final levelList = widget.provider.payloadIrrLine
+        .expand((lvl) => lvl.level)
+        .where((level) => level != null)
+        .toList();
+
     return Padding(
       padding: const EdgeInsets.all(3.0),
       child: Container(
@@ -53,36 +58,136 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
 
-            (widget.provider.centralFertilizer.isEmpty && widget.provider.localFertilizer.isEmpty && mainLineDvcList < 7)
+            ((widget.provider.centralFertilizer.isEmpty && widget.provider.localFertilizer.isEmpty && mainLineDvcList < 7) ||
+                (widget.provider.centralFertilizer.isEmpty && widget.provider.localFertilizer.isEmpty && widget.currentMaster.irrigationLine[0].valve.length < 25))
                 ? Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
+
                 widget.provider.sourcePump.isNotEmpty? Padding(
                   padding: const EdgeInsets.only(top:  11),
                   child: DisplaySourcePump(deviceId: widget.currentMaster.deviceId, currentLineId: 'all', spList: widget.provider.sourcePump, userId: widget.userId, controllerId: widget.currentMaster.controllerId, customerId: widget.customerId,),
                 ):
                 const SizedBox(),
 
-                widget.provider.irrigationPump.isNotEmpty? Padding(
+                widget.provider.sourcePump.isNotEmpty && widget.provider.irrigationPump.isEmpty? Padding(
                   padding: const EdgeInsets.only(top: 11),
-                  child: InkWell(
-                    onTap: () {
+                  child: SizedBox(
+                    width: levelList.length*75,
+                    child: Row(
+                      children: levelList.map((levelItem){
+                        return Container(
+                          color: Colors.transparent,
+                          width: 75,
+                          height: 100,
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 3.5,),
+                              Divider(height: 0, color: Colors.grey.shade300),
+                              Container(height: 5, color: Colors.white24),
+                              Divider(height: 0, color: Colors.grey.shade300),
+                              const SizedBox(
+                                width: 10,
+                                height: 7,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    VerticalDivider(width: 0),
+                                    SizedBox(width: 4),
+                                    VerticalDivider(width: 0),
+                                  ],
+                                ),
+                              ),
+
+                              SizedBox(
+                                width: 60,
+                                height: 55,
+                                child: Stack(
+                                  alignment: Alignment.bottomCenter,
+                                  children: [
+                                    Container(
+                                      width: 60,
+                                      height: 55,
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: Colors.grey.shade300),
+                                        borderRadius: BorderRadius.circular(5),
+                                        color: Colors.grey.shade50,
+                                      ),
+                                    ),
+                                    FractionallySizedBox(
+                                      heightFactor: double.parse('0.${levelItem.levelPercent}'),
+                                      alignment: Alignment.bottomCenter,
+                                      child: Container(
+                                        width: double.infinity,
+                                        decoration: BoxDecoration(
+                                          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(5)),
+                                          color: _getFillColor(0.10),
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 5,
+                                      left: 0,
+                                      right: 0,
+                                      child: Text(
+                                        getUnitByParameter(
+                                          context,
+                                          'Level Sensor',
+                                          levelItem.value,
+                                        ) ?? '',
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.normal,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 25,
+                                      left: 0,
+                                      right: 0,
+                                      child: Text(
+                                        '${levelItem.levelPercent}%',
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              Text(
+                                (levelItem.swName.isNotEmpty ?? false)
+                                    ? levelItem.swName
+                                    : levelItem.name ?? 'No Name',
+                                style: const TextStyle(fontSize: 10, color: Colors.black54),
+                              )
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+
+                  /*child: InkWell(
+                    onTap: levelList.length>1?() {
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          final levels = widget.provider.payloadIrrLine
-                              .expand((record) => record.level)
-                              .where((level) => level != null)
-                              .toList();
-
                           return AlertDialog(
                             title: const Text('Level List'),
-                            content: levels.isNotEmpty
+                            content: levelList.isNotEmpty
                                 ? SingleChildScrollView(
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
-                                children: levels.map((levelItem) {
+                                children: levelList.map((levelItem) {
                                   return ListTile(
                                     leading: Image.asset(
                                       'assets/images/level_sensor.png',
@@ -145,7 +250,171 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
                           );
                         },
                       );
-                    },
+                    }:null,
+                    child: SizedBox(
+                      width: 52.50,
+                      height: 100,
+                      child: Stack(
+                        children: [
+                          Image.asset('assets/images/dp_sump_src.png'),
+
+                          levelList.length==1? Positioned(
+                            top: 12,
+                            left: 0,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.yellow,
+                                borderRadius: const BorderRadius.all(Radius.circular(2)),
+                                border: Border.all(color: Colors.grey, width: .50),
+                              ),
+                              width: 52,
+                              height: 30,
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    const Text(
+                                      "Level",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      getUnitByParameter(
+                                        context,
+                                        'Level Sensor',
+                                        levelList[0].value,
+                                      ) ??
+                                          '',
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ):
+                          const SizedBox(),
+
+                          levelList.length==1? Positioned(
+                            top: 43,
+                            left: 12,
+                            child: Center(
+                              child: Text(
+                                '${levelList[0].levelPercent}%',
+                                style: const TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ):
+                          const SizedBox(),
+
+                          levelList.length==1? Positioned(
+                            top: 64,
+                            left: 5,
+                            child: Center(
+                              child: Text(
+                                levelList[0].swName ?? levelList[0].name,
+                                style: const TextStyle(
+                                  color: Colors.black54,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ):
+                          const SizedBox(),
+                        ],
+                      ),
+                    ),
+                  ),*/
+                ):
+                const SizedBox(),
+
+                widget.provider.irrigationPump.isNotEmpty? Padding(
+                  padding: const EdgeInsets.only(top: 11),
+                  child: InkWell(
+                    onTap: levelList.length>1?() {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('Level List'),
+                            content: levelList.isNotEmpty
+                                ? SingleChildScrollView(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: levelList.map((levelItem) {
+                                  return ListTile(
+                                    leading: Image.asset(
+                                      'assets/images/level_sensor.png',
+                                      height: 30,
+                                      width: 30,
+                                    ),
+                                    title: Text(
+                                      (levelItem.swName.isNotEmpty ?? false)
+                                          ? levelItem.swName
+                                          : levelItem.name ?? 'No Name',
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                    trailing: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text.rich(
+                                          TextSpan(
+                                            text: 'Percent: ', // Regular text
+                                            style: const TextStyle(fontSize: 12),
+                                            children: [
+                                              TextSpan(
+                                                text: '${levelItem.levelPercent}%',
+                                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Text.rich(
+                                          TextSpan(
+                                            text: 'Level: ', // Regular text
+                                            style: const TextStyle(fontSize: 12),
+                                            children: [
+                                              TextSpan(
+                                                text: getUnitByParameter(
+                                                  context,
+                                                  'Level Sensor',
+                                                  levelItem.value,
+                                                ) ??
+                                                    '',
+                                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            )
+                                : const Text('No levels available'), // Display if levels are empty
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // Close the dialog
+                                },
+                                child: const Text('Close'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }:null,
                     child: SizedBox(
                       width: 52.50,
                       height: 100,
@@ -154,6 +423,80 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
                           widget.provider.sourcePump.isNotEmpty
                               ? Image.asset('assets/images/dp_sump_src.png')
                               : Image.asset('assets/images/dp_sump.png'),
+
+                          levelList.length==1? Positioned(
+                            top: 12,
+                            left: 0,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.yellow,
+                                borderRadius: const BorderRadius.all(Radius.circular(2)),
+                                border: Border.all(color: Colors.grey, width: .50),
+                              ),
+                              width: 52,
+                              height: 30,
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    const Text(
+                                      "Level",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      getUnitByParameter(
+                                        context,
+                                        'Level Sensor',
+                                        levelList[0].value,
+                                      ) ??
+                                          '',
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ):
+                          const SizedBox(),
+
+                          levelList.length==1? Positioned(
+                            top: 43,
+                            left: 12,
+                            child: Center(
+                              child: Text(
+                                '${levelList[0].levelPercent}%',
+                                style: const TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ):
+                          const SizedBox(),
+
+                          levelList.length==1? Positioned(
+                            top: 64,
+                            left: 5,
+                            child: Center(
+                              child: Text(
+                                levelList[0].swName ?? levelList[0].name,
+                                style: const TextStyle(
+                                  color: Colors.black54,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ):
+                          const SizedBox(),
                         ],
                       ),
                     ),
@@ -211,22 +554,17 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
                           widget.provider.irrigationPump.isNotEmpty? Padding(
                             padding: EdgeInsets.only(top: widget.provider.centralFertilizer.isNotEmpty || widget.provider.localFertilizer.isNotEmpty? 38.4:0),
                             child: InkWell(
-                              onTap: () {
+                              onTap: levelList.length>1?() {
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
-                                    final levels = widget.provider.payloadIrrLine
-                                        .expand((record) => record.level)
-                                        .where((level) => level != null)
-                                        .toList();
-
                                     return AlertDialog(
                                       title: const Text('Level List'),
-                                      content: levels.isNotEmpty
+                                      content: levelList.isNotEmpty
                                           ? SingleChildScrollView(
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
-                                          children: levels.map((levelItem) {
+                                          children: levelList.map((levelItem) {
                                             return ListTile(
                                               leading: Image.asset(
                                                 'assets/images/level_sensor.png',
@@ -289,15 +627,89 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
                                     );
                                   },
                                 );
-                              },
+                              }:null,
                               child: SizedBox(
                                 width: 52.50,
-                                height: 70,
+                                height: 100,
                                 child: Stack(
                                   children: [
                                     widget.provider.sourcePump.isNotEmpty
                                         ? Image.asset('assets/images/dp_sump_src.png')
                                         : Image.asset('assets/images/dp_sump.png'),
+
+                                    levelList.length==1? Positioned(
+                                      top: 12,
+                                      left: 0,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.yellow,
+                                          borderRadius: const BorderRadius.all(Radius.circular(2)),
+                                          border: Border.all(color: Colors.grey, width: .50),
+                                        ),
+                                        width: 52,
+                                        height: 30,
+                                        child: Center(
+                                          child: Column(
+                                            children: [
+                                              const Text(
+                                                "Level",
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              Text(
+                                                getUnitByParameter(
+                                                  context,
+                                                  'Level Sensor',
+                                                  levelList[0].value,
+                                                ) ??
+                                                    '',
+                                                style: const TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 9,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ):
+                                    const SizedBox(),
+
+                                    levelList.length==1? Positioned(
+                                      top: 43,
+                                      left: 12,
+                                      child: Center(
+                                        child: Text(
+                                          '${levelList[0].levelPercent}%',
+                                          style: const TextStyle(
+                                            color: Colors.black87,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ):
+                                    const SizedBox(),
+
+                                    levelList.length==1? Positioned(
+                                      top: 64,
+                                      left: 5,
+                                      child: Center(
+                                        child: Text(
+                                          levelList[0].swName ?? levelList[0].name,
+                                          style: const TextStyle(
+                                            color: Colors.black54,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ):
+                                    const SizedBox(),
                                   ],
                                 ),
                               ),
@@ -457,4 +869,15 @@ class _DisplayAllLineState extends State<DisplayAllLine> {
       ),
     );
   }
+
+  Color _getFillColor(double percentage) {
+    if (percentage >= 0.8) {
+      return Colors.green.shade400;
+    } else if (percentage >= 0.5) {
+      return Colors.yellow.shade400;
+    } else {
+      return Colors.red.shade400;
+    }
+  }
+
 }
