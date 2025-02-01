@@ -1,8 +1,6 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../../../../Models/Customer/SensorHourlyData.dart';
@@ -50,6 +48,7 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
     final response = await HttpService().postRequest("getUserSensorHourlyLog", body);
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
+      print(response.body);
       if (data["code"] == 200) {
         try {
           sensors = (data['data'] as List).map((item) {
@@ -272,6 +271,8 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
 
   Row buildLineChart(Map<String, List<SensorHourlyData>> sensorData, String snrName) {
     final Set<String> allHours = {};
+    String jsonStr = jsonEncode(sensorData);
+    print(jsonStr);
 
     // Collect all unique hours from the sensor data
     sensorData.values.expand((hourlyData) => hourlyData).forEach((data) {
@@ -313,7 +314,7 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
         dataSource: dataPoints,
         xValueMapper: (SensorHourlyData data, _) => data.hour,
         yValueMapper: (SensorHourlyData data, _) {
-          if (snrName == 'EC Sensor' || snrName == 'PH Sensor') {
+          if (snrName == 'Float' || snrName == 'EC Sensor' || snrName == 'PH Sensor'|| snrName == 'Co2 Sensor' || snrName == 'Humidity Sensor') {
             return data.value;
           } else {
             String? result = getUnitByParameter(context, snrName, data.value.toString());
@@ -325,7 +326,7 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
         color: color,
         dataLabelSettings: const DataLabelSettings(isVisible: true),
         dataLabelMapper: (SensorHourlyData data, _) {
-          if (snrName == 'EC Sensor' || snrName == 'PH Sensor') {
+          if (snrName == 'Float' || snrName == 'EC Sensor' || snrName == 'PH Sensor' || snrName == 'Co2 Sensor' || snrName == 'Humidity Sensor') {
             return data.value.toString();
           } else {
             String? result = getUnitByParameter(context, snrName, data.value.toString());
@@ -350,8 +351,6 @@ class _SensorHourlyLogsState extends State<SensorHourlyLogs> {
               title: AxisTitle(text: 'Hours'),
               majorGridLines: const MajorGridLines(width: 0),
               axisLine: const AxisLine(width: 0),
-              visibleMinimum: 0,
-              visibleMaximum: 10, // Adjust based on initial view
               interval: 0.7,
             ),
             primaryYAxis: NumericAxis(

@@ -7115,7 +7115,7 @@ class ConfigMakerProvider extends ChangeNotifier {
     }
     notifyListeners();
     if (kDebugMode) {
-      print('names : ${name['TF']}');
+      print('names : ${name}');
     }
     return name;
   }

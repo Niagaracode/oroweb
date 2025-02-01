@@ -160,6 +160,7 @@ enum PumpReasonCode {
   reason29(29, 'Motor on due to auto mobile key on'),
   reason30(30, 'Motor off due to Power off'),
   reason31(31, 'Motor on due to Power on'),
+  reason33(33, 'Motor on 3 phase only'),
   unknown(0, 'Unknown content');
 
   final int code;

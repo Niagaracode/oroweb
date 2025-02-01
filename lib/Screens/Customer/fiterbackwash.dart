@@ -458,13 +458,14 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                 softWrap: true,
               ),
               trailing:  TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.white, backgroundColor: Colors.green, // White text color
-                ),
                 onPressed: () {
                   manualonoff(srno);
                 },
-                child: const Text('ON/OFF'),
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Image.asset(
+                      'assets/images/filter_flush.png'),
+                ),
               )
           ),
         ),
@@ -1100,7 +1101,21 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
     });
     if (MQTTManager().isConnected == true) {
       MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceID}');
-      GlobalSnackBar.show(context, 'Manual ON/OFF Send', 200);
+      GlobalSnackBar.show(context, "Manually Flushing the Filter", 200);
+
+      Map<String, dynamic> body = {
+        "userId": widget.userId,
+        "controllerId": widget.controllerId,
+        "hardware": payLoadFinal,
+        "messageStatus": "Manually Flushing the Filter",
+        "createUser": widget.userId
+      };
+
+
+      print('body $body');
+      final response = await HttpService()
+          .postRequest("createUserSentAndReceivedMessageManually", body);
+
     } else {
       GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
     }

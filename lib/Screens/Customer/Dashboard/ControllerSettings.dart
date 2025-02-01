@@ -9,6 +9,7 @@ import 'package:oro_irrigation_new/constants/theme.dart';
 import '../../../Models/Customer/Dashboard/DashboardNode.dart';
 import '../../../Models/language.dart';
 import '../../../Models/notification_list_model.dart';
+import '../../../constants/MQTTManager.dart';
 import '../../../constants/http_service.dart';
 import '../../../constants/snack_bar.dart';
 import '../../Config/names_form.dart';
@@ -609,6 +610,14 @@ class _ControllerSettingsState extends State<ControllerSettings> {
                         };
                         final Response response = await HttpService()
                             .putRequest("updateUserMasterDetails", body);
+
+                        String payLoadFinal = jsonEncode({
+                          "6800": [
+                            {"6801": _selectedTimeZone ?? ''},
+                          ]
+                        });
+                        MQTTManager().publish(payLoadFinal, 'AppToFirmware/$deviceId');
+
                         if (response.statusCode == 200) {
                           var data = jsonDecode(response.body);
                           if (data["code"] == 200) {

@@ -51,7 +51,7 @@ class _SequenceScreenState extends State<SequenceScreen> {
         || (irrigationProgramProvider.selectedProgramType == "Irrigation Program"));
     final agitatorProgram = ((irrigationProgramProvider.programDetails!.programType == "Agitator Program")
         || (irrigationProgramProvider.selectedProgramType == "Agitator Program"));
-    return irrigationProgramProvider.irrigationLine != null ?
+    return (irrigationProgramProvider.irrigationLine != null && irrigationProgramProvider.programDetails != null) ?
     LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
           return Column(
@@ -209,7 +209,7 @@ class _SequenceScreenState extends State<SequenceScreen> {
                                                                       return "Name already exists";
                                                                     } else {
                                                                       setState(() {
-                                                                        tempSequenceName = value;
+                                                                        _textEditingController.text = value;
                                                                       });
                                                                     }
                                                                     return null;
@@ -225,7 +225,7 @@ class _SequenceScreenState extends State<SequenceScreen> {
                                                                   onPressed: () {
                                                                     Navigator.of(ctx).pop();
                                                                     setModalState(() {
-                                                                      irrigationProgramProvider.irrigationLine!.sequence[index]['name'] = tempSequenceName;
+                                                                      irrigationProgramProvider.irrigationLine!.sequence[index]['name'] = _textEditingController.text;
                                                                     });
                                                                     setState(() {});
                                                                   },

@@ -308,9 +308,9 @@ class ConstantProvider extends ChangeNotifier{
       if(i.key == 'selector'){
         selectorList = [for(var i in i.value) i['hid']];
       }
-      // if(i.key == 'tankFloat'){
-      //   tankFloatList = [for(var i in i.value) '${i['name']} - ${i['hid']}'];
-      // }
+      if(i.key == 'tankFloat'){
+        tankFloatList = [for(var i in i.value) '${i['name']} - ${i['hid']}'];
+      }
       if(i.key == 'float'){
         print('there is float...');
         print(i.value);

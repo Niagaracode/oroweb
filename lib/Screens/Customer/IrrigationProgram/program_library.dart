@@ -61,6 +61,7 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print( "widget.controllerId${widget.controllerId}");
     mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: true);
     irrigationProgramMainProvider = Provider.of<IrrigationProgramProvider>(context, listen: true);
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
@@ -219,7 +220,7 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                       screenWidth: constraints.maxWidth,
                       listOfWidget: [
                         for(var index = 0; index < irrigationProgramMainProvider.programLibrary!.program.length; index++)
-                          SizedBox(
+                           SizedBox(
                             width: cardSize,
                             child: Column(
                               children: [
@@ -295,15 +296,19 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
     String getWeekday(int weekday) {
       const daysInWeek = 7;
       List<String> weekdays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+      // int adjustedWeekday = 1;
       int adjustedWeekday = (weekday - 1 + daysInWeek) % daysInWeek;
 
       return weekdays[adjustedWeekday];
     }
+    // print("programItem.schedule['scheduleByDays']['schedule']['runDays']:${programItem.schedule['scheduleByDays']['schedule']['runDays']}");
+    // print("programItem.schedule['scheduleByDays']['schedule']['skipDays']:${programItem.schedule['scheduleByDays']['schedule']['skipDays']}");
+    // print("programItem.schedule['scheduleAsRunList']['schedule']['noOfDays']:${programItem.schedule['scheduleAsRunList']['schedule']['noOfDays']}");
     List<String> days = List.generate(
       scheduleByDays
           ? int.parse(programItem.schedule['scheduleAsRunList']['schedule']['noOfDays'].toString().isNotEmpty ? programItem.schedule['scheduleAsRunList']['schedule']['noOfDays'].toString() : "1")
           : scheduleAsRunList
-          ? int.parse(programItem.schedule['scheduleByDays']['schedule']['runDays'].toString()) + int.parse(programItem.schedule['scheduleByDays']['schedule']['skipDays'].toString())
+          ? int.parse(programItem.schedule['scheduleByDays']['schedule']['runDays'] == '' ? "0" : programItem.schedule['scheduleByDays']['schedule']['runDays'].toString()) + int.parse(programItem.schedule['scheduleByDays']['schedule']['skipDays'].toString())
           : 0,
           (index) {
         DateTime currentDate = DateTime.parse(startDate).add(Duration(days: index));
@@ -509,10 +514,10 @@ class _ProgramLibraryScreenState extends State<ProgramLibraryScreen> {
                                           : const Color(0xffEEEBFF)
                                   )
                               else if(programItem.schedule['selected'] == irrigationProgramMainProvider.scheduleTypes[2])
-                                for (var index = 0; index < (int.parse(programItem.schedule['scheduleByDays']['schedule']['runDays'].toString()) + int.parse(programItem.schedule['scheduleByDays']['schedule']['skipDays'].toString())); index++)
+                                for (var index = 0; index < (int.parse(programItem.schedule['scheduleByDays']['schedule']['runDays'] == '' ? "0" : programItem.schedule['scheduleByDays']['schedule']['runDays'].toString()) + int.parse(programItem.schedule['scheduleByDays']['schedule']['skipDays'].toString())); index++)
                                   buildScheduleMethodOfDay(
                                     method: days[index],
-                                    color: index >= int.parse(programItem.schedule['scheduleByDays']['schedule']['runDays'].toString()) ? const Color(0xffFFEFE1) : const Color(0xffE1F2FF),
+                                    color: index >= int.parse(programItem.schedule['scheduleByDays']['schedule']['runDays'] == '' ? "0" : programItem.schedule['scheduleByDays']['schedule']['runDays'].toString()) ? const Color(0xffFFEFE1) : const Color(0xffE1F2FF),
                                   )
                               else
                                 buildScheduleMethodOfDay(

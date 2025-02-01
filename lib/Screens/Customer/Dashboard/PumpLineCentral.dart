@@ -876,7 +876,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                               ],
                                             ),
                                           ),
-                                          int.parse(filteredPumps[index].reason)>0 ? Container(
+                                          int.parse(filteredPumps[index].reason)>0 && int.parse(pump.reason) != 31 ? Container(
                                             width: 315,
                                             height: 33,
                                             color: Colors.orange.shade100,
@@ -1710,7 +1710,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                   ):
                   const SizedBox(),
 
-                  int.tryParse(pump.reason) != null && int.parse(pump.reason) > 0
+                  int.tryParse(pump.reason) != null && int.parse(pump.reason) > 0 && int.parse(pump.reason) != 31
                       ? Positioned(
                     top: 1,
                     left: 37.5,
@@ -2094,7 +2094,7 @@ class _DisplayIrrigationPumpState extends State<DisplayIrrigationPump> {
                                   ],
                                 ),
                               ),
-                              int.parse(filteredPumps[index].reason)>0 ? Container(
+                              int.parse(filteredPumps[index].reason)>0 && int.parse(pump.reason) != 31 ? Container(
                                 width: 305,
                                 height: 45,
                                 color: Colors.red.shade100,

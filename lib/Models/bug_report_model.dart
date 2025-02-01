@@ -147,6 +147,7 @@ class BugReportModel {
   });
 
   factory BugReportModel.fromJson(Map<String, dynamic> json) {
+    print("json ::: $json");
     return BugReportModel(
         errorId: json["errorId"],
         userId: json["userId"],
@@ -161,9 +162,9 @@ class BugReportModel {
         errorCode: json["errorCode"],
         errorName: json["errorName"],
         status: json["status"],
-        description: json["description"] ?? "Description",
-        errorPayload: json["errorPayload"],
-        deviceId: json["errorPayload"]['cC']
+        description: json["description"] ?? 'Description',
+        errorPayload: {},
+        deviceId: json["deviceId"]
     );
   }
 }

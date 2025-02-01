@@ -16,6 +16,7 @@ import '../../Forms/create_account.dart';
 
 import 'package:timezone/standalone.dart' as tz;
 
+import '../Dashboard/ControllerSettings.dart';
 import 'PumpPreferenceScreen.dart';
 
 class PumpControllerSettings extends StatefulWidget {
@@ -413,11 +414,22 @@ class _PumpControllerSettingsState extends State<PumpControllerSettings> {
               leading: const Icon(Icons.supervised_user_circle_outlined),
               title: const Text('My Sub users', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),),
               trailing: widget.adDrId!=0?IconButton(tooltip:'Add new sub user', onPressed: () async {
-                showDialog<void>(
+                showModalBottomSheet(
                   context: context,
-                  builder: (context) => AlertDialog(
-                    content: CreateAccount(callback: callbackFunction, subUsrAccount: true, customerId: widget.customerId, from: 'Sub user',),
-                  ),
+                  isScrollControlled: true,
+                  builder: (context) {
+                    return FractionallySizedBox(
+                      heightFactor: 0.84,
+                      widthFactor: 0.75,
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
+                        ),
+                        child: CreateAccount(callback: callbackFunction, subUsrAccount: true, customerId: widget.customerId, from: 'Sub User',),
+                      ),
+                    );
+                  },
                 );
               }, icon: const Icon(Icons.add)):
               null,
@@ -425,7 +437,7 @@ class _PumpControllerSettingsState extends State<PumpControllerSettings> {
             const Divider(height: 0,),
             SizedBox(
               height: 70,
-              child: subUsers.length>0?ListView.builder(
+              child: subUsers.isNotEmpty?ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: subUsers.length,
                 itemBuilder: (context, index) {
@@ -435,12 +447,19 @@ class _PumpControllerSettingsState extends State<PumpControllerSettings> {
                     child: Card(
                       surfaceTintColor: Colors.teal,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5.0), // Adjust the radius as needed
+                        borderRadius: BorderRadius.circular(
+                            5.0), // Adjust the radius as needed
                       ),
                       child: ListTile(
                         title: Text(user['userName']),
-                        subtitle: Text('+${user['countryCode']} ${user['mobileNumber']}'),
-                        trailing: IconButton(onPressed: () {  }, icon: const Icon(Icons.menu),),
+                        subtitle: Text(
+                            '+${user['countryCode']} ${user['mobileNumber']}'),
+                        trailing: IconButton(
+                          tooltip: 'User Permission',
+                          onPressed: () => _showAlertDialog(
+                              context, user['userName'], user['userId']),
+                          icon: const Icon(Icons.menu),
+                        ),
                       ),
                     ),
                   );
@@ -624,11 +643,22 @@ class _PumpControllerSettingsState extends State<PumpControllerSettings> {
               leading: const Icon(Icons.supervised_user_circle_outlined),
               title: const Text('My Sub users', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),),
               trailing: widget.adDrId!=0?IconButton(tooltip:'Add new sub user', onPressed: () async {
-                showDialog<void>(
+                showModalBottomSheet(
                   context: context,
-                  builder: (context) => AlertDialog(
-                    content: CreateAccount(callback: callbackFunction, subUsrAccount: true, customerId: widget.customerId, from: 'Admin',),
-                  ),
+                  isScrollControlled: true,
+                  builder: (context) {
+                    return FractionallySizedBox(
+                      heightFactor: 0.84,
+                      widthFactor: 0.75,
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
+                        ),
+                        child: CreateAccount(callback: callbackFunction, subUsrAccount: true, customerId: widget.customerId, from: 'Sub User',),
+                      ),
+                    );
+                  },
                 );
               }, icon: const Icon(Icons.add)):
               null,
@@ -636,7 +666,7 @@ class _PumpControllerSettingsState extends State<PumpControllerSettings> {
             const Divider(height: 0,),
             SizedBox(
               height: 70,
-              child: subUsers.length>0?ListView.builder(
+              child: subUsers.isNotEmpty?ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: subUsers.length,
                 itemBuilder: (context, index) {
@@ -646,12 +676,19 @@ class _PumpControllerSettingsState extends State<PumpControllerSettings> {
                     child: Card(
                       surfaceTintColor: Colors.teal,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5.0), // Adjust the radius as needed
+                        borderRadius: BorderRadius.circular(
+                            5.0), // Adjust the radius as needed
                       ),
                       child: ListTile(
                         title: Text(user['userName']),
-                        subtitle: Text('+${user['countryCode']} ${user['mobileNumber']}'),
-                        trailing: IconButton(onPressed: () {  }, icon: const Icon(Icons.menu),),
+                        subtitle: Text(
+                            '+${user['countryCode']} ${user['mobileNumber']}'),
+                        trailing: IconButton(
+                          tooltip: 'User Permission',
+                          onPressed: () => _showAlertDialog(
+                              context, user['userName'], user['userId']),
+                          icon: const Icon(Icons.menu),
+                        ),
                       ),
                     ),
                   );
@@ -664,6 +701,79 @@ class _PumpControllerSettingsState extends State<PumpControllerSettings> {
       ),
     );
   }
+
+  Future<void> _showAlertDialog(BuildContext context, String cName, int suId) async {
+
+    List<UserGroup> userGroups = [];
+
+    final response = await HttpService().postRequest("getUserSharedDeviceList",
+        {"userId": widget.customerId, "sharedUserId": suId,});
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      print(response.body);
+      if (data["code"] == 200) {
+        var list = data['data'] as List;
+        setState(() {
+          userGroups = list.map((i) => UserGroup.fromJson(i)).toList();
+        });
+      }
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('$cName - Permissions'),
+          content: SizedBox(
+            width: 400,
+            height: 400,
+            child: Scaffold(
+              body: ListView.builder(
+                itemCount: userGroups.length,
+                itemBuilder: (context, index) {
+                  return UserGroupWidget(group: userGroups[index]);
+                },
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Submit'),
+              onPressed: () {
+                List<MasterItem> masterList = [];
+                for(int gix=0; gix<userGroups.length; gix++){
+                  for(int mix=0; mix<userGroups[gix].master.length; mix++){
+                    masterList.add(MasterItem(id: userGroups[gix].master[mix].controllerId, action: userGroups[gix].master[mix].isSharedDevice, userPermission: userGroups[gix].master[mix].userPermission));
+                  }
+                }
+                sendUpdatedPermission(masterList.map((item) => item.toMap()).toList(), suId);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> sendUpdatedPermission(List<Map<String, dynamic>> uptJson, int suId) async
+  {
+    final response = await HttpService().postRequest("createUserSharedController",
+        {"userId": widget.customerId, "masterList": uptJson, "sharedUser": suId, "createUser": widget.customerId,});
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      if (data["code"] == 200) {
+        GlobalSnackBar.show(context, data["message"], 200);
+        Navigator.of(context).pop();
+      }
+    }
+  }
+
 }
 
 class ThemeChangeDialog extends StatefulWidget {

@@ -392,7 +392,7 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
                 }
               }
             }
-            masterSlave += '${relay1 != null ? '$relay1' : ''}${relay2 != null ? ',$relay2' : ''}${relay3 != null ? ',$relay3' : ''}';
+            masterSlave += '${relay1 != null ? '$relay1' : ''}${relay2 != null ? '${relay1 != null ? ',' : ''}$relay2' : ''}${relay3 != null ? '${(relay1 != null || relay2 != null) ? ',' : ''}$relay3' : ''}';
             if(pumpCount != 0){
               var actualPumpPayload = convert.jsonEncode({"sentSms":"pumpconfig,$pumpCount,${oroPump['referenceNumber']},$masterSlave,${[1,2].contains(configPvd.categoryId) ? '1' : '0'}"});
               var gemPumpPayload = convert.jsonEncode({

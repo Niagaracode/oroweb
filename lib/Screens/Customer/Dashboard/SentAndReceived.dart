@@ -79,7 +79,7 @@ class _SentAndReceivedState extends State<SentAndReceived> {
                   setState(() {
                     _selectedDay = selectedDay;
                     _focusedDay = focusedDay;
-                    getLogs(widget.controllerId, DateFormat('yyyy-MM-dd').format(_focusedDay));
+                    getLogs(widget.controllerId, DateFormat('yyyy-MM-dd').format(_selectedDay!));
 
                   });
                 },
@@ -119,10 +119,12 @@ class _SentAndReceivedState extends State<SentAndReceived> {
               return isSameDay(_selectedDay, day);
             },
             onDaySelected: (selectedDay, focusedDay) {
+              print(selectedDay);
+              print(focusedDay);
               setState(() {
                 _selectedDay = selectedDay;
                 _focusedDay = focusedDay;
-                getLogs(widget.controllerId, DateFormat('yyyy-MM-dd').format(_focusedDay));
+                getLogs(widget.controllerId, DateFormat('yyyy-MM-dd').format(_selectedDay!));
 
               });
             },

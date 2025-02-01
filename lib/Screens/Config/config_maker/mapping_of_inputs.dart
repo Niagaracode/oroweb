@@ -1291,7 +1291,6 @@ class _MappingOfInputsTableState extends State<MappingOfInputsTable> {
       if(name != 'pressureIn' && name != 'pressureOut'){
         list.remove('ORO RTU');
       }
-      list.remove('O-RTU-Plus');
       list.remove('ORO Sense');
     }else if(['totalAnalogSensor'].contains(name)){
       list.remove('ORO Pump');

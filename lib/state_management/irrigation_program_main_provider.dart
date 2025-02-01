@@ -3122,8 +3122,6 @@ class IrrigationProgramProvider extends ChangeNotifier {
         });
       });
     }).toList();
-    print("programType in the dataToMqtt ==> $programType");
-    print("programType in the dataToMqtt 2 ==> ${_selectionModel!.data.headUnits?.where((element) => element.selected == true).map((e) => e.id).toList().join("_")}");
     return {
       "2500": [
         {

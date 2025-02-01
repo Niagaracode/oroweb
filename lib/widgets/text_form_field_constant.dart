@@ -154,7 +154,8 @@ class _TextFieldForConstantState extends State<TextFieldForConstant> {
             }
           },
           textAlign: TextAlign.center,
-          keyboardType: TextInputType.number,
+          keyboardType: const TextInputType.numberWithOptions(
+              decimal: true),
           decoration: InputDecoration(
               counterText: '',
               border: OutlineInputBorder(

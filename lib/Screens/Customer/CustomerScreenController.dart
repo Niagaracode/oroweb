@@ -20,6 +20,7 @@ import '../../constants/snack_bar.dart';
 import '../../constants/theme.dart';
 import '../../state_management/MqttPayloadProvider.dart';
 import '../../state_management/overall_use.dart';
+import '../Config/dealer_definition_config.dart';
 import '../product_inventory.dart';
 import 'AccountManagement.dart';
 import 'CustomerDashboard.dart';
@@ -115,7 +116,6 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
     {
       mySiteList.clear();
       var data = jsonDecode(response.body);
-      //print(response.body);
       if(data["code"]==200)
       {
         final jsonData = data["data"] as List;
@@ -696,7 +696,32 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                 padding: const EdgeInsets.all(8),
                 child: TextButton(
                   onPressed: () {
-                    int prFlag = 0;
+                    print(payload.payloadIrrLine);
+                    List<dynamic> records = payload.payloadIrrLine;
+                    for (var record in records) {
+                      print(record['S_No']);
+                    }
+                    /*var record = records.firstWhere((record) => record['S_No'] == mySiteList[siteIndex].master[masterIndex].irrigationLine[0].sNo,
+                      orElse: () => null,
+                    );
+                    if (record != null) {
+                      String payLoadFinal = jsonEncode({
+                        "4900": [{
+                          "4901": "${mySiteList[siteIndex].master[masterIndex].irrigationLine[0].sNo}, ${record['IrrigationPauseFlag'] == 0?1:0}",
+                        }
+                        ]
+                      });
+                      MQTTManager().publish(payLoadFinal, 'AppToFirmware/${mySiteList[siteIndex].master[masterIndex].deviceId}');
+                      if(payload.payloadIrrLine[0].irrigationPauseFlag == 1){
+                        sentToServer('Resumed the Irrigation line', payLoadFinal);
+                      }else{
+                        sentToServer('Paused the Irrigation line', payLoadFinal);
+                      }
+
+                    } else {
+                      const GlobalSnackBar(code: 200, message: 'Controller connection lost...');
+                    }*/
+                    /*int prFlag = 0;
                     List<dynamic> records = payload.payloadIrrLine;
                     int sNoToCheck = payload.payloadIrrLine[0].sNo;
                     var record = records.firstWhere(
@@ -723,7 +748,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                       }
                     } else {
                       const GlobalSnackBar(code: 200, message: 'Controller connection lost...');
-                    }
+                    }*/
                   },
                   style: ButtonStyle(
                     backgroundColor: WidgetStateProperty.all<Color>(payload.payloadIrrLine[0].irrigationPauseFlag == 1 ? Colors.green : Colors.orange),
@@ -1003,6 +1028,14 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                     child: Icon(Icons.settings_outlined),
                   ),
                   selectedIcon: Icon(Icons.settings, color: Colors.white,),
+                  label: Text(''),
+                ),
+                NavigationRailDestination(
+                  icon: Tooltip(
+                    message: 'Dealer Definition',
+                    child: Icon(Icons.phonelink_setup_rounded),
+                  ),
+                  selectedIcon: Icon(Icons.phonelink_setup_rounded, color: Colors.white,),
                   label: Text(''),
                 ),
               ],
@@ -1309,7 +1342,9 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
             _selectedIndex == 3 ? IrrigationAndPumpLog(userId: mySiteList[siteIndex].customerId, controllerId: mySiteList[siteIndex].master[masterIndex].controllerId,):
             _selectedIndex == 4 ? WeatherScreen(userId: mySiteList[siteIndex].customerId, controllerId: mySiteList[siteIndex].master[masterIndex].controllerId, deviceID: mySiteList[siteIndex].master[masterIndex].deviceId, initialIndex: 0,):
             _selectedIndex == 5 ? TicketHomePage(userId: mySiteList[siteIndex].customerId, controllerId: mySiteList[siteIndex].master[masterIndex].controllerId,):
-            ControllerSettings(customerID: widget.customerId, siteData: mySiteList[siteIndex], masterIndex: masterIndex, adDrId: widget.comingFrom=='AdminORDealer'? widget.userId:0, allSiteList: mySiteList,),
+            _selectedIndex == 6 ? ControllerSettings(customerID: widget.customerId, siteData: mySiteList[siteIndex], masterIndex: masterIndex, adDrId: widget.comingFrom=='AdminORDealer'? widget.userId:0, allSiteList: mySiteList,) :
+            DealerDefinitionInConfig(userId: widget.userId,  customerId: mySiteList[siteIndex].customerId, controllerId: mySiteList[siteIndex].master[masterIndex].controllerId, imeiNo: mySiteList[siteIndex].master[masterIndex].deviceId,),
+
           ),
         ),
       ],

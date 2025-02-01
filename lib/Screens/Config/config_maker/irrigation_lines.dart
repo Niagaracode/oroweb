@@ -105,14 +105,16 @@ class _IrrigationLineTableState extends State<IrrigationLineTable> {
                         return showingMessage('Oops!', 'The irrigation line limit is achieved!..', context);
                       }
                   );
-                }else if(configPvd.totalValve == 0){
-                  showDialog(
-                      context: context,
-                      builder: (context){
-                        return showingMessage('Oops!', 'The valve limit is achieved!..', context);
-                      }
-                  );
-                }else{
+                }
+                // else if(configPvd.totalValve == 0){
+                //   showDialog(
+                //       context: context,
+                //       builder: (context){
+                //         return showingMessage('Oops!', 'The valve limit is achieved!..', context);
+                //       }
+                //   );
+                // }
+                else{
                   configPvd.irrigationLinesFunctionality(['addIrrigationLine']);
                   _verticalScroll1.animateTo(
                     _verticalScroll1.position.maxScrollExtent,

@@ -245,7 +245,7 @@ class _MoistureSensorInConstState extends State<MoistureSensorInConst> {
           alignment: Alignment.centerRight,
           child: Material(
             elevation: 15,
-            color: Colors.transparent,
+            color: Colors.white,
             borderRadius: BorderRadius.zero,
             child: StatefulBuilder(
               builder: (BuildContext context, StateSetter stateSetter) {
@@ -407,6 +407,7 @@ class _SelectingValveForMoistureSensorState extends State<SelectingValveForMoist
                   },
                 ),
               ),
+            const SizedBox(height: 100,)
           ],
         ),
       ),

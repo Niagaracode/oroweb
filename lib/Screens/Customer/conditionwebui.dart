@@ -410,7 +410,7 @@ class _ConditionWebUIState extends State<ConditionWebUI>
             // applycheck = 0;
             print('pplycheck 13');
           } else {
-            applychangeclick();
+           await applychangeclick();
             updateconditions();
             // Widget okButton = TextButton(
             //   child: const Text("OK"),
@@ -1588,6 +1588,10 @@ class _ConditionWebUIState extends State<ConditionWebUI>
           conditionLibrary![selectIndexRow].program = '0';
         }
       } else if (usedProgramDropDownStr.contains('condition')) {
+
+
+
+
         conditionLibrary![selectIndexRow].conditionIsTrueWhen =
         '$usedProgramDropDownStr $usedProgramDropDownStr2 $dropDownValues $usedProgramDropDownStr3';
         conditionLibrary![selectIndexRow].dropdown1 = usedProgramDropDownStr;
@@ -1605,6 +1609,16 @@ class _ConditionWebUIState extends State<ConditionWebUI>
           } else {
             conditionLibrary![selectIndexRow].program = '0';
           }
+        }
+print("usedProgramDropDownStr$usedProgramDropDownStr");
+print("usedProgramDropDownStr2$usedProgramDropDownStr2");
+        if(usedProgramDropDownStr == '' || usedProgramDropDownStr2 == '')
+        {
+          conditionLibrary![selectIndexRow].conditionIsTrueWhen = '';
+          conditionLibrary![selectIndexRow].dropdown1 = '';
+          conditionLibrary![selectIndexRow].dropdown2 = '';
+          conditionLibrary![selectIndexRow].program = '0';
+          conditionLibrary![selectIndexRow].usedByProgram = '--Select Category--';
         }
       } else if (usedProgramDropDownStr.contains('Zone')) {
         conditionLibrary![selectIndexRow].conditionIsTrueWhen =

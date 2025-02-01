@@ -1287,6 +1287,8 @@ class _MappingOfOutputsTableState extends State<MappingOfOutputsTable> {
     myList.insert(0, '-');
     return rf == '-' ? ['-'] : myList;
   }
+
+
   List<Map<String,dynamic>> irrigationLine(ConfigMakerProvider configPvd){
     List<Map<String,dynamic>> myList = [];
     for(var i = 0;i < configPvd.irrigationLines.length;i++){

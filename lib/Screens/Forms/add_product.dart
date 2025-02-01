@@ -58,7 +58,7 @@ class _AddProductState extends State<AddProduct> {
         selection: TextSelection.collapsed(offset: imeiController.text.length),
       );
     });
-    ctrlWrM.text = '15';
+    ctrlWrM.text = '12';
     ctrlDofM.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
   }
 

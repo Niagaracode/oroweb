@@ -411,6 +411,7 @@ flutter:
      - assets/images/login_left_picture.png
      - assets/SVGPicture/oro_logo.svg
      - assets/images/scom_logo_white.png
+     - assets/images/filter_flush.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

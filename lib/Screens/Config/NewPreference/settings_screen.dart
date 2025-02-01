@@ -248,17 +248,6 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                                 selectedSetting = value!;
                                 if(!widget.viewSettings) {
                                   if(selectedSetting == 2) {
-                                    if([1,2].contains(Provider.of<OverAllUse>(context, listen: false).controllerType)) {
-                                      final oroPumpSerialNumber = preferenceProvider.commonPumpSettings![tabController1.index].serialNumber;
-                                      final referenceNumber = preferenceProvider.commonPumpSettings![tabController1.index].referenceNumber;
-                                      final deviceId = preferenceProvider.commonPumpSettings![tabController1.index].deviceId;
-                                      final interfaceType = preferenceProvider.commonPumpSettings![tabController1.index].interfaceTypeId;
-                                      final categoryId = preferenceProvider.commonPumpSettings![tabController1.index].categoryId;
-                                      final payload = jsonEncode({"sentSms": "viewconfig"});
-                                      final payload2 = jsonEncode({"0": payload});
-                                      final viewConfig = {"5900": [{"5901": "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload2+${categoryId}"},{"5902": "${widget.userId}"}]};
-                                      MQTTManager().publish(jsonEncode(viewConfig), "AppToFirmware/${preferenceProvider.generalData!.deviceId}");
-                                    }
                                     showDialog(
                                         context: context,
                                         builder: (BuildContext context) {
@@ -296,6 +285,18 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                                                             preferenceProvider.passwordValidationCode = 0;
                                                           });
                                                           await preferenceProvider.checkPassword(userId: widget.userId, password: passwordController.text);
+                                                          if([1,2].contains(preferenceProvider.generalData!.categoryId)) {
+                                                            final oroPumpSerialNumber = preferenceProvider.commonPumpSettings![tabController1.index].serialNumber;
+                                                            final referenceNumber = preferenceProvider.commonPumpSettings![tabController1.index].referenceNumber;
+                                                            final deviceId = preferenceProvider.commonPumpSettings![tabController1.index].deviceId;
+                                                            final interfaceType = preferenceProvider.commonPumpSettings![tabController1.index].interfaceTypeId;
+                                                            final categoryId = preferenceProvider.commonPumpSettings![tabController1.index].categoryId;
+                                                            final payload = jsonEncode({"sentSms": "viewconfig"});
+                                                            final payload2 = jsonEncode({"0": payload});
+                                                            final viewConfig = {"5900": [{"5901": "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload2+${categoryId}"},{"5902": "${widget.userId}"}]};
+                                                            MQTTManager().publish(jsonEncode(viewConfig), "AppToFirmware/${preferenceProvider.generalData!.deviceId}");
+                                                            print('Published');
+                                                          }
                                                           if(preferenceProvider.passwordValidationCode == 200) {
                                                             Navigator.of(context).pop();
                                                             passwordController.text = "";
