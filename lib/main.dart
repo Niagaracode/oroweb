@@ -89,11 +89,12 @@ class MyApp extends StatelessWidget {
         '/dashboard': (context) => const MainDashBoard(),
       },
       // home: PreferenceMainScreen(userId: 22, controllerId: 36, deviceId: '2CCF674C0F8A', customerId: 22,),
-      // home: ConfigMakerScreen(userID: 63, customerID: 63, controllerId: 383, imeiNumber: ''),
+      // home: ConfigMakerScreen(userID: 48, customerID: 48, controllerId: 277, imeiNumber: ''),
       // home: ConstantInConfig(userId: 82, customerId: 82, controllerId: 776, deviceId: '2CCF67724A83'),
     );
   }
 }
+
 class CustomFlutterErrorWidget extends StatelessWidget {
   const CustomFlutterErrorWidget({super.key});
 

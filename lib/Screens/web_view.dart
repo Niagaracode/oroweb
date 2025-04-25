@@ -19,13 +19,14 @@ class _MyWebViewState extends State<MyWebView> {
       future: _initializeWebView(),
       builder: (BuildContext context, AsyncSnapshot<WebViewController> snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          return WebView(
+          return Center(child: Text("Web view"),);
+         /* return WebView(
             initialUrl: 'https://www.example.com',
             javascriptMode: JavascriptMode.unrestricted,
             onWebViewCreated: (WebViewController webViewController) {
               _webViewController = webViewController;
             },
-          );
+          );*/
         } else {
           return Center(child: CircularProgressIndicator());
         }

@@ -89,6 +89,7 @@ class PreferenceProvider extends ChangeNotifier {
     try {
       final response = await httpService.postRequest(actionForNotification, userData);
       if(response.statusCode == 200) {
+        // print("response.body ${response.body}");
         final result = jsonDecode(response.body);
         try {
           alarmNotificationData = List.from(result['data']['alarm'].map((json) => NotificationsData.fromJson(json)));
@@ -105,6 +106,8 @@ class PreferenceProvider extends ChangeNotifier {
     }
     try {
       final response = await httpService.postRequest(actionForSetting, userData);
+      print("$actionForSetting response.body ${response.body}");
+
       if(response.statusCode == 200) {
         final result = jsonDecode(response.body);
         try {
@@ -125,6 +128,7 @@ class PreferenceProvider extends ChangeNotifier {
     try {
       final response = await httpService.postRequest(actionForCalibration, userData);
       if(response.statusCode == 200) {
+        print("response.body ${response.body}");
         final result = jsonDecode(response.body);
         try {
           calibrationSetting = List.from(result['data'].map((json) => CommonPumpSetting.fromJson(json)));

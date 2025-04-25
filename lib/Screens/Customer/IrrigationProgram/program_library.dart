@@ -1276,6 +1276,10 @@ Future<void> validatePayloadSent({
       if (mqttPayloadProvider.messageFromHw['Code'] == "200") {
         acknowledgedFunction();
       } else {
+        print("payloadCode else:$payloadCode");
+
+            acknowledgedFunction();
+
         showSnackBar(message: "${mqttPayloadProvider.messageFromHw['Name']}", context: context);
       }
     } else {

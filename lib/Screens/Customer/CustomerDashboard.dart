@@ -1008,7 +1008,7 @@ class ValveWidget extends StatelessWidget {
                                         sizeUnit: GaugeSizeUnit.factor,
                                         color: Color(0xFF494CA2),
                                         animationDuration: 1000,
-                                        animationType: AnimationType.easeOutBack,
+                                        // animationType: AnimationType.easeOutBack,
                                         gradient: SweepGradient(
                                           colors: <Color>[
                                             Colors.greenAccent,
@@ -1245,7 +1245,7 @@ class SensorWidget extends StatelessWidget {
                                     sizeUnit: GaugeSizeUnit.factor,
                                     color: const Color(0xFF494CA2),
                                     animationDuration: 1000,
-                                    animationType: AnimationType.easeOutBack,
+                                    // animationType: AnimationType.easeOutBack,
                                     gradient: SweepGradient(
                                       colors: sensorType == "Water Meter" ? <Color>[
                                         Colors.teal.shade300,
