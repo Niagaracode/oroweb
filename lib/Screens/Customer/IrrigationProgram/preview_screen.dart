@@ -99,7 +99,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
                         color: Colors.yellow.shade100
                     ),
                     child: RichText(
-                      text: TextSpan(
+                      text: const TextSpan(
                         children: [
                           TextSpan(
                             text: 'Note: ',
@@ -580,8 +580,8 @@ class _PreviewScreenState extends State<PreviewScreen> {
               labelPlacement: LabelPlacement.onTicks,
               minimum: -0.5,
               maximum: chartDataList!.length.toDouble() - 0.5,
-              visibleMinimum: -0.5,
-              visibleMaximum: chartDataList!.length < 6 ? chartDataList!.length.toDouble() - 0.5 : 6,
+              initialVisibleMinimum: -0.5,
+              initialVisibleMaximum: chartDataList!.length < 6 ? chartDataList!.length.toDouble() - 0.5 : 6,
             ),
             primaryYAxis: NumericAxis(
               isVisible: true,
@@ -1231,7 +1231,7 @@ class _SlidingSendButtonState extends State<SlidingSendButton> {
               decoration: BoxDecoration(
                 color: isSent ? Colors.green : Theme.of(context).primaryColor,
                 borderRadius: BorderRadius.circular(25),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black26,
                     blurRadius: 5,

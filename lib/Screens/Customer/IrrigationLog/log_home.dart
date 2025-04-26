@@ -875,8 +875,8 @@ class _LogHomeState extends State<LogHome> {
                                                         maximumLabels: i['data'].length,
                                                         minimum: -0.5,
                                                         maximum: (i['data']).length.toDouble(),
-                                                        visibleMinimum: -0.5,
-                                                        visibleMaximum: (i['data'])!.length <= 3 ? (i['data'])!.length.toDouble() - 0.5 : 3,
+                                                        initialVisibleMinimum: -0.5,
+                                                        initialVisibleMaximum: (i['data'])!.length <= 3 ? (i['data'])!.length.toDouble() - 0.5 : 3,
                                                       ),
                                                       primaryYAxis: NumericAxis(
                                                         isVisible: true,

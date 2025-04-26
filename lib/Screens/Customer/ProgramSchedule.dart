@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:oro_irrigation_new/Screens/Config/NewPreference/preference_main_screen.dart';
 import 'package:oro_irrigation_new/Screens/Customer/program_queue_screen.dart';
+import 'package:oro_irrigation_new/Screens/Customer/pumpcondition_library.dart';
 import 'package:oro_irrigation_new/Screens/Customer/radiationsets.dart';
 import 'package:oro_irrigation_new/screens/Customer/system_definition_screen.dart';
 import 'package:oro_irrigation_new/screens/Customer/virtual_screen.dart';
@@ -52,8 +53,6 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-     // selectedIndex = widget.checkprogramcondition == 5 ? 5 : 0;
-
     getPlanningSideMenu();
   }
 
@@ -110,6 +109,8 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
         return const Icon(Icons.text_fields, color: Colors.white,);
       case 81:
         return const Icon(Icons.map_outlined, color: Colors.white,);
+      case 130:
+        return const Icon(Icons.heat_pump_rounded, color: Colors.white,);
       default:
         return const Icon(Icons.help_outline, color: Colors.white,);
     }
@@ -153,6 +154,8 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
         return CustomMarkerPage(userId: widget.customerID,deviceID: widget.imeiNumber,controllerId: widget.controllerID,);
       case 127:
         return Calibration(controllerId: widget.controllerID, userId: widget.customerID, deviceId:  widget.imeiNumber);
+      case 130:
+        return PumpConditionScreen(userId: widget.customerID, controllerId: widget.controllerID, imeiNo: widget.imeiNumber, isProgram: false);
 
       default:
         return const Center(child: Text('id'));

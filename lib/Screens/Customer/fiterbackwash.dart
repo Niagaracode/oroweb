@@ -1060,14 +1060,6 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
       "createUser": widget.userId
     };
 
-    // if (MQTTManager().isConnected == true) {
-    //   MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceID}');
-    //   GlobalSnackBar.show(
-    //       context, jsonDataResponse['message'], response.statusCode);
-    // } else {
-    //   GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
-    // }
-
     if (MQTTManager().isConnected == true) {
       await validatePayloadSent(
         dialogContext: context,

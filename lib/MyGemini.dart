@@ -1,8 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
+
 
 
 
@@ -34,39 +33,7 @@ class _MyGeminiState extends State<MyGemini> {
 
   // model_name="gemini-1.5-flash",
   // generation_config=generation_config,
-  void _sendPrompt() async {
-    final model = GenerativeModel(
-      generationConfig: GenerationConfig(
-        temperature: 0.15,
-        topP: 0.95,
-        topK: 64,
-        maxOutputTokens: 8192,
-        responseMimeType: "text/plain",
-      ),
-      model: 'gemini-pro', apiKey: 'AIzaSyC9dGxg8HPz7xpYWr9_k_IMFXNc11PzYkg',
-    ); // Model Settings
 
-    String promptText = _promptTextEditController.text;
-    if (promptText.isNotEmpty) {
-      setState(() {
-        _messages.add({'user': promptText});
-      });
-      final content = [Content.text(promptText)];
-      try {
-        final response = await model.generateContent(content);
-        setState(() {
-          _messages
-              .add({'gemini': response.text.toString()}); // Gemini의 응답을 리스트에 추가
-        });
-      } catch (e) {
-        print('Exception: $e');
-        setState(() {
-          _messages.add({'gemini': 'Error: $e'}); // 오류 메시지를 리스트에 추가
-        });
-      }
-      _promptTextEditController.clear(); // 입력 필드를 초기화
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,19 +63,11 @@ class _MyGeminiState extends State<MyGemini> {
                         color: isUser ? Colors.blue[100] : Colors.grey[300],
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: isUser
-                          ? Text(
+                      child:   Text(
                         message['user']!,
                         style: TextStyle(fontSize: 16),
                       )
-                          : MarkdownBody(
-                        data: message['gemini']!,
-                        styleSheet: MarkdownStyleSheet.fromTheme(
-                          Theme.of(context),
-                        ).copyWith(
-                          p: TextStyle(fontSize: 16),
-                        ),
-                      ),
+
                     ),
                   );
                 },
@@ -131,7 +90,7 @@ class _MyGeminiState extends State<MyGemini> {
                 ),
                 SizedBox(width: 10),
                 ElevatedButton(
-                  onPressed: _sendPrompt,
+                  onPressed: (){},
                   child: Text("Send"),
                 ),
               ],

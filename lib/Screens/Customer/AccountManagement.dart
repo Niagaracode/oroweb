@@ -19,10 +19,13 @@ class AccountManagement extends StatefulWidget {
 class _AccountManagementState extends State<AccountManagement> {
   String countryCode = '', mobileNo = '', userName = '', emailId = '', password = '';
   final TextEditingController controllerMblNo = TextEditingController();
+  final TextEditingController controllerCC = TextEditingController();
   final TextEditingController controllerUsrName = TextEditingController();
   final TextEditingController controllerEmail = TextEditingController();
   final TextEditingController controllerPwd = TextEditingController();
   final formKey = GlobalKey<FormState>();
+
+  PhoneNumber? phoneNumber;
 
   @override
   void initState() {
@@ -44,6 +47,7 @@ class _AccountManagementState extends State<AccountManagement> {
       countryCode = cntList[0]['countryCode']!;
       controllerMblNo.text = cntList[0]['mobileNumber']!;
       controllerUsrName.text = cntList[0]['userName']!;
+      controllerCC.text = cntList[0]['countryCode']!;
       controllerEmail.text = cntList[0]['email']!;
       controllerPwd.text = cntList[0]['password']!;
 
@@ -56,12 +60,24 @@ class _AccountManagementState extends State<AccountManagement> {
       await prefs.setString('password', cntList[0]["password"].toString());
       await prefs.setString('email', cntList[0]["email"].toString());
 
-      setState(() {
-        countryCode;
-      });
+      setInitialPhoneNumber('+$countryCode ${cntList[0]['mobileNumber']!}');
+
     }
 
   }
+
+  Future<void> setInitialPhoneNumber(String countryCode) async {
+    try {
+
+      PhoneNumber number = await PhoneNumber.getRegionInfoFromPhoneNumber(countryCode);
+      setState(() {
+        phoneNumber = number;
+      });
+    } catch (e) {
+      print("Error fetching ISO code: $e");
+    }
+  }
+
 
 
   @override
@@ -222,31 +238,24 @@ class _AccountManagementState extends State<AccountManagement> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            InternationalPhoneNumberInput(
-              onInputChanged: (PhoneNumber number) {
-                //print(number.phoneNumber);
+            TextFormField(
+              controller: controllerCC,
+              decoration: InputDecoration(
+                labelText: 'Country Code',
+                /*border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10.0), // Border radius
+                                    ),*/
+              ),
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return 'Please enter your name';
+                }
+                return null;
               },
-              selectorConfig: const SelectorConfig(
-                selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
-                setSelectorButtonAsPrefixIcon: true,
-                leadingPadding: 10,
-                useEmoji: false,
-              ),
-              ignoreBlank: false,
-              inputDecoration: InputDecoration(
-                labelText: 'Mobile Number',
-                /* border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.0), // Border radius
-                              ),*/
-              ),
-              autoValidateMode: AutovalidateMode.disabled,
-              selectorTextStyle: const TextStyle(color: Colors.black),
-              initialValue: PhoneNumber(isoCode: 'IN'),
-              textFieldController: controllerMblNo,
-              formatInput: false,
-              keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
-              onSaved: (PhoneNumber number) {
-                //print('On Saved: $number');
+              onChanged: (value) {
+                setState(() {
+                  //_name = value;
+                });
               },
             ),
             Form(
@@ -338,10 +347,11 @@ class _AccountManagementState extends State<AccountManagement> {
                         onPressed: () async {
                           try {
                             if (formKey.currentState!.validate()) {
-                              final body = {"userId": widget.userID, "userName": controllerUsrName.text, "countryCode": countryCode, "mobileNumber": controllerMblNo.text,
+                              final body = {"userId": widget.userID, "userName": controllerUsrName.text, "countryCode": controllerCC.text, "mobileNumber": controllerMblNo.text,
                                 "emailAddress": controllerEmail.text,"password": controllerPwd.text,"modifyUser": widget.userID,};
                               print(body);
                               final response = await HttpService().putRequest("updateUserDetails", body);
+                              print(response.body);
                               if (response.statusCode == 200) {
                                 final jsonResponse = json.decode(response.body);
                                 widget.callback(jsonResponse['message']);

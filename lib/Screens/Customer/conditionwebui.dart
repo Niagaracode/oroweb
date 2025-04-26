@@ -1766,19 +1766,6 @@ print("usedProgramDropDownStr2$usedProgramDropDownStr2");
             setState(() {
               finaljson["controllerReadStatus"] = "1";
             });
-            final response = await HttpService()
-                .postRequest("createUserPlanningConditionLibrary", body);
-            final jsonDataresponse = json.decode(response.body);
-            GlobalSnackBar.show(
-                context, jsonDataresponse['message'], response.statusCode);
-            Future.delayed(Duration(seconds: 1), () async{
-              if(widget.isProgram) {
-                final irrigationProvider = Provider.of<IrrigationProgramProvider>(context, listen: false);
-                await irrigationProvider.getUserProgramCondition(widget.userId, widget.controllerId, widget.serialNumber);
-                Navigator.pop(context);
-              }
-            });
-
           },
           payload: payLoadFinal,
           payloadCode: '1000',
@@ -1787,6 +1774,18 @@ print("usedProgramDropDownStr2$usedProgramDropDownStr2");
       // Map<String, dynamic>
       GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
     }
+    final response = await HttpService()
+        .postRequest("createUserPlanningConditionLibrary", body);
+    final jsonDataresponse = json.decode(response.body);
+    GlobalSnackBar.show(
+        context, jsonDataresponse['message'], response.statusCode);
+    Future.delayed(Duration(seconds: 1), () async{
+      if(widget.isProgram) {
+        final irrigationProvider = Provider.of<IrrigationProgramProvider>(context, listen: false);
+        await irrigationProvider.getUserProgramCondition(widget.userId, widget.controllerId, widget.serialNumber);
+        Navigator.pop(context);
+      }
+    });
   }
 
   String? getSNoByName(List<UserNames> data, String name) {
@@ -2001,10 +2000,13 @@ print("usedProgramDropDownStr2$usedProgramDropDownStr2");
           }
           print('conditionIsTrueWhenValue--${item.name}---$conditionIsTrueWhenValue');
         } else {
-          conditionIsTrueWhenValue = "1,0,1,0";
+          conditionIsTrueWhenValue = ",,,";
         }
-        mqttData +=
-        '${item.sNo},${item.name},$enableValue,${item.duration},${item.fromTime},${item.untilTime == "00:00:00" ? "23:59:59" : item.untilTime},$notifigation,$conditionIsTrueWhenValue,$conditionBypass,${item.conditionIsTrueWhen?.contains('Combined') == true ? '${item.dropdown1}  ${item.dropdown2} ${item.dropdownValue} ${item.dropdown3}' : item.conditionIsTrueWhen};';
+
+       enableValue == '1' ? mqttData +=
+          '${item.sNo},${item.name},$enableValue,${item.duration},${item.fromTime},${item.untilTime == "00:00:00" ? "23:59:59" : item.untilTime},$notifigation,$conditionIsTrueWhenValue,$conditionBypass,${item.conditionIsTrueWhen?.contains('Combined') == true ? '${item.dropdown1}  ${item.dropdown2} ${item.dropdownValue} ${item.dropdown3}' : item.conditionIsTrueWhen};' : '';
+
+
 
       });
     }

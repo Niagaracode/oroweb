@@ -18,7 +18,6 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content=""A new Flutter project."">
 
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -39,24 +38,10 @@
   <!-- This script adds the flutter initialization JS code -->
   <script src="./flutter.js" defer></script>
 
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCo1EQkS8hi8i84TwgksdXsWzM41MaYdXs"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCfMo2V0inDY3xpp91BjfIrD4s-v6PPSzw"></script>
 
 </head>
 <body>
-  <script>
-    window.addEventListener('load', function(ev) {
-      // Download main.dart.js
-      _flutter.loader.loadEntrypoint({
-        serviceWorker: {
-          serviceWorkerVersion: serviceWorkerVersion,
-        },
-        onEntrypointLoaded: function(engineInitializer) {
-          engineInitializer.initializeEngine().then(function(appRunner) {
-            appRunner.runApp();
-          });
-        }
-      });
-    });
-  </script>
+<script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

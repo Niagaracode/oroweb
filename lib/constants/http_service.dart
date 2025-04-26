@@ -9,6 +9,7 @@ class HttpService
    // final String baseURL = "http://192.168.68.141:3000/api/v1/";//local
   Future<http.Response> postRequest(String action, Map<String, dynamic> bodyData) async
   {
+    print("action:$action  bodyData:$bodyData ");
     var headers = {
       'Content-Type':'application/json',
       "action": action

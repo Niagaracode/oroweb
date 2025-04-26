@@ -1,43 +1,47 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 class MyWebView extends StatefulWidget {
   const MyWebView({super.key});
 
   @override
-  _MyWebViewState createState() => _MyWebViewState();
+  State<MyWebView> createState() => _MyWebViewState();
 }
 
 class _MyWebViewState extends State<MyWebView> {
-  late WebViewController _webViewController;
+  late final WebViewController _webViewController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    late final PlatformWebViewControllerCreationParams params;
+
+    if (WebViewPlatform.instance is WebKitWebViewPlatform) {
+      params = WebKitWebViewControllerCreationParams(
+        allowsInlineMediaPlayback: true,
+      );
+    } else {
+      params = const PlatformWebViewControllerCreationParams();
+    }
+
+    final WebViewController controller =
+    WebViewController.fromPlatformCreationParams(params);
+
+    controller
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..loadRequest(Uri.parse('https://www.example.com'));
+
+    _webViewController = controller;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return kIsWeb ? Container() : FutureBuilder(
-      future: _initializeWebView(),
-      builder: (BuildContext context, AsyncSnapshot<WebViewController> snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          return WebView(
-            initialUrl: 'https://www.example.com',
-            javascriptMode: JavascriptMode.unrestricted,
-            onWebViewCreated: (WebViewController webViewController) {
-              _webViewController = webViewController;
-            },
-          );
-        } else {
-          return Center(child: CircularProgressIndicator());
-        }
-      },
-    );
-  }
-
-  Future<WebViewController> _initializeWebView() async {
-    // Perform any additional initialization here
-    await Future.delayed(const Duration(seconds: 2)); // Simulating a delay
-
-    // Return the WebViewController once initialized
-    return _webViewController;
+    return kIsWeb
+        ? const Center(child: Text("WebView not supported on Web"))
+        : WebViewWidget(controller: _webViewController);
   }
 }
