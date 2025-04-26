@@ -7,7 +7,7 @@ import 'package:oro_irrigation_new/screens/Customer/Dashboard/ScheduledProgramLi
 import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
- import 'package:syncfusion_flutter_gauges/gauges.dart';
+import 'package:syncfusion_flutter_gauges/gauges.dart';
 import '../../Models/Customer/Dashboard/DashboardNode.dart';
 import '../../Models/Customer/SensorHourlyData.dart';
 import '../../constants/MQTTManager.dart';
@@ -1002,7 +1002,7 @@ class ValveWidget extends StatelessWidget {
                                       NeedlePointer(
                                           value: double.parse(ms.value),
                                           needleEndWidth: 3, needleColor: Colors.black54),
-                                       RangePointer(
+                                      const RangePointer(
                                         value: 200.0,
                                         width: 0.30,
                                         sizeUnit: GaugeSizeUnit.factor,

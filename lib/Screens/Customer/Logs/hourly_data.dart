@@ -74,28 +74,30 @@ class _HourlyDataState extends State<HourlyData> {
         // print(getPumpController.body);
         // print(data);
         Future.delayed(const Duration(microseconds: 1000));
-        setState(() {
-          chartData = [];
-          if (response['data'] is List) {
-            List<dynamic> dataList = response['data'];
-            motorDataList = dataList.map((item) => MotorDataHourly.fromJson(item)).toList();
-            for (var i = 0; i < motorDataList[0].numberOfPumps; i++) {
-              List<Color> colors = [Colors.lightBlueAccent.shade100.withOpacity(0.6), Colors.lightGreenAccent.withOpacity(0.6), Colors.greenAccent.withOpacity(0.6)];
-              chartData.add(
-                  MotorData(
-                      "M${i + 1}",
-                      [motorDataList[0].motorRunTime1, motorDataList[0].motorRunTime2, motorDataList[0].motorRunTime3][i],
-                      colors[i]
-                  )
-              );
-            }
-
-          } else {
-            motorDataList = [];
+        if(mounted) {
+          setState(() {
             chartData = [];
-            log('Data is not a List');
-          }
-        });
+            if (response['data'] is List) {
+              List<dynamic> dataList = response['data'];
+              motorDataList = dataList.map((item) => MotorDataHourly.fromJson(item)).toList();
+              for (var i = 0; i < motorDataList[0].numberOfPumps; i++) {
+                List<Color> colors = [Colors.lightBlueAccent.shade100.withOpacity(0.6), Colors.lightGreenAccent.withOpacity(0.6), Colors.greenAccent.withOpacity(0.6)];
+                chartData.add(
+                    MotorData(
+                        "M${i + 1}",
+                        [motorDataList[0].motorRunTime1, motorDataList[0].motorRunTime2, motorDataList[0].motorRunTime3][i],
+                        colors[i]
+                    )
+                );
+              }
+
+            } else {
+              motorDataList = [];
+              chartData = [];
+              log('Data is not a List');
+            }
+          });
+        }
       } else {
         log('Failed to load data');
       }

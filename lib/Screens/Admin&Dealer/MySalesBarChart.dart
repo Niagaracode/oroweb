@@ -36,7 +36,7 @@ class MySalesChartState extends State<MySalesBarChart> {
           pointColorMapper: (Category category, _) => category.color,
           name: month,
           dataLabelSettings: const DataLabelSettings(isVisible: true),
-          isVisibleInLegend: selectedSeriesIndex == null || selectedSeriesIndex == seriesList.length,
+          // isTrackVisible: selectedSeriesIndex == null || selectedSeriesIndex == seriesList.length,
         ),
       );
     });

@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gemini/flutter_gemini.dart';
+import 'package:oro_irrigation_new/MyGemini.dart';
+import 'package:oro_irrigation_new/Screens/Config/Constant/constant_tab_bar_view.dart';
+import 'package:oro_irrigation_new/Screens/Config/NewPreference/preference_main_screen.dart';
+import 'package:oro_irrigation_new/Screens/Config/config_maker/config_maker.dart';
 import 'package:oro_irrigation_new/Screens/map/maplatlong_provider.dart';
 import 'package:oro_irrigation_new/constants/theme.dart';
+import 'package:oro_irrigation_new/screens/DashBoard.dart';
+import 'package:oro_irrigation_new/screens/login_form.dart';
 import 'package:oro_irrigation_new/state_management/ConnectivityService.dart';
 import 'package:oro_irrigation_new/state_management/DurationNotifier.dart';
 import 'package:oro_irrigation_new/state_management/FertilizerSetProvider.dart';
@@ -22,10 +29,6 @@ import 'package:oro_irrigation_new/state_management/schedule_view_provider.dart'
 import 'package:oro_irrigation_new/state_management/system_definition_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:timezone/data/latest.dart' as tz;
-import 'Models/PumpConditionModel.dart';
-import 'Screens/Customer/pumpcondition_library.dart';
-import 'Screens/DashBoard.dart';
-import 'Screens/login_form.dart';
 
 
 void main() {
@@ -36,8 +39,8 @@ void main() {
   ScheduleViewProvider mySchedule = ScheduleViewProvider();
   MqttPayloadProvider myMqtt = MqttPayloadProvider();
   myMqtt.editMySchedule(mySchedule);
-  // Gemini.init(
-  //     apiKey: const String.fromEnvironment('AIzaSyC9dGxg8HPz7xpYWr9_k_IMFXNc11PzYkg'), enableDebugging: true);
+  Gemini.init(
+      apiKey: const String.fromEnvironment('AIzaSyC9dGxg8HPz7xpYWr9_k_IMFXNc11PzYkg'), enableDebugging: true);
   runApp(
       MultiProvider(
         providers: [
@@ -85,7 +88,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginForm(),
         '/dashboard': (context) => const MainDashBoard(),
       },
-      // home: PumpConditionScreen(userId: 48, controllerId: 12, imeiNo: '', isProgram: true, serialNumber: ''),
+      // home: PreferenceMainScreen(userId: 22, controllerId: 36, deviceId: '2CCF674C0F8A', customerId: 22,),
       // home: ConfigMakerScreen(userID: 48, customerID: 48, controllerId: 277, imeiNumber: ''),
       // home: ConstantInConfig(userId: 82, customerId: 82, controllerId: 776, deviceId: '2CCF67724A83'),
     );

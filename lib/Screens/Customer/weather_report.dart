@@ -316,7 +316,7 @@ class _ScrollableChartState extends State<ScrollableChart> {
                     autoScrollingMode: AutoScrollingMode.start),
                 primaryYAxis:
                 NumericAxis(title: AxisTitle(text: "${widget.titletype} ($titletypeunits) values")),
-                series: <CartesianSeries>[
+                series: [
                   LineSeries<SalesData, String>(
                     dataSource: chartData,
                     dataLabelSettings: DataLabelSettings(isVisible: true),
@@ -364,7 +364,7 @@ class _ScrollableChartState extends State<ScrollableChart> {
                     header: widget.titletype,
                     duration: 1.0,
                   ),
-                  series: <CartesianSeries>[
+                  series: [
                     ColumnSeries<SalesData, String>(
                         width: 0.2,
                         dataSource: chartData,

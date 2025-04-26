@@ -99,7 +99,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
                         color: Colors.yellow.shade100
                     ),
                     child: RichText(
-                      text: const TextSpan(
+                      text: TextSpan(
                         children: [
                           TextSpan(
                             text: 'Note: ',
@@ -1231,7 +1231,7 @@ class _SlidingSendButtonState extends State<SlidingSendButton> {
               decoration: BoxDecoration(
                 color: isSent ? Colors.green : Theme.of(context).primaryColor,
                 borderRadius: BorderRadius.circular(25),
-                boxShadow: const [
+                boxShadow: [
                   BoxShadow(
                     color: Colors.black26,
                     blurRadius: 5,
