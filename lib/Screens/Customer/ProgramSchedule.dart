@@ -9,7 +9,6 @@ import 'package:oro_irrigation_new/screens/Customer/system_definition_screen.dar
 import 'package:oro_irrigation_new/screens/Customer/virtual_screen.dart';
 import 'package:oro_irrigation_new/screens/Customer/watersourceUI.dart';
 import 'package:provider/provider.dart';
-
 import '../../Models/IrrigationModel/sequence_model.dart';
 import '../../constants/http_service.dart';
 import '../../state_management/FertilizerSetProvider.dart';
@@ -155,8 +154,7 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
       case 127:
         return Calibration(controllerId: widget.controllerID, userId: widget.customerID, deviceId:  widget.imeiNumber);
       case 130:
-        return PumpConditionScreen(userId: widget.customerID, controllerId: widget.controllerID, imeiNo: widget.imeiNumber, isProgram: false);
-
+        return PumpConditionScreen(userId: widget.customerID, controllerId: widget.controllerID, imeiNo: widget.imeiNumber);
       default:
         return const Center(child: Text('id'));
     }

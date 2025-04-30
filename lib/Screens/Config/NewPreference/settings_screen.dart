@@ -8,9 +8,7 @@ import '../../../Widgets/SCustomWidgets/custom_animated_switcher.dart';
 import '../../../Widgets/SCustomWidgets/custom_native_time_picker.dart';
 import '../../../Widgets/SCustomWidgets/custom_segmented_control.dart';
 import '../../../constants/MQTTManager.dart';
-import '../../../constants/theme.dart';
 import '../../../state_management/MqttPayloadProvider.dart';
-import '../../../state_management/overall_use.dart';
 import '../../../state_management/preference_provider.dart';
 import '../../Customer/IrrigationProgram/preview_screen.dart';
 import '../../Customer/IrrigationProgram/schedule_screen.dart';
@@ -240,7 +238,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                             segmentTitles: const {
                               0: 'Common setting',
                               1: 'Individual setting',
-                              2: 'Calibration'
+                              2: 'Calibration',
                             },
                             groupValue: selectedSetting,
                             onChanged: (value) {
@@ -277,7 +275,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                                                           selectedSetting = 1;
                                                           Navigator.of(context).pop();
                                                         },
-                                                        child: Text("CANCEL")
+                                                        child: const Text("CANCEL")
                                                     ),
                                                     TextButton(
                                                         onPressed: () async {
@@ -302,7 +300,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                                                             passwordController.text = "";
                                                           }
                                                         },
-                                                        child: Text("OK")
+                                                        child: const Text("OK")
                                                     ),
                                                   ],
                                                 );
@@ -562,7 +560,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                                             for (int index = 0; index < preferenceProvider.individualPumpSetting!
                                                 .where((e) => e.deviceId == preferenceProvider.commonPumpSettings![pumpIndex].deviceId).length; index++)
                                               Container(
-                                                margin: EdgeInsets.symmetric(horizontal: 15),
+                                                margin: const EdgeInsets.symmetric(horizontal: 15),
                                                 child: Column(
                                                   children: [
                                                     Row(
@@ -710,7 +708,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                     ],
                   ),
                 ),
-            SizedBox(height: 10,),
+            const SizedBox(height: 10,),
             if(categoryIndex == settingList.length -1)
               const SizedBox(height: 50,)
           ],
@@ -718,7 +716,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
       ),
     for(var categoryIndex = 0; categoryIndex < settingList.length; categoryIndex++)
       if(!((settingList[categoryIndex].type == 210 && (preferenceProvider.generalData!.categoryId != 3 || preferenceProvider.generalData!.categoryId != 4)) ? preferenceProvider.individualPumpSetting![pumpIndex].controlGem : true))
-        SizedBox(height: 50,)
+        const SizedBox(height: 50,)
     ],),);
     } catch(error, stackTrace) {
       // throw Exception('This is a test exception');
@@ -966,7 +964,7 @@ Widget buildCustomListTileWidget({
           textAlign: TextAlign.center,
           keyboardType: TextInputType.number,
           inputFormatters: inputFormatters,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             hintText: "000",
             contentPadding: EdgeInsets.symmetric(vertical: 5),
             border: OutlineInputBorder(
@@ -1009,7 +1007,7 @@ Widget buildCustomListTileWidget({
           enabled: enabled,
           initialValue: value is String ? value : "",
           textAlign: TextAlign.center,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
               hintText: "000",
               contentPadding: EdgeInsets.symmetric(vertical: 5),
               border: InputBorder.none,
@@ -1039,8 +1037,8 @@ Widget buildCustomListTileWidget({
         child: buildPopUpMenuButton(context: context, dataList: dataList, onSelected: (newValue) {
           if(enabled) onValueChange?.call(newValue);
         }, child: Container(
-          padding: EdgeInsets.symmetric(vertical: 5),
-          child: Text(value, textAlign: TextAlign.center, style: TextStyle(fontSize: 16),), decoration: BoxDecoration(color: cardColor, borderRadius: BorderRadius.circular(5)),)),
+          padding: const EdgeInsets.symmetric(vertical: 5),
+          child: Text(value, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16),), decoration: BoxDecoration(color: cardColor, borderRadius: BorderRadius.circular(5)),)),
       );
       break;
     default:

@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:oro_irrigation_new/constants/theme.dart';
+import 'package:provider/provider.dart';
 import 'dart:convert';
 import '../../Models/PumpConditionModel.dart';
 import '../../constants/MQTTManager.dart';
 import '../../constants/http_service.dart';
 import '../../constants/snack_bar.dart';
+import '../../screens/Customer/IrrigationProgram/program_library.dart';
+import '../../state_management/MqttPayloadProvider.dart';
 
-// SelectedPump model for selected pumps
-
-// PumpConditionScreen Widget
 class PumpConditionScreen extends StatefulWidget {
-  const PumpConditionScreen({
+   PumpConditionScreen({
     Key? key,
     required this.userId,
     required this.controllerId,
     required this.imeiNo,
-    required this.isProgram,
+     this.isProgram,
   }) : super(key: key);
 
   final userId, controllerId;
   final String imeiNo;
-  final bool isProgram;
+   bool? isProgram ;
 
   @override
   State<PumpConditionScreen> createState() => _PumpConditionScreenState();
@@ -28,90 +28,14 @@ class PumpConditionScreen extends StatefulWidget {
 
 class _PumpConditionScreenState extends State<PumpConditionScreen> {
   late PumpConditionModel pumpConditionModel = PumpConditionModel();
-  var jsonstr = {
-    "code": 200,
-    "message": "User planning pump condition listed successfully",
-    "data": {
-      "pumpCondition": [
-        {
-          "sNo": 3,
-          "id": "SP.1",
-          "hid": "SP.1",
-          "name": "Source Pump 1",
-          "location": "",
-          "type": "1",
-          "controlGem": true,
-          "deviceId": "E8EB1B050555",
-          "selectedPumps": [
-            {"sNo": 4, "id": "SP.2", "hid": "SP.2"},
-            {"sNo": 5, "id": "IP.1", "hid": "IP.1"}
-          ]
-        },
-        {
-          "sNo": 4,
-          "id": "SP.2",
-          "hid": "SP.2",
-          "name": "Source Pump 2",
-          "location": "",
-          "type": "1",
-          "controlGem": true,
-          "deviceId": "E8EB1B04C5D0",
-          "selectedPumps": []
-        },
-        {
-          "sNo": 5,
-          "id": "IP.1",
-          "hid": "IP.1",
-          "name": "Irrigation Pump 1",
-          "location": "IL.1",
-          "type": "1",
-          "controlGem": true,
-          "deviceId": "E8EB1B050555",
-          "selectedPumps": []
-        },
-        {
-          "sNo": 6,
-          "id": "IP.2",
-          "hid": "IP.2",
-          "name": "Irrigation Pump 2",
-          "location": "",
-          "type": "1",
-          "controlGem": true,
-          "deviceId": "E8EB1B050555",
-          "selectedPumps": []
-        },
-        {
-          "sNo": 7,
-          "id": "IP.3",
-          "hid": "IP.3",
-          "name": "Irrigation Pump 3",
-          "location": "IL.1",
-          "type": "1",
-          "controlGem": true,
-          "deviceId": "E8EB1B04C5D0",
-          "selectedPumps": []
-        },
-        {
-          "sNo": 8,
-          "id": "IP.4",
-          "hid": "IP.4",
-          "name": "Irrigation Pump 4",
-          "location": "",
-          "type": "1",
-          "controlGem": true,
-          "deviceId": "E8EB1B04C5D0",
-          "selectedPumps": []
-        }
-      ],
-      "controllerReadStatus": "0"
-    }
-  };
+  late MqttPayloadProvider mqttPayloadProvider;
+
   @override
   void initState() {
     super.initState();
-    // pumpConditionModel = PumpConditionModel.fromJson(jsonstr);
-    // Uncomment to use real data
-    fetchData();
+    mqttPayloadProvider =
+        Provider.of<MqttPayloadProvider>(context, listen: false);
+     fetchData();
   }
   Future<void> fetchData() async {
     Map<String, Object> body = {
@@ -218,56 +142,74 @@ class _PumpConditionScreenState extends State<PumpConditionScreen> {
       )
       ,
       floatingActionButton: FloatingActionButton(
+        backgroundColor: myTheme.primaryColorDark,
+        foregroundColor: Colors.white,
         onPressed: () => _sendData(),
         child: const Icon(Icons.send),
         tooltip: 'Send Data',
       ),
     );
   }
-
   String convertPumpDataToString(PumpConditionModel model) {
     final buffer = StringBuffer();
     final pumps = model.data?.pumpCondition ?? [];
     for (var pump in pumps) {
-      buffer.write(pump.hid ?? '');
+      buffer.write(pump.sNo ?? '');
       final selected = pump.selectedPumps ?? [];
       if (selected.isNotEmpty) {
         buffer.write(',');
         buffer.writeAll(
           selected.map((sp) => sp.hid ?? ''),
-          ',',
+          '_',
         );
       }
       buffer.write(';');
     }
     return buffer.toString();
   }
-
-  _sendData()
-  async {
+  _sendData() async {
     String mqttSendData = convertPumpDataToString(pumpConditionModel);
-
     var finaljson = pumpConditionModel.data?.toJson();
     Map<String, Object> body = {
       "userId": widget.userId,
       "controllerId": widget.controllerId,
       "pumpCondition": finaljson!['pumpCondition'],
       "createUser": widget.userId,
-      "controllerReadStatus": 0
+      "controllerReadStatus": "0"
     };
     final response = await HttpService()
         .postRequest("createUserPlanningPumpCondition", body);
     final jsonDataresponse = json.decode(response.body);
     GlobalSnackBar.show(
         context, jsonDataresponse['message'], response.statusCode);
-
-    String payLoadFinal = jsonEncode({
-      "700": [
-        {"708": mqttSendData},
+    Map<String, dynamic> payLoadFinal = {
+      "7100": [
+        {"7101": mqttSendData},
       ]
-    });
-    print(payLoadFinal);
-    // MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.imeiNo}');
+    };
+    if (MQTTManager().isConnected == true) {
+      await validatePayloadSent(
+        dialogContext: context,
+        context: context,
+        mqttPayloadProvider: mqttPayloadProvider,
+        acknowledgedFunction: () async {
+          setState(() {
+            body["controllerReadStatus"] = "1";
+          });
+
+          final response = await HttpService()
+              .postRequest("createUserPlanningPumpCondition", body);
+          final jsonDataResponse = json.decode(response.body);
+          GlobalSnackBar.show(
+              context, jsonDataResponse['message'], response.statusCode);
+        },
+        payload: payLoadFinal,
+        payloadCode: '7100',
+        deviceId: widget.imeiNo,
+      );
+    } else {
+      GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
+    }
   }
 
  }

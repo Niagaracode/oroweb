@@ -1401,7 +1401,6 @@ class _ConditionUIState extends State<ConditionUI>
                 },
                 value: usedProgramDropDownStr2,
               ),
-
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Center(

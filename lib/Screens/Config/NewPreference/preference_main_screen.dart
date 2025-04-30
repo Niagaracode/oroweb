@@ -124,7 +124,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                   children: <Widget>[
                     Expanded(
                       child: TabBarView(
-                        controller: _tabController,
+                         controller: _tabController,
                         physics: const NeverScrollableScrollPhysics(),
                         children: [
                           SettingsScreen(viewSettings: false, userId: widget.customerID,)
@@ -134,7 +134,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                   ],
                 ),
               ),
-              floatingActionButton: Row(
+              floatingActionButton: _tabController.index != 3 ? Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   if(preferenceProvider.passwordValidationCode == 200 && preferenceProvider.calibrationSetting![0].settingList[1].controllerReadStatus == "0"
@@ -300,7 +300,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                     child: Text("${preferenceProvider.passwordValidationCode == 200 ? "Send calibration": "Send preference"}", style: TextStyle(color: Colors.white),),
                   ),
                 ],
-              ),
+              ) : null,
               floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
             );
           }
