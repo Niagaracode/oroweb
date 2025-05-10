@@ -163,6 +163,10 @@ class _PumpConditionScreenState extends State<PumpConditionScreen> {
           '_',
         );
       }
+      else
+        {
+          buffer.write(',');
+        }
       buffer.write(';');
     }
     return buffer.toString();
@@ -170,23 +174,25 @@ class _PumpConditionScreenState extends State<PumpConditionScreen> {
   _sendData() async {
     String mqttSendData = convertPumpDataToString(pumpConditionModel);
     var finaljson = pumpConditionModel.data?.toJson();
+    Map<String, dynamic> payLoadFinal = {
+      "7100": [
+        {"7101": mqttSendData},
+      ]
+    };
     Map<String, Object> body = {
       "userId": widget.userId,
       "controllerId": widget.controllerId,
       "pumpCondition": finaljson!['pumpCondition'],
       "createUser": widget.userId,
-      "controllerReadStatus": "0"
+      "controllerReadStatus": "0",
+      "hardware" : payLoadFinal
     };
     final response = await HttpService()
         .postRequest("createUserPlanningPumpCondition", body);
     final jsonDataresponse = json.decode(response.body);
     GlobalSnackBar.show(
         context, jsonDataresponse['message'], response.statusCode);
-    Map<String, dynamic> payLoadFinal = {
-      "7100": [
-        {"7101": mqttSendData},
-      ]
-    };
+
     if (MQTTManager().isConnected == true) {
       await validatePayloadSent(
         dialogContext: context,
