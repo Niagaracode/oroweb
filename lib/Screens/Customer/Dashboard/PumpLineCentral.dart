@@ -425,8 +425,8 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
   final ValueNotifier<int> _popoverUpdateNotifier = ValueNotifier<int>(0);
 
   static const excludedReasons = [
-    '3', '4', '5', '6', '21', '22', '23', '24',
-    '25', '26', '27', '28', '29', '30', '31'
+    '1', '2', '3', '4', '5', '6', '7', '8',
+    '9', '10', '13', '14', '21', '29', '33'
   ];
 
   @override
@@ -891,7 +891,7 @@ class _DisplaySourcePumpState extends State<DisplaySourcePump> {
                                                     style: const TextStyle(fontSize: 11, color: Colors.black87, fontWeight: FontWeight.normal),
                                                   ),
                                                 )),
-                                                (!excludedReasons.contains(filteredPumps[index].reason)) ? SizedBox(
+                                                (excludedReasons.contains(filteredPumps[index].reason)) ? SizedBox(
                                                   height:23,
                                                   child: TextButton(
                                                     style: TextButton.styleFrom(
@@ -2115,7 +2115,7 @@ class _DisplayIrrigationPumpState extends State<DisplayIrrigationPump> {
                                         ],
                                       ),
                                     ),
-                                    (!excludedReasons.contains(filteredPumps[index].reason)) ? SizedBox(
+                                    (excludedReasons.contains(filteredPumps[index].reason)) ? SizedBox(
                                       height:23,
                                       child: TextButton(
                                         style: TextButton.styleFrom(

@@ -487,20 +487,24 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(child: DisplayIrrigationLine(irrigationLine: crrIrrLine, currentLineId: crrIrrLine.id, currentMaster: widget.siteData.master[widget.masterInx],
-                            rWidth: rdWidth, customerId: widget.customerId,),),
+                            rWidth: rdWidth, customerId: widget.customerId,)),
                           irrigationFlag !=2 ? Padding(
                             padding: const EdgeInsets.all(8),
                             child: TextButton(
                               onPressed: () {
                                 int prFlag = 0;
-                                List<dynamic> records = provider.payloadIrrLine;
+                                List<IrrigationLinePLD> records = provider.payloadIrrLine;
                                 int sNoToCheck = crrIrrLine.sNo;
-                                var record = records.firstWhere(
-                                      (record) => record['S_No'] == sNoToCheck,
-                                  orElse: () => null,
-                                );
-                                if (record != null) {
-                                  bool isIrrigationPauseFlagZero = record['IrrigationPauseFlag'] == 0;
+
+                                IrrigationLinePLD? record;
+                                try {
+                                  record = records.firstWhere((r) => r.sNo == sNoToCheck);
+                                } catch (e) {
+                                  record = null;
+                                }
+
+                                if (record!=null) {
+                                  bool isIrrigationPauseFlagZero = record.irrigationPauseFlag == 0;
                                   if (isIrrigationPauseFlagZero) {
                                     prFlag = 1;
                                   } else {
@@ -701,7 +705,6 @@ class _DisplayIrrigationLineState extends State<DisplayIrrigationLine> {
 
     if(widget.currentLineId=='all'){
       valveWidgets = [
-
         for (var line in widget.currentMaster.irrigationLine) ...[
           ...line.pressureSwitch.map((psw) => SensorWidget(sensor: psw,
             sensorType: 'Pressure Switch',
@@ -742,27 +745,22 @@ class _DisplayIrrigationLineState extends State<DisplayIrrigationLine> {
             ).data : {},
           )).toList(),
           ...line.agitator.map((ag) => AgitatorWidget(ag: ag, status: ag.status)).toList(),
-          /*...line.levelSensor.map((ls) => SensorWidget(
-            sensor: ls,
-            sensorType: 'Level Sensor',
-            imagePath: 'assets/images/level_sensor.png',
-            sensorData: sensors.isNotEmpty? sensors.firstWhere(
-                  (sensor) => sensor.name == 'Level Sensor',
-              orElse: () => AllMySensor(name: '', data: {}),
-            ).data : {},
-          )).toList(),*/
         ]
       ];
     }
     else{
       valveWidgets = [
-        ...widget.irrigationLine.pressureSwitch.map((psw) => SensorWidget(sensor: psw, sensorType: 'Pressure Switch', imagePath: 'assets/images/pressure_switch.png',
+        ...widget.irrigationLine.pressureSwitch.map((psw) => SensorWidget(sensor: psw,
+          sensorType: 'Pressure Switch',
+          imagePath: 'assets/images/pressure_switch.png',
           sensorData: sensors.isNotEmpty? sensors.firstWhere(
                 (sensor) => sensor.name == 'Pressure Switch',
             orElse: () => AllMySensor(name: '', data: {}),
           ).data : {},
         )).toList(),
-        ...widget.irrigationLine.pressureSensor.map((ps) => SensorWidget(sensor: ps, sensorType: 'Pressure Sensor', imagePath: 'assets/images/pressure_sensor.png',
+        ...widget.irrigationLine.pressureSensor.map((ps) => SensorWidget(sensor: ps,
+          sensorType: 'Pressure Sensor',
+          imagePath: 'assets/images/pressure_sensor.png',
           sensorData: sensors.isNotEmpty? sensors.firstWhere(
                 (sensor) => sensor.name == 'Pressure Sensor',
             orElse: () => AllMySensor(name: '', data: {}),
@@ -785,12 +783,6 @@ class _DisplayIrrigationLineState extends State<DisplayIrrigationLine> {
           ).data : {},
         )).toList(),
         ...widget.irrigationLine.agitator.map((ag) => AgitatorWidget(ag: ag, status: ag.status)).toList(),
-        /*...widget.irrigationLine.levelSensor.map((ls) => SensorWidget(sensor: ls, sensorType: 'Level Sensor', imagePath: 'assets/images/level_sensor.png',
-          sensorData: sensors.isNotEmpty? sensors.firstWhere(
-                (sensor) => sensor.name == 'Level Sensor',
-            orElse: () => AllMySensor(name: '', data: {}),
-          ).data : {},
-        )).toList(),*/
       ];
     }
 

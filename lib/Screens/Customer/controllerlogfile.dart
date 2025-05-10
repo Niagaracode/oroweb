@@ -345,6 +345,7 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
             {"5701": "$data"},
           ]
         };
+        print('payload code:$payloadCode');
         if (MQTTManager().isConnected == true) {
           await validatePayloadSent(
               dialogContext: context,
@@ -356,7 +357,6 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
               payload: payLoadFinal,
               payloadCode: payloadCode,
               deviceId: widget.deviceID,
-              maxWaitTime: 10
           );
         } else {
           GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);

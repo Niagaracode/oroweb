@@ -352,23 +352,13 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
         try{
           for(var oroPump in configPvd.serverData['referenceNo']['3']){
             var pumpCount = 0;
-            String masterSlave = '';
-            dynamic relay1;
-            dynamic relay2;
-            dynamic relay3;
+            List<String> masterSlave = [];
+            var maxPumpInPayload = 3;
             for(var pump in configPvd.sourcePumpUpdated){
               if(pump['deleted'] == false){
                 if(pump['rtu'] == 'ORO Pump'){
                   if(pump['rfNo'] == oroPump['referenceNumber'].toString()){
-                    var pumpData = '${masterSlave.isNotEmpty ? ',' : ''}${1}';
-                    if(pump['output'] == 'R1'){
-                      relay1 = pumpData;
-                    }else if(pump['output'] == 'R2'){
-                      relay2 = pumpData;
-                    }else{
-                      relay3 = pumpData;
-                    }
-                    // masterSlave += '${masterSlave.isNotEmpty ? ',' : ''}${1}';
+                    masterSlave.add('1');
                     pumpCount += 1;
                   }
                 }
@@ -378,23 +368,19 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
               if(pump['deleted'] == false){
                 if(pump['rtu'] == 'ORO Pump'){
                   if(pump['rfNo'] == oroPump['referenceNumber'].toString()){
-                    var pumpData = '${masterSlave.isNotEmpty ? ',' : ''}${2}';
-                    if(pump['output'] == 'R1'){
-                      relay1 = pumpData;
-                    }else if(pump['output'] == 'R2'){
-                      relay2 = pumpData;
-                    }else{
-                      relay3 = pumpData;
-                    }
-                    // masterSlave += '${masterSlave.isNotEmpty ? ',' : ''}${2}';
+                    masterSlave.add('2');
                     pumpCount += 1;
                   }
                 }
               }
             }
-            masterSlave += '${relay1 != null ? '$relay1' : ''}${relay2 != null ? '${relay1 != null ? ',' : ''}$relay2' : ''}${relay3 != null ? '${(relay1 != null || relay2 != null) ? ',' : ''}$relay3' : ''}';
+            int loopingLimit = maxPumpInPayload - masterSlave.length;
+            for(var pump = 0; pump < loopingLimit; pump++){
+              masterSlave.add('0');
+            }
+            String joinPump = masterSlave.join(',');
             if(pumpCount != 0){
-              var actualPumpPayload = convert.jsonEncode({"sentSms":"pumpconfig,$pumpCount,${oroPump['referenceNumber']},$masterSlave,${[1,2].contains(configPvd.categoryId) ? '1' : '0'}"});
+              var actualPumpPayload = convert.jsonEncode({"sentSms":"pumpconfig,$pumpCount,${oroPump['referenceNumber']},$joinPump,${[1,2].contains(configPvd.categoryId) ? '1' : '0'}"});
               var gemPumpPayload = convert.jsonEncode({
                 '5900' : [
                   {
@@ -436,7 +422,8 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
         try{
           for(var oroPumpPlus in configPvd.serverData['referenceNo']['4']){
             int pumpCount = 0;
-            String masterSlave = '';
+            List<String> masterSlave = [];
+            var maxPumpInPayload = 3;
             String tankPayLoad = '';
             for(var pump in configPvd.sourcePumpUpdated){
               if(pump['deleted'] == false){
@@ -451,7 +438,7 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
                   int pressureSensor = 0;
                   int waterMeter = 0;
                   if(pump['rfNo'] == oroPumpPlus['referenceNumber'].toString()){
-                    masterSlave += '${masterSlave.isNotEmpty ? ',' : ''}${1}';
+                    masterSlave.add('1');
                     pumpCount += 1;
                     if(pump['TopTankHigh'].isNotEmpty){
                       highTankPin = pump['TopTankHigh']['input'] == '-' ? 0 : int.parse(pump['TopTankHigh']['input'].split('-')[1]);
@@ -497,7 +484,7 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
                   var pressureSensor = 0;
                   var waterMeter = 0;
                   if(pump['rfNo'] == oroPumpPlus['referenceNumber'].toString()){
-                    masterSlave += '${masterSlave.isNotEmpty ? ',' : ''}${2}';
+                    masterSlave.add('1');
                     pumpCount += 1;
                     if(pump['TopTankHigh'].isNotEmpty){
                       highTankPin = pump['TopTankHigh']['input'] == '-' ? 0 : int.parse(pump['TopTankHigh']['input'].split('-')[1]);
@@ -530,7 +517,11 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
               }
             }
             if(pumpCount != 0){
-              var actualPumpPayload = convert.jsonEncode({"sentSms":"pumpconfig,$pumpCount,${oroPumpPlus['referenceNumber']},$masterSlave,${[1,2].contains(configPvd.categoryId) ? '1' : '0'}"});
+              for(var pump = 0;pump < (maxPumpInPayload - masterSlave.length);pump++){
+                masterSlave.add('0');
+              }
+              String joinPump = masterSlave.join(',');
+              var actualPumpPayload = convert.jsonEncode({"sentSms":"pumpconfig,$pumpCount,${oroPumpPlus['referenceNumber']},$joinPump,${[1,2].contains(configPvd.categoryId) ? '1' : '0'}"});
               var gemPumpPayload = convert.jsonEncode({
                 '5900' : [
                   {

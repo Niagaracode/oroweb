@@ -471,6 +471,15 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
     );
   }
 
+  int? getIrrigationPauseFlag(String line, List<IrrigationLinePLD> payload2408) {
+    for (var data in payload2408) {
+      if (data.line == line) {
+        return data.irrigationPauseFlag;
+      }
+    }
+    return null;
+  }
+
   Widget buildWideLayout(screenWidth, MqttPayloadProvider payload) {
 
     return Scaffold(
@@ -573,23 +582,61 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
 
             (mySiteList[siteIndex].master[masterIndex].categoryId == 1 ||
                 mySiteList[siteIndex].master[masterIndex].categoryId == 2) && mySiteList[siteIndex].master[masterIndex].irrigationLine.length>1?
-            DropdownButton(
+            DropdownButton<String>(
               underline: Container(),
               items: (mySiteList[siteIndex].master[masterIndex].irrigationLine ?? []).map((line) {
-                return DropdownMenuItem(
+                return DropdownMenuItem<String>(
                   value: line.name,
-                  child: Text(line.name, style: const TextStyle(color: Colors.white, fontSize: 17),),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(line.name, style: const TextStyle(color: Colors.white, fontSize: 16)),
+                            if (getIrrigationPauseFlag(line.id, Provider.of<MqttPayloadProvider>(context).payloadIrrLine) == 1)
+                              const Text('The line paused', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                      if (getIrrigationPauseFlag(line.id,
+                          Provider.of<MqttPayloadProvider>(context).payloadIrrLine) == 1)
+                        const Icon(Icons.warning, color: Colors.orange, size: 20),
+                    ],
+                  ),
                 );
               }).toList(),
+
+              selectedItemBuilder: (context) {
+                bool anyLinePaused = (mySiteList[siteIndex].master[masterIndex].irrigationLine ?? []).any((line) {
+                  int? flag = getIrrigationPauseFlag(line.id, Provider.of<MqttPayloadProvider>(context).payloadIrrLine);
+                  return flag == 1;
+                });
+
+                return (mySiteList[siteIndex].master[masterIndex].irrigationLine ?? []).map((line) {
+                  return Row(
+                    children: [
+                      if (anyLinePaused) const Icon(Icons.warning, color: Colors.orange, size: 20),
+                      if (anyLinePaused) const SizedBox(width: 5),
+                      Text(line.name, style: const TextStyle(color: Colors.white, fontSize: 16)),
+                    ],
+                  );
+                }).toList();
+              },
+
               onChanged: (newLineName) {
-                int lIndex = mySiteList[siteIndex].master[masterIndex].irrigationLine.indexWhere((line)
-                => line.name == newLineName);
-                if (lineIndex != -1 && mySiteList[siteIndex].master[masterIndex].irrigationLine.length > 1) {
+                int lIndex = mySiteList[siteIndex].master[masterIndex].irrigationLine.indexWhere(
+                      (line) => line.name == newLineName,
+                );
+                if (lIndex != -1 && mySiteList[siteIndex].master[masterIndex].irrigationLine.length > 1) {
                   lineIndex = lIndex;
-                  fromWhere='line';
+                  fromWhere = 'line';
                   updateMasterLine(siteIndex, masterIndex, lIndex);
                 }
               },
+
               value: _myCurrentIrrLine,
               dropdownColor: Colors.teal,
               iconEnabledColor: Colors.white,
@@ -601,8 +648,9 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
             Text(mySiteList[siteIndex].master[masterIndex].irrigationLine.isNotEmpty?mySiteList[siteIndex].master[masterIndex].irrigationLine[0].name:'Line empty', style: const TextStyle(fontSize: 17),):
             const SizedBox(),
 
-            const SizedBox(width: 15,),
+            const SizedBox(width: 10),
             Container(width: 1, height: 20, color: Colors.white54,),
+
             const SizedBox(width: 5,),
             Container(
               decoration: BoxDecoration(
@@ -696,59 +744,27 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> wit
                 padding: const EdgeInsets.all(8),
                 child: TextButton(
                   onPressed: () {
-                    print(payload.payloadIrrLine);
-                    List<dynamic> records = payload.payloadIrrLine;
-                    for (var record in records) {
-                      print(record['S_No']);
+                    int prFlag = 0;
+                    List<IrrigationLinePLD> records = payload.payloadIrrLine;
+                    bool isIrrigationPauseFlagZero = records[0].irrigationPauseFlag == 0;
+                    if (isIrrigationPauseFlagZero) {
+                      prFlag = 1;
+                    } else {
+                      prFlag = 0;
                     }
-                    /*var record = records.firstWhere((record) => record['S_No'] == mySiteList[siteIndex].master[masterIndex].irrigationLine[0].sNo,
-                      orElse: () => null,
-                    );
-                    if (record != null) {
-                      String payLoadFinal = jsonEncode({
-                        "4900": [{
-                          "4901": "${mySiteList[siteIndex].master[masterIndex].irrigationLine[0].sNo}, ${record['IrrigationPauseFlag'] == 0?1:0}",
-                        }
-                        ]
-                      });
-                      MQTTManager().publish(payLoadFinal, 'AppToFirmware/${mySiteList[siteIndex].master[masterIndex].deviceId}');
-                      if(payload.payloadIrrLine[0].irrigationPauseFlag == 1){
-                        sentToServer('Resumed the Irrigation line', payLoadFinal);
-                      }else{
-                        sentToServer('Paused the Irrigation line', payLoadFinal);
+                    String payLoadFinal = jsonEncode({
+                      "4900": [{
+                        "4901": "${records[0].sNo}, $prFlag",
                       }
+                      ]
+                    });
 
-                    } else {
-                      const GlobalSnackBar(code: 200, message: 'Controller connection lost...');
-                    }*/
-                    /*int prFlag = 0;
-                    List<dynamic> records = payload.payloadIrrLine;
-                    int sNoToCheck = payload.payloadIrrLine[0].sNo;
-                    var record = records.firstWhere(
-                          (record) => record['S_No'] == sNoToCheck,
-                      orElse: () => null,
-                    );
-                    if (record != null) {
-                      bool isIrrigationPauseFlagZero = record['IrrigationPauseFlag'] == 0;
-                      if (isIrrigationPauseFlagZero) {
-                        prFlag = 1;
-                      } else {
-                        prFlag = 0;
-                      }
-                      String payLoadFinal = jsonEncode({
-                        "4900": [{
-                          "4901": "$sNoToCheck, $prFlag",
-                        }]
-                      });
-                      MQTTManager().publish(payLoadFinal, 'AppToFirmware/${mySiteList[siteIndex].master[masterIndex].deviceId}');
-                      if(payload.payloadIrrLine[0].irrigationPauseFlag == 1){
-                        sentToServer('Resumed the Irrigation line', payLoadFinal);
-                      }else{
-                        sentToServer('Paused the Irrigation line', payLoadFinal);
-                      }
-                    } else {
-                      const GlobalSnackBar(code: 200, message: 'Controller connection lost...');
-                    }*/
+                    MQTTManager().publish(payLoadFinal, 'AppToFirmware/${mySiteList[siteIndex].master[masterIndex].deviceId}');
+                    if(records[0].irrigationPauseFlag == 1){
+                      sentToServer('Resumed the ${records[0].swName}', payLoadFinal);
+                    }else{
+                      sentToServer('Paused the ${records[0].swName}', payLoadFinal);
+                    }
                   },
                   style: ButtonStyle(
                     backgroundColor: WidgetStateProperty.all<Color>(payload.payloadIrrLine[0].irrigationPauseFlag == 1 ? Colors.green : Colors.orange),

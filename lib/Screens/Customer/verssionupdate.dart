@@ -474,30 +474,30 @@ class _ResetVerssionState extends State<ResetVerssion> {
                           )),
                         ],
                       ),
-                      SizedBox(),
-                      Row(children: [ Spacer(),TextButton(
-                        onPressed: () {
-
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('Cancel'),
-                      ),
-                        TextButton(
-                          onPressed: () {
-                            String freq1 = frequency1Controller.text;
-                            String sf1 = sf1Controller.text;
-                            bool isValidFreq1 = _isValidFrequency(freq1) && sf1.isNotEmpty;
-                            if(isValidFreq1)
-                            {
-                              FrequnceAll();
-                              Navigator.of(context).pop();
-                            }
-                            else {
-                              _showErrorDialog(context);
-                            }
-                          },
-                          child: const Text('Send'),
-                        ),],)
+                      // SizedBox(),
+                      // Row(children: [ Spacer(),TextButton(
+                      //   onPressed: () {
+                      //
+                      //     Navigator.of(context).pop();
+                      //   },
+                      //   child: const Text('Cancel'),
+                      // ),
+                      //   TextButton(
+                      //     onPressed: () {
+                      //       String freq1 = frequency1Controller.text;
+                      //       String sf1 = sf1Controller.text;
+                      //       bool isValidFreq1 = _isValidFrequency(freq1) && sf1.isNotEmpty;
+                      //       if(isValidFreq1)
+                      //       {
+                      //         FrequnceAll();
+                      //         Navigator.of(context).pop();
+                      //       }
+                      //       else {
+                      //         _showErrorDialog(context);
+                      //       }
+                      //     },
+                      //     child: const Text('Send'),
+                      //   ),],)
 
                     ],
                   ),
@@ -579,8 +579,6 @@ class _ResetVerssionState extends State<ResetVerssion> {
                     _showErrorDialog(context);
                   }
                 }
-
-
               },
               child: const Text('Send'),
             ),

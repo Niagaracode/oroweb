@@ -1260,6 +1260,7 @@ Future<void> validatePayloadSent({
       },
     );
 
+
     while (elapsedTime < maxWaitTime) {
       await Future.delayed(const Duration(seconds: 1));
       elapsedTime++;
@@ -1269,9 +1270,7 @@ Future<void> validatePayloadSent({
         break;
       }
     }
-
     Navigator.of(context).pop();
-
     if (isAcknowledged) {
       if (mqttPayloadProvider.messageFromHw['Code'] == "200") {
         acknowledgedFunction();

@@ -88,6 +88,9 @@ class MqttPayloadProvider with ChangeNotifier {
           notifyListeners();
         }
       }
+      if(data['PayloadCode'] == '5700'){
+        messageFromHw = data;
+      }
       if(data.containsKey('cM')){
         messageFromHw = data;
       }

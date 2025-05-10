@@ -2002,11 +2002,8 @@ print("usedProgramDropDownStr2$usedProgramDropDownStr2");
         } else {
           conditionIsTrueWhenValue = ",,,";
         }
-
-       enableValue == '1' ? mqttData +=
+        (enableValue == '1' && conditionIsTrueWhenValue != ",,,") ? mqttData +=
           '${item.sNo},${item.name},$enableValue,${item.duration},${item.fromTime},${item.untilTime == "00:00:00" ? "23:59:59" : item.untilTime},$notifigation,$conditionIsTrueWhenValue,$conditionBypass,${item.conditionIsTrueWhen?.contains('Combined') == true ? '${item.dropdown1}  ${item.dropdown2} ${item.dropdownValue} ${item.dropdown3}' : item.conditionIsTrueWhen};' : '';
-
-
 
       });
     }
