@@ -484,7 +484,7 @@ class _FinishPageConfigMakerState extends State<FinishPageConfigMaker> {
                   var pressureSensor = 0;
                   var waterMeter = 0;
                   if(pump['rfNo'] == oroPumpPlus['referenceNumber'].toString()){
-                    masterSlave.add('1');
+                    masterSlave.add('2');
                     pumpCount += 1;
                     if(pump['TopTankHigh'].isNotEmpty){
                       highTankPin = pump['TopTankHigh']['input'] == '-' ? 0 : int.parse(pump['TopTankHigh']['input'].split('-')[1]);

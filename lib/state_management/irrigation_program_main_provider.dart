@@ -464,23 +464,60 @@ class IrrigationProgramProvider extends ChangeNotifier {
   List<String> scheduleOptions = ['DO NOTHING', 'DO ONE TIME', 'DO WATERING', 'DO FERTIGATION'];
 
   void initializeDropdownValues(numberOfDays, existingDays, type) {
-    if (sampleScheduleModel!.scheduleAsRunList.schedule['type'].isEmpty || int.parse(existingDays) == 0) {
-      sampleScheduleModel!.scheduleAsRunList.schedule['type'] = List.generate(int.parse(numberOfDays), (index) => scheduleOptions[2]);
+    print("numberOfDays: $numberOfDays, existingDays: $existingDays, type: $type");
+
+    // Parse inputs safely
+    int numDays;
+    int exDays;
+    try {
+      numDays = int.parse(numberOfDays);
+      exDays = int.parse(existingDays);
+    } catch (e) {
+      print("Error parsing inputs: $e");
+      return; // Or set default values
+    }
+
+    // Validate inputs
+    if (numDays < 0 || exDays < 0) {
+      print("Invalid input: numberOfDays or existingDays cannot be negative");
+      return;
+    }
+
+    // Get current schedule
+    List schedule = sampleScheduleModel?.scheduleAsRunList.schedule['type'] ?? [];
+
+    // Validate existingDays against actual schedule length
+    exDays = exDays.clamp(0, schedule.length);
+
+    // If schedule is empty or exDays is 0, initialize with default values
+    if (schedule.isEmpty || exDays == 0) {
+      schedule = List.generate(numDays, (index) => scheduleOptions[2]);
     } else {
-      if (int.parse(numberOfDays) != int.parse(existingDays)) {
-        if (int.parse(numberOfDays) < int.parse(existingDays)) {
-          for (var i = 0; i < int.parse(existingDays); i++) {
-            sampleScheduleModel!.scheduleAsRunList.schedule['type'][i] = type[i];
-          }
+      if (numDays != exDays) {
+        if (numDays < exDays) {
+          // Truncate schedule to numDays
+          schedule = schedule.sublist(0, numDays.clamp(0, schedule.length));
         } else {
-          var newDays = int.parse(numberOfDays) - int.parse(existingDays);
-          for (var i = 0; i < newDays; i++) {
-            sampleScheduleModel!.scheduleAsRunList.schedule['type'].add(scheduleOptions[2]);
-          }
+          // Extend schedule with default values
+          int newDays = numDays - exDays;
+          schedule.addAll(List.generate(newDays, (index) => scheduleOptions[2]));
         }
       }
+      // If numDays == exDays, keep current schedule
     }
-    // print(type);
+
+    // Ensure schedule length matches numDays
+    if (schedule.length > numDays) {
+      schedule = schedule.sublist(0, numDays);
+    } else if (schedule.length < numDays) {
+      int shortfall = numDays - schedule.length;
+      schedule.addAll(List.generate(shortfall, (index) => scheduleOptions[2]));
+    }
+
+    // Update the model
+    sampleScheduleModel!.scheduleAsRunList.schedule['type'] = schedule;
+
+    print("Updated schedule: $schedule");
     notifyListeners();
   }
 
@@ -2832,10 +2869,12 @@ class IrrigationProgramProvider extends ChangeNotifier {
   String get formattedScheduleByDayEndDate => formatter.format(scheduleByDayEndDate);
 
   dynamic getDaySelectionMode() {
-    List typeData = _sampleScheduleModel!.scheduleAsRunList.schedule['type'];
+    final schedule = _sampleScheduleModel!.scheduleAsRunList.schedule;
     var selectionModeList = [];
-    for(var i = 0; i < typeData.length; i++) {
-      switch(typeData[i]) {
+    print('${schedule['noOfDays']}');
+    print('${schedule['type']}');
+    for(var i = 0; i < int.parse(schedule['noOfDays'].isNotEmpty ? schedule['noOfDays'] : '1'); i++) {
+      switch(schedule['type'][i]) {
         case "DO NOTHING":
           selectionModeList.add(0);
           break;

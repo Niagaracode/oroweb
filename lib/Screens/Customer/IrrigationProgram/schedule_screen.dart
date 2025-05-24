@@ -919,7 +919,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 child: Center(
                   child: Row(
                     children: [
-                      for(var index = 0; index < int.parse(noOfDays); index++)
+                      for (var index = 0; index < int.parse(noOfDays) && index < type.length && index < days.length; index++)
                         Row(
                           children: [
                             buildPopUpMenuButton(

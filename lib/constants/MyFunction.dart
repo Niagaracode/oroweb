@@ -485,6 +485,7 @@ String changeDateFormat(String dateString) {
 }
 
 String getSensorUnit(String type, BuildContext context) {
+
   if(type.contains('Moisture')||type.contains('SM')){
     return 'Values in Cb';
   }
@@ -569,3 +570,6 @@ String getOutputInputCount(String cName) {
       return '0_0';
   }
 }
+
+
+

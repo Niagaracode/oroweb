@@ -7,12 +7,14 @@ import 'package:oro_irrigation_new/Screens/Customer/controllerlogfile.dart';
 
 
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../constants/MQTTManager.dart';
 import '../../../constants/http_service.dart';
 import '../../constants/snack_bar.dart';
 import '../../screens/Customer/IrrigationProgram/program_library.dart';
 import '../../state_management/MqttPayloadProvider.dart';
+import 'configureMqttTopic.dart';
 
 
 class ResetVerssion extends StatefulWidget {
@@ -40,6 +42,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
   int checkrst = 0;
   int? selectindex;
   int checkupdatediable = 0;
+  String? userType;
 
   valAssing(List<dynamic> data) {
     mergedList = [];
@@ -87,6 +90,12 @@ class _ResetVerssionState extends State<ResetVerssion> {
     }
   }
 
+   checkrole() async {
+    final prefs = await SharedPreferences.getInstance();
+    userType = (prefs.getString('userType') ?? "");
+  }
+
+
   @override
   void initState() {
     // TODO: implement initState
@@ -94,7 +103,9 @@ class _ResetVerssionState extends State<ResetVerssion> {
     mqttPayloadProvider =
         Provider.of<MqttPayloadProvider>(context, listen: false);
     fetchData();
+    checkrole();
   }
+
 
   ResetAll(int index) async {
     sendHttp("2","Controller Restart");
@@ -157,6 +168,8 @@ class _ResetVerssionState extends State<ResetVerssion> {
     mqttPayloadProvider =
         Provider.of<MqttPayloadProvider>(context, listen: true);
     status();
+
+
     return Scaffold(
       backgroundColor: Colors.teal.shade100,
       appBar: AppBar(
@@ -211,6 +224,24 @@ class _ResetVerssionState extends State<ResetVerssion> {
                             },
                             icon: const Icon(Icons.arrow_circle_right_outlined),
                           ),
+                          //ConfigureMqtt
+                          userType == '1' ? IconButton(
+                            style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all(
+                                    Colors.teal.shade100)),
+                            onPressed: () {
+                              setState(() {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ConfigureMqtt(
+                                        deviceID: mergedList[index]['deviceId']!),
+                                  ),
+                                );
+                              });
+                            },
+                            icon: const Icon(Icons.settings),
+                          ) : Container(),
                           mergedList[index]['categoryName']!.contains('ORO GEM') ? IconButton(
                             style: ButtonStyle(
                                 backgroundColor: MaterialStateProperty.all(
